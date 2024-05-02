@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - sui-state-proofs
+      - sui-state-proofs-build
 
 jobs:
   build-and-push:
