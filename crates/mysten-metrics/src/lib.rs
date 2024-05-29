@@ -346,6 +346,27 @@ pub fn uptime_metric(
     Box::new(metric)
 }
 
+pub fn party_epoch_mpc_keys_metric(
+    protocol_public_key_base64: &str,
+    signature_mpc_tiresias_base64: &str,
+) -> Box<dyn prometheus::core::Collector> {
+    let opts = prometheus::opts!("party_epoch_mpc_keys", "party epoch mpc keys")
+        .variable_label("protocol_public_key_base64")
+        .variable_label("signature_mpc_tiresias_base64");
+
+    let start_time = std::time::Instant::now();
+    let uptime = move || start_time.elapsed().as_secs();
+    let metric = prometheus_closure_metric::ClosureMetric::new(
+        opts,
+        prometheus_closure_metric::ValueType::Counter,
+        uptime,
+        &[protocol_public_key_base64, signature_mpc_tiresias_base64],
+    )
+        .unwrap();
+
+    Box::new(metric)
+}
+
 #[cfg(test)]
 mod tests {
     use crate::RegistryService;

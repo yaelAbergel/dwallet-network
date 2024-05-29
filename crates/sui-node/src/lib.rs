@@ -22,6 +22,8 @@ use std::str::FromStr;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use std::time::Duration;
+use fastcrypto::encoding::Base64;
+use fastcrypto::traits::EncodeDecodeBase64;
 use sui_core::authority::CHAIN_IDENTIFIER;
 use sui_core::consensus_adapter::SubmitToConsensus;
 use sui_json_rpc_api::JsonRpcMetrics;
@@ -38,6 +40,7 @@ use tokio::task::JoinHandle;
 use tower::ServiceBuilder;
 use tracing::{debug, error, warn};
 use tracing::{error_span, info, Instrument};
+use fastcrypto::encoding::Encoding;
 
 use checkpoint_executor::CheckpointExecutor;
 use fastcrypto_zkp::bn254::zk_login::JWK;
@@ -1078,6 +1081,20 @@ impl SuiNode {
             &registry_service.default_registry(),
         )
         .await?;
+
+        let tiresias_public_parameters = epoch_store.protocol_config().signature_mpc_tiresias_public_parameters().unwrap();
+
+        let signature_mpc_tiresias = config.signature_mpc_tiresias().expect("signature_mpc_tiresias should be populated");
+
+        let signature_mpc_tiresias_base64 = Base64::encode(&bcs::to_bytes(&signature_mpc_tiresias).unwrap());
+        let protocol_public_key_base64 = config.protocol_public_key().encode_base64();
+
+        registry_service.default_registry()
+            .register(mysten_metrics::party_epoch_mpc_keys_metric(
+                &protocol_public_key_base64,
+                &signature_mpc_tiresias_base64,
+            ))
+            .unwrap();
 
 
         Self::start_epoch_specific_validator_components(
