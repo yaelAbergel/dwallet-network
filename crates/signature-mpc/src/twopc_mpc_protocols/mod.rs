@@ -495,7 +495,6 @@ pub fn generate_proof(
     decryption_key_share: DecryptionKeyShare,
     designated_decrypting_party_id: PartyID,
     presign: DecentralizedPartyPresign,
-    // encryption_scheme_public_parameters: EncryptionKey::PublicParameters,
     encryption_scheme_public_parameters: <EncryptionKey as AdditivelyHomomorphicEncryptionKey<
         PLAINTEXT_SPACE_SCALAR_LIMBS,
     >>::PublicParameters,
@@ -514,7 +513,6 @@ pub fn generate_proof(
     )
     .unwrap();
 
-    // Q: does it ever return an error?
     proof_party
         .prove_correct_signature_partial_decryption(&mut OsRng)
         .unwrap() // TODO: handle error or not - this error should never occur

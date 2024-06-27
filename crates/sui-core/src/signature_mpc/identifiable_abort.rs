@@ -4,11 +4,13 @@ use crate::signature_mpc::sign_state::SignState;
 use crate::signature_mpc::submit_to_consensus::SubmitSignatureMPC;
 use dashmap::DashMap;
 use mysten_metrics::spawn_monitored_task;
+use signature::rand_core::CryptoRngCore;
 use signature_mpc::decrypt::PartialDecryptionProof;
 use signature_mpc::twopc_mpc_protocols;
 use signature_mpc::twopc_mpc_protocols::{
-    generate_proof, identify_malicious_parties, AdditivelyHomomorphicDecryptionKeyShare,
-    DecryptionKeyShare, PaillierModulusSizedNumber, PartyID, ProofParty,
+    identify_malicious_parties, signature_partial_decryption_verification_round,
+    AdditivelyHomomorphicDecryptionKeyShare, DecryptionKeyShare, PaillierModulusSizedNumber, PartyID,
+    ProofParty,
 };
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
@@ -166,3 +168,26 @@ pub fn spawn_generate_proof(
         }
     });
 }
+
+
+// write a test for the generate proofs function
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     use signature_mpc::twopc_mpc_protocols::PaillierModulusSizedNumber;
+//     use signature_mpc::decrypt::PartialDecryptionProof;
+//
+//     #[test]
+//     fn test_generate_proofs() {
+//         // Setup dummy data
+//         let state = SignState::new();
+//
+//         let failed_messages_indices = vec![0];
+//
+//         // Call the function
+//         let proofs = generate_proofs(&state, &failed_messages_indices);
+//
+//         // Validate the result
+//         assert!(!proofs.is_empty());
+//     }
+// }

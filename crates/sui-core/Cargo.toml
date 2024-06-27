@@ -106,6 +106,7 @@ move-symbol-pool.workspace = true
 
 sui-test-transaction-builder.workspace = true
 sui-types = { workspace = true, features = ["test-utils"] }
+mockall = "0.12.1"
 
 [target.'cfg(not(target_env = "msvc"))'.dev-dependencies]
 pprof.workspace = true
