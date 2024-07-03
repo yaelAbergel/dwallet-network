@@ -221,7 +221,8 @@ pub fn recovery_id_sha256(
 
 #[wasm_bindgen]
 pub fn generate_keypair() -> String {
-    "itayush".to_string()
+    response = DecryptionKey::generate(&mut OsRng)
+
 }
 
 #[derive(Serialize, Deserialize)]

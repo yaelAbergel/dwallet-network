@@ -7,7 +7,7 @@ import {
 	approveAndSign,
 	createDWallet,
 	createPartialUserSignedMessages, generate_keypair
-} from "../../src/signature-mpc";
+} from '../../src/signature-mpc';
 import { setup, TestToolbox } from './utils/setup';
 
 describe('Test signature mpc', () => {

@@ -484,3 +484,7 @@ pub fn recovery_id(message: Vec<u8>, public_key: PublicKeyValue, signature: Sign
         Hash::SHA256 => RecoveryId::trial_recovery_from_digest(&verifying_key, sha2::Sha256::new_with_prefix(message), &signature)
     }
 }
+
+pub fn generate_keypair() {
+    DecryptionKey::generate(&mut OsRng);
+}
