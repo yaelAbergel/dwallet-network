@@ -1,5 +1,5 @@
 module dwallet_system::dwallet_transfer {
-    use dwallet::object::{Self, UID, ID};
+    use dwallet::object::{Self, UID};
     use dwallet::tx_context::{TxContext};
 
     struct PallierPublicKey has key, store {
