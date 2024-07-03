@@ -219,6 +219,11 @@ pub fn recovery_id_sha256(
     })?.into())
 }
 
+#[wasm_bindgen]
+pub fn generate_keypair() -> String {
+    "itayush".to_string()
+}
+
 #[derive(Serialize, Deserialize)]
 /// Error type for better JS handling and generalization
 /// of Rust / WASM -> JS error conversion.
