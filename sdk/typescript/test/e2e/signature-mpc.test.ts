@@ -6,8 +6,8 @@ import { beforeAll, describe, it } from 'vitest';
 import {
 	approveAndSign,
 	createDWallet,
-	createPartialUserSignedMessages,
-} from '../../src/signature-mpc';
+	createPartialUserSignedMessages, generate_keypair
+} from "../../src/signature-mpc";
 import { setup, TestToolbox } from './utils/setup';
 
 describe('Test signature mpc', () => {
@@ -65,6 +65,7 @@ describe('Test signature mpc', () => {
 
 describe('Test key share transfer', () => {
 	it('should generate a paillier keypair', async () => {
-		console.log('test');
+		const keypair = generate_keypair();
+		console.log(keypair);
 	});
 });
