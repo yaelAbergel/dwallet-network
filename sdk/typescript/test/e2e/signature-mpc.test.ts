@@ -62,3 +62,9 @@ describe('Test signature mpc', () => {
 		console.log(sigKECCAK256);
 	});
 });
+
+describe('Test key share transfer', () => {
+	it('should generate a paillier keypair', async () => {
+		console.log('test');
+	});
+});
