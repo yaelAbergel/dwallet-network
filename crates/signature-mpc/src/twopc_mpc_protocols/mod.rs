@@ -486,9 +486,9 @@ pub fn recovery_id(message: Vec<u8>, public_key: PublicKeyValue, signature: Sign
 }
 
 pub fn generate_keypair() -> Vec<u8> {
-    let (public_parameters, _) = DecryptionKey::generate(&mut OsRng).unwrap();
-    // let mut serialized_public_key = Vec::new();
-    bincode::serialize(&public_parameters).unwrap()
+    let (public_key, private_key) = DecryptionKey::generate(&mut OsRng).unwrap();
+    let ser_sk = bincode::serialize(&private_key).unwrap();
+    bincode::serialize(&public_key).unwrap()
     // public_parameters.serialize(&mut serialized_public_key).unwrap();
     // return serialized_public_key;
 }
