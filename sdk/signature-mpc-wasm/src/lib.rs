@@ -3,7 +3,7 @@
 
 use rand_core::OsRng;
 use serde::{Deserialize, Serialize};
-use signature_mpc::twopc_mpc_protocols::finalize_centralized_party_presign;
+use signature_mpc::twopc_mpc_protocols::{DecryptionKey, finalize_centralized_party_presign, generate_keypair};
 use signature_mpc::twopc_mpc_protocols::finalize_centralized_party_sign;
 use signature_mpc::twopc_mpc_protocols::initiate_centralized_party_presign;
 use signature_mpc::twopc_mpc_protocols::initiate_centralized_party_sign;
@@ -220,9 +220,8 @@ pub fn recovery_id_sha256(
 }
 
 #[wasm_bindgen]
-pub fn generate_keypair() -> String {
-    response = DecryptionKey::generate(&mut OsRng)
-
+pub fn generate_the_keypair() -> DecryptionKey {
+    generate_keypair()
 }
 
 #[derive(Serialize, Deserialize)]

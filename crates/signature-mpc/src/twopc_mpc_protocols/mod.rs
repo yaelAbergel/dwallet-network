@@ -36,7 +36,7 @@ pub use tiresias::{
     LargeBiPrimeSizedNumber, PaillierModulusSizedNumber, SecretKeyShareSizedNumber,
     AdjustedLagrangeCoefficientSizedNumber
 };
-use tiresias::{EncryptionKey};
+pub use tiresias::{DecryptionKey, EncryptionKey};
 use twopc_mpc::paillier::PLAINTEXT_SPACE_SCALAR_LIMBS;
 pub use twopc_mpc::secp256k1::{SCALAR_LIMBS, GroupElement, Scalar};
 pub use twopc_mpc::secp256k1::paillier::bulletproofs::{
@@ -485,6 +485,6 @@ pub fn recovery_id(message: Vec<u8>, public_key: PublicKeyValue, signature: Sign
     }
 }
 
-pub fn generate_keypair() {
-    DecryptionKey::generate(&mut OsRng);
+pub fn generate_keypair() -> DecryptionKey {
+    DecryptionKey::generate(&mut OsRng).unwrap().1
 }
