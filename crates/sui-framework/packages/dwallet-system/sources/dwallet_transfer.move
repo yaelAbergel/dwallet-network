@@ -2,32 +2,25 @@
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 
 module dwallet_system::dwallet_transfer {
-    use dwallet::object::{Self, UID};
+    use dwallet::object::{Self, UID, ID};
     use dwallet::tx_context::{TxContext};
-    use dwallet::vec_map::{VecMap};
     use dwallet::transfer;
+    use dwallet::tx_context;
 
-    struct AddressToPublicKeyMap has key {
-        id: UID,
-        map: VecMap<UID, vector<u8>>,
-    }
-
-    fun init(ctx: &mut TxContext) {
-        transfer::share_object(AddressToPublicKeyMap {
-            id: object::new(ctx),
-            map: VecMap::new()
-        })
-    }
-
-    struct PallierPublicKey has key, store {
+    struct PublicKey has key {
         id: UID,
         public_key: vector<u8>,
+        key_owner_address: address,
     }
 
-    public fun create_public_key(ctx: &mut TxContext, public_key: vector<u8>): PallierPublicKey {
-        PallierPublicKey {
+    public fun store_public_key(ctx: &mut TxContext, key: vector<u8>): UID {
+        let pk = PublicKey {
             id: object::new(ctx),
-            public_key,
-        }
+            public_key: key,
+            key_owner_address: tx_context::sender(ctx),
+        };
+        let id = pk.id;
+        transfer::freeze_object(pk);
+        id
     }
 }
