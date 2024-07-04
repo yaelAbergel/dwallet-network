@@ -67,3 +67,24 @@ export async function approveAndSign(
 		  }
 		: null;
 }
+
+export const storePublicKey = async (
+	public_key: Uint8Array,
+	keypair: Keypair,
+	client: DWalletClient,
+) => {
+	const tx = new TransactionBlock();
+	tx.moveCall({
+		target: `${packageId}::dwallet_transfer::store_public_key`,
+		arguments: [tx.pure(bcs.vector(bcs.u8()).serialize(public_key))],
+		// tx.pure(bcs.vector(bcs.vector(bcs.u8())).serialize(messages))
+	});
+	const result = await client.signAndExecuteTransactionBlock({
+		signer: keypair,
+		transactionBlock: tx,
+		options: {
+			showEffects: true,
+		},
+	});
+	console.log(result);
+};
