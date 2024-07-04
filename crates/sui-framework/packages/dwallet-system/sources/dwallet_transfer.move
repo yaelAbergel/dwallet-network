@@ -13,14 +13,14 @@ module dwallet_system::dwallet_transfer {
         key_owner_address: address,
     }
 
-    public fun store_public_key(ctx: &mut TxContext, key: vector<u8>): UID {
+    public fun store_public_key(ctx: &mut TxContext, key: vector<u8>): ID {
         let pk = PublicKey {
             id: object::new(ctx),
             public_key: key,
             key_owner_address: tx_context::sender(ctx),
         };
-        let id = pk.id;
+        let pk_id = object::id(&pk);
         transfer::freeze_object(pk);
-        id
+        pk_id
     }
 }
