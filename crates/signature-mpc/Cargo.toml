@@ -19,7 +19,7 @@ homomorphic_encryption = { git = "https://github.com/dwallet-labs/homomorphic-en
 commitment = { git = "https://github.com/dwallet-labs/commitment.git" }
 maurer = { git = "https://github.com/dwallet-labs/maurer.git" }
 enhanced_maurer = { git = "https://github.com/dwallet-labs/enhanced-maurer.git" }
-tiresias = { git = "https://github.com/ItayLevyOfficial/tiresias", branch = "ItayLevyOfficial/serialize-decryption-key", features = ["test_exports"] }
+tiresias = { git = "https://github.com/dwallet-labs/tiresias.git", features = ["test_exports"] }
 ecdsa = { version = "0.16.9", features = ["verifying"] }
 # todo: ?
 k256 = { git = 'https://github.com/ycscaly/elliptic-curves.git', branch = "13.3-fixed", features = ["arithmetic", "critical-section", "precomputed-tables", "serde", "ecdsa", "hash2curve", "alloc"], default-features = false }

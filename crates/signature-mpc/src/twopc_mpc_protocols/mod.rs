@@ -485,11 +485,14 @@ pub fn recovery_id(message: Vec<u8>, public_key: PublicKeyValue, signature: Sign
     }
 }
 
-pub fn generate_keypair() -> (Vec<u8>, Vec<u8>) {
-    let (public_key, private_key) = DecryptionKey::generate(&mut OsRng).unwrap();
-    let ser_sk = bincode::serialize(&private_key).unwrap();
-    let ser_pk = bincode::serialize(&public_key).unwrap();
-    (ser_pk, ser_sk)
+// pub fn generate_keypair() -> (Vec<u8>, Vec<u8>) {
+pub fn generate_keypair() -> Vec<u8> {
+    // let (public_key, private_key) = DecryptionKey::generate(&mut OsRng).unwrap();
+    // let ser_sk = bincode::serialize(&private_key).unwrap();
+    // let ser_pk = bincode::serialize(&public_key).unwrap();
+    // (ser_pk, ser_sk)
+    let (public_key, _) = DecryptionKey::generate(&mut OsRng).unwrap();
+    bincode::serialize(&public_key).unwrap()
     // public_parameters.serialize(&mut serialized_public_key).unwrap();
     // return serialized_public_key;
 }
