@@ -220,7 +220,7 @@ pub fn recovery_id_sha256(
 }
 
 #[wasm_bindgen]
-pub fn generate_the_keypair() -> DecryptionKey {
+pub fn generate_the_keypair() -> Vec<u8> {
     generate_keypair()
 }
 

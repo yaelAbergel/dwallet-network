@@ -11365,6 +11365,7 @@ name = "signature-mpc"
 version = "0.1.0"
 dependencies = [
  "bcs",
+ "bincode",
  "commitment",
  "crypto-bigint 0.5.5",
  "ecdsa 0.16.9",
