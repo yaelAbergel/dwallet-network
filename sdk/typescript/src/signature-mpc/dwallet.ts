@@ -89,3 +89,4 @@ export const storePublicKey = async (
 	});
 	console.log(result);
 };
+

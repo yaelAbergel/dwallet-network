@@ -225,6 +225,13 @@ pub fn generate_keypair() -> JsValue {
     serde_wasm_bindgen::to_value(&(pub_key, priv_key)).unwrap()
 }
 
+#[wasm_bindgen]
+pub fn encrypt(text: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
+    Vec<u8>::new()
+    // let (pub_key, priv_key) = signature_mpc::twopc_mpc_protocols::generate_keypair();
+    // serde_wasm_bindgen::to_value(&(pub_key, priv_key)).unwrap()
+}
+
 #[derive(Serialize, Deserialize)]
 /// Error type for better JS handling and generalization
 /// of Rust / WASM -> JS error conversion.
