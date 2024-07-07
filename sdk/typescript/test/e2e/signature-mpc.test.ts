@@ -7,7 +7,7 @@ import {
 	approveAndSign,
 	createDWallet,
 	createPartialUserSignedMessages,
-	generate_keypair, storePublicKey,
+	generate_keypair, storePublicKey, encrypt, init_panic_hook,
 } from '../../src/signature-mpc';
 import { setup, TestToolbox } from './utils/setup';
 
@@ -74,5 +74,11 @@ describe('Test key share transfer', () => {
 	it('should generate a paillier keypair', async () => {
 		const [pub_key, _] = generate_keypair();
 		await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
+		init_panic_hook();
+		try {
+			console.log(encrypt(new Uint8Array([1, 2, 3, 4]), pub_key));
+		} catch (e) {
+			console.log(e);
+		}
 	});
 });

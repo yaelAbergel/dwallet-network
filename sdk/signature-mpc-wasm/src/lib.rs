@@ -226,10 +226,13 @@ pub fn generate_keypair() -> JsValue {
 }
 
 #[wasm_bindgen]
+pub fn init_panic_hook() {
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+}
+
+#[wasm_bindgen]
 pub fn encrypt(text: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
-    Vec<u8>::new()
-    // let (pub_key, priv_key) = signature_mpc::twopc_mpc_protocols::generate_keypair();
-    // serde_wasm_bindgen::to_value(&(pub_key, priv_key)).unwrap()
+    signature_mpc::twopc_mpc_protocols::encrypt(text, public_key)
 }
 
 #[derive(Serialize, Deserialize)]

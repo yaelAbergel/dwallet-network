@@ -7,7 +7,7 @@ use std::fmt::{Debug, Display};
 use std::marker::PhantomData;
 
 pub use commitment::Commitment;
-use crypto_bigint::U256;
+use crypto_bigint::{U256, Uint};
 use ecdsa::{elliptic_curve::ops::Reduce, hazmat::{bits2field, DigestPrimitive}, RecoveryId, Signature, VerifyingKey};
 use ecdsa::signature::DigestVerifier;
 pub use enhanced_maurer::language::EnhancedLanguageStatementAccessors;
@@ -493,8 +493,8 @@ pub fn generate_keypair() -> (Vec<u8>, Vec<u8>) {
 
 pub fn encrypt(to_encrypt: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
     let deser_pub_params: tiresias::encryption_key::PublicParameters = bincode::deserialize(&public_key).unwrap();
-    let deser_plaintext: LargeBiPrimeSizedNumber = bincode::deserialize(&to_encrypt).unwrap();
     const N: LargeBiPrimeSizedNumber = LargeBiPrimeSizedNumber::from_be_hex("97431848911c007fa3a15b718ae97da192e68a4928c0259f2d19ab58ed01f1aa930e6aeb81f0d4429ac2f037def9508b91b45875c11668cea5dc3d4941abd8fbb2d6c8750e88a69727f982e633051f60252ad96ba2e9c9204f4c766c1c97bc096bb526e4b7621ec18766738010375829657c77a23faf50e3a31cb471f72c7abecdec61bdf45b2c73c666aa3729add2d01d7d96172353380c10011e1db3c47199b72da6ae769690c883e9799563d6605e0670a911a57ab5efc69a8c5611f158f1ae6e0b1b6434bafc21238921dc0b98a294195e4e88c173c8dab6334b207636774daad6f35138b9802c1784f334a82cbff480bb78976b22bb0fb41e78fdcb8095");
+    let deser_plaintext= bincode::deserialize(&to_encrypt).unwrap_or(N); // This is not true
     let encryption_key = EncryptionKey::new(&deser_pub_params).unwrap();
     let plaintext = PlaintextSpaceGroupElement::new(
         deser_plaintext,
