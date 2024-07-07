@@ -3,7 +3,7 @@
 
 use rand_core::OsRng;
 use serde::{Deserialize, Serialize};
-use signature_mpc::twopc_mpc_protocols::finalize_centralized_party_presign;
+use signature_mpc::twopc_mpc_protocols::{DecryptionKey, finalize_centralized_party_presign};
 use signature_mpc::twopc_mpc_protocols::finalize_centralized_party_sign;
 use signature_mpc::twopc_mpc_protocols::initiate_centralized_party_presign;
 use signature_mpc::twopc_mpc_protocols::initiate_centralized_party_sign;
@@ -217,6 +217,12 @@ pub fn recovery_id_sha256(
         message: "Can't generate RecoveryId".to_string(),
         display: "Can't generate RecoveryId".to_string(),
     })?.into())
+}
+
+#[wasm_bindgen]
+pub fn generate_keypair() -> JsValue {
+    let (pub_key, priv_key) = signature_mpc::twopc_mpc_protocols::generate_keypair();
+    serde_wasm_bindgen::to_value(&(pub_key, priv_key)).unwrap()
 }
 
 #[derive(Serialize, Deserialize)]

@@ -7,6 +7,7 @@ import {
 	approveAndSign,
 	createDWallet,
 	createPartialUserSignedMessages,
+	generate_keypair, storePublicKey,
 } from '../../src/signature-mpc';
 import { setup, TestToolbox } from './utils/setup';
 
@@ -60,5 +61,18 @@ describe('Test signature mpc', () => {
 
 		console.log('sigKECCAK256:');
 		console.log(sigKECCAK256);
+	});
+});
+
+describe('Test key share transfer', () => {
+	let toolbox: TestToolbox;
+
+	beforeAll(async () => {
+		toolbox = await setup();
+	});
+
+	it('should generate a paillier keypair', async () => {
+		const [pub_key, _] = generate_keypair();
+		await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
 	});
 });
