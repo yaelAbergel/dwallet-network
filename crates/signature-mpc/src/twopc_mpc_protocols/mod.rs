@@ -511,6 +511,8 @@ pub fn encrypt(to_encrypt: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
         deser_pub_params.randomness_space_public_parameters(),
     ).unwrap();
 
-    bincode::serialize(&encryption_key.encrypt_with_randomness(&plaintext, &randomness, &deser_pub_params)).unwrap()
+    bincode::serialize(
+        &PaillierModulusSizedNumber::from(encryption_key.encrypt_with_randomness(&plaintext, &randomness, &deser_pub_params))
+    ).unwrap()
 }
 
