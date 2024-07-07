@@ -219,10 +219,19 @@ pub fn recovery_id_sha256(
     })?.into())
 }
 
+#[derive(Serialize, Deserialize)]
+struct Keypair {
+    pub private_key: Vec<u8>,
+    pub public_key: Vec<u8>,
+}
+
 #[wasm_bindgen]
-// pub fn generate_the_keypair() -> (Vec<u8>, Vec<u8>) {
-pub fn generate_the_keypair() -> Vec<u8> {
-    generate_keypair()
+pub fn generate_the_keypair() -> Keypair {
+    let (pub_key, priv_key) = generate_keypair();
+    Keypair {
+        private_key: priv_key,
+        public_key: pub_key,
+    }
 }
 
 #[derive(Serialize, Deserialize)]

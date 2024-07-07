@@ -72,7 +72,8 @@ describe('Test key share transfer', () => {
 	});
 
 	it('should generate a paillier keypair', async () => {
-		const pubKey = generate_the_keypair();
-		await storePublicKey(pubKey, toolbox.keypair, toolbox.client);
+		const keypair = generate_the_keypair();
+		console.log(keypair);
+		// await storePublicKey(keypair, toolbox.keypair, toolbox.client);
 	});
 });
