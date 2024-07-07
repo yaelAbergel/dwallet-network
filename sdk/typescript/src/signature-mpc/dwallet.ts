@@ -69,16 +69,15 @@ export async function approveAndSign(
 }
 
 export const storePublicKey = async (
-	// public_key: Uint8Array,
-	_: Uint8Array,
+	public_key: Uint8Array,
 	keypair: Keypair,
 	client: DWalletClient,
 ) => {
 	const tx = new TransactionBlock();
-	// let purePubKey = tx.pure(bcs.vector(bcs.u8()).serialize(public_key));
+	let purePubKey = tx.pure(bcs.vector(bcs.u8()).serialize(public_key));
 	tx.moveCall({
 		target: `${packageId}::${dWalletModuleName}::store_public_key`,
-		// arguments: [purePubKey],
+		arguments: [purePubKey],
 		// tx.pure(bcs.vector(bcs.vector(bcs.u8())).serialize(messages))
 	});
 	const result = await client.signAndExecuteTransactionBlock({
