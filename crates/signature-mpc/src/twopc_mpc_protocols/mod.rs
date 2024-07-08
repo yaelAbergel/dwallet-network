@@ -529,10 +529,10 @@ pub fn generate_proof(public_key : Vec<u8>) {
         .clone();
 
     let encryption_of_discrete_log_enhanced_language_public_parameters =
-        enhanced_maurer::PublicParameters::<
+        enhanced_maurer::EnhancedPublicParameters::<
             maurer::SOUND_PROOFS_REPETITIONS,
             twopc_mpc::secp256k1::bulletproofs::RANGE_CLAIMS_PER_SCALAR,
-            COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
+            twopc_mpc::bulletproofs::COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
             twopc_mpc::bulletproofs::RangeProof,
             twopc_mpc::paillier::UnboundedEncDLWitness,
     encryption_of_discrete_log::Language<
