@@ -3,49 +3,48 @@
 
 
 use std::collections::{HashMap, HashSet};
-
-pub use commitment::{Commitment};
-use rand::rngs::OsRng;
-use serde::{Deserialize, Serialize};
-use std::fmt::{Debug, Display, Formatter};
+use std::fmt::{Debug, Display};
 use std::marker::PhantomData;
-use k256::{AffinePoint, CompressedPoint, elliptic_curve, sha2};
-pub use group::PartyID;
-use k256::sha2::Digest;
-use crypto_bigint::{ U256};
-use ecdsa::{elliptic_curve::{ops::Reduce}, hazmat::{bits2field, DigestPrimitive}, RecoveryId, Signature, VerifyingKey};
+
+pub use commitment::Commitment;
+use crypto_bigint::{U256, Uint};
+use ecdsa::{elliptic_curve::ops::Reduce, hazmat::{bits2field, DigestPrimitive}, RecoveryId, Signature, VerifyingKey};
 use ecdsa::signature::DigestVerifier;
 pub use enhanced_maurer::language::EnhancedLanguageStatementAccessors;
-pub use homomorphic_encryption::AdditivelyHomomorphicDecryptionKeyShare;
-use k256::elliptic_curve::group::GroupEncoding;
-
-use group::{secp256k1, GroupElement as _, AffineXCoordinate};
+use group::{AffineXCoordinate, GroupElement as _, secp256k1};
+pub use group::PartyID;
 pub use group::Value;
 use homomorphic_encryption::{
     AdditivelyHomomorphicDecryptionKey,
     AdditivelyHomomorphicEncryptionKey, GroupsPublicParametersAccessors,
 };
-use k256::{ sha2::digest::FixedOutput};
+pub use homomorphic_encryption::AdditivelyHomomorphicDecryptionKeyShare;
+use k256::{AffinePoint, CompressedPoint, elliptic_curve, sha2};
+use k256::elliptic_curve::group::GroupEncoding;
+use k256::sha2::Digest;
+use k256::sha2::digest::FixedOutput;
 pub use proof::aggregation::{
     CommitmentRoundParty, DecommitmentRoundParty, ProofAggregationRoundParty, ProofShareRoundParty,
 };
+use rand::rngs::OsRng;
+use serde::{Deserialize, Serialize};
 pub use tiresias::{
+    AdjustedLagrangeCoefficientSizedNumber,
     decryption_key_share::PublicParameters as DecryptionPublicParameters,
-    encryption_key::PublicParameters as EncryptionPublicParameters,
-    test_exports::deal_trusted_shares as tiresias_deal_trusted_shares, DecryptionKeyShare,
+    DecryptionKeyShare, encryption_key::PublicParameters as EncryptionPublicParameters,
     LargeBiPrimeSizedNumber, PaillierModulusSizedNumber, SecretKeyShareSizedNumber,
-    AdjustedLagrangeCoefficientSizedNumber
+    test_exports::deal_trusted_shares as tiresias_deal_trusted_shares
 };
 pub use tiresias::{DecryptionKey, EncryptionKey};
+use tiresias::{PlaintextSpaceGroupElement, RandomnessSpaceGroupElement, RandomnessSpaceValue};
+pub use twopc_mpc::{Error, Result};
 use twopc_mpc::paillier::PLAINTEXT_SPACE_SCALAR_LIMBS;
-pub use twopc_mpc::secp256k1::{SCALAR_LIMBS, GroupElement, Scalar};
+pub use twopc_mpc::secp256k1::{GroupElement, Scalar, SCALAR_LIMBS};
 pub use twopc_mpc::secp256k1::paillier::bulletproofs::{
-    CentralizedPartyPresign, DecommitmentProofVerificationRoundParty, DKGCommitmentRoundParty, EncryptionOfSecretKeyShareRoundParty, PresignCommitmentRoundParty, ProtocolPublicParameters, SignatureHomomorphicEvaluationParty, SignatureNonceSharesCommitmentsAndBatchedProof, SignaturePartialDecryptionParty, SignatureThresholdDecryptionParty,  DKGCentralizedPartyOutput,
-    PublicKeyShareDecommitmentAndProof, PublicNonceEncryptedPartialSignatureAndProof, SecretKeyShareEncryptionAndProof, DKGDecentralizedPartyOutput, DecentralizedPartyPresign, EncDHCommitment, EncDHCommitmentRoundParty,EncDHProofAggregationRoundParty, EncDHProofShareRoundParty, EncDLCommitment, EncDHDecommitment, EncDLDecommitment, EncDHProofShare, EncDLProofShare,
-    EncDLCommitmentRoundParty,  EncDLDecommitmentRoundParty, EncryptedMaskedNoncesRoundParty, EncryptedMaskedKeyShareRoundParty, PresignDecentralizedPartyOutput,
-    EncDLProofAggregationOutput, EncDLProofAggregationRoundParty,EncDLProofShareRoundParty, EncryptedMaskAndMaskedNonceShare, EncryptedNonceShareAndPublicShare, EncDHDecommitmentRoundParty, EncDHProofAggregationOutput, DKGDecommitmentRoundParty, DKGDecommitmentRoundState};
-
-pub use twopc_mpc::{Result, Error};
+    CentralizedPartyPresign, DecentralizedPartyPresign, DecommitmentProofVerificationRoundParty, DKGCentralizedPartyOutput, DKGCommitmentRoundParty, DKGDecentralizedPartyOutput, DKGDecommitmentRoundParty, DKGDecommitmentRoundState, EncDHCommitment, EncDHCommitmentRoundParty, EncDHDecommitment,
+    EncDHDecommitmentRoundParty, EncDHProofAggregationOutput, EncDHProofAggregationRoundParty, EncDHProofShare, EncDHProofShareRoundParty, EncDLCommitment, EncDLCommitmentRoundParty, EncDLDecommitment, EncDLDecommitmentRoundParty, EncDLProofAggregationOutput, EncDLProofAggregationRoundParty, EncDLProofShare, EncDLProofShareRoundParty, EncryptedMaskAndMaskedNonceShare,
+    EncryptedMaskedKeyShareRoundParty, EncryptedMaskedNoncesRoundParty, EncryptedNonceShareAndPublicShare, EncryptionOfSecretKeyShareRoundParty, PresignCommitmentRoundParty,
+    PresignDecentralizedPartyOutput, ProtocolPublicParameters, PublicKeyShareDecommitmentAndProof, PublicNonceEncryptedPartialSignatureAndProof, SecretKeyShareEncryptionAndProof, SignatureHomomorphicEvaluationParty, SignatureNonceSharesCommitmentsAndBatchedProof, SignaturePartialDecryptionParty, SignatureThresholdDecryptionParty};
 use twopc_mpc::secp256k1::paillier::bulletproofs::{PresignProofVerificationRoundParty, SignatureVerificationParty};
 
 pub type InitSignatureMPCProtocolSequenceNumber = u64;
@@ -490,4 +489,40 @@ pub fn generate_keypair() -> (Vec<u8>, Vec<u8>) {
     let ser_sk = bincode::serialize(&private_key.secret_key).unwrap();
     let ser_pk = bincode::serialize(&public_key).unwrap();
     (ser_pk, ser_sk)
+}
+
+pub fn encrypt(to_encrypt: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
+    let deser_pub_params: tiresias::encryption_key::PublicParameters = bincode::deserialize(&public_key).unwrap();
+    let padded_to_encrypt = pad_vector(to_encrypt);
+    let PLAINTEXT: LargeBiPrimeSizedNumber = LargeBiPrimeSizedNumber::from_be_slice(&padded_to_encrypt);
+    let encryption_key = EncryptionKey::new(&deser_pub_params).unwrap();
+    let plaintext = PlaintextSpaceGroupElement::new(
+        PLAINTEXT,
+        deser_pub_params.plaintext_space_public_parameters(),
+    )
+        .unwrap();
+    const RANDOMNESS: LargeBiPrimeSizedNumber = LargeBiPrimeSizedNumber::from_le_hex(
+        "4aba7692cfc2e1a30d46dc393c4d406837df82896da97268b377b8455ce9364d93ff7d0c051eed84f2335eeae95eaf5182055a9738f62d37d06cf4b24c663006513c823418d63db307a96a1ec6c4089df23a7cc69c4c64f914420955a3468d93087feedea153e05d94d184e823796dd326f8f6444405665b9a6af3a5fedf4d0e787792667e6e73e4631ea2cbcf7baa58fff7eb25eb739c31fadac1cd066d97bcd822af06a1e4df4a2ab76d252ddb960bbdc333fd38c912d27fa775e598d856a87ce770b1379dde2fbfce8d82f8692e7e1b33130d556c97b690d0b5f7a2f8652b79a8f07a35d3c4b9074be68daa04f13e7c54124d9dd4fe794a49375131d9c0b1");
+    let randomness = RandomnessSpaceGroupElement::new(
+        RandomnessSpaceValue::new(
+            RANDOMNESS,
+            deser_pub_params.randomness_space_public_parameters(),
+        )
+            .unwrap(),
+        deser_pub_params.randomness_space_public_parameters(),
+    ).unwrap();
+
+    bincode::serialize(
+        &PaillierModulusSizedNumber::from(encryption_key.encrypt_with_randomness(&plaintext, &randomness, &deser_pub_params))
+    ).unwrap()
+}
+
+fn pad_vector(vec: Vec<u8>) -> Vec<u8> {
+    let target_length = 256;
+    if vec.len() >= target_length {
+        return vec;
+    }
+    let mut padded_vec = vec![0; target_length - vec.len()];
+    padded_vec.extend(vec);
+    padded_vec
 }

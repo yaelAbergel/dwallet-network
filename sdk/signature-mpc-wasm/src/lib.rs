@@ -225,6 +225,16 @@ pub fn generate_keypair() -> JsValue {
     serde_wasm_bindgen::to_value(&(pub_key, priv_key)).unwrap()
 }
 
+#[wasm_bindgen]
+pub fn init_panic_hook() {
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+}
+
+#[wasm_bindgen]
+pub fn encrypt(text: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
+    signature_mpc::twopc_mpc_protocols::encrypt(text, public_key)
+}
+
 #[derive(Serialize, Deserialize)]
 /// Error type for better JS handling and generalization
 /// of Rust / WASM -> JS error conversion.
