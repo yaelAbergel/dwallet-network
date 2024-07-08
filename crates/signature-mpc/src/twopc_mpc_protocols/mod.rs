@@ -10,6 +10,7 @@ pub use commitment::Commitment;
 use crypto_bigint::{U256, Uint};
 use ecdsa::{elliptic_curve::ops::Reduce, hazmat::{bits2field, DigestPrimitive}, RecoveryId, Signature, VerifyingKey};
 use ecdsa::signature::DigestVerifier;
+use enhanced_maurer::encryption_of_discrete_log;
 pub use enhanced_maurer::language::EnhancedLanguageStatementAccessors;
 use group::{AffineXCoordinate, GroupElement as _, secp256k1};
 pub use group::PartyID;
@@ -23,6 +24,7 @@ use k256::{AffinePoint, CompressedPoint, elliptic_curve, sha2};
 use k256::elliptic_curve::group::GroupEncoding;
 use k256::sha2::Digest;
 use k256::sha2::digest::FixedOutput;
+use maurer::language;
 pub use proof::aggregation::{
     CommitmentRoundParty, DecommitmentRoundParty, ProofAggregationRoundParty, ProofShareRoundParty,
 };
@@ -37,6 +39,7 @@ pub use tiresias::{
 };
 pub use tiresias::{DecryptionKey, EncryptionKey};
 use tiresias::{PlaintextSpaceGroupElement, RandomnessSpaceGroupElement, RandomnessSpaceValue};
+use tiresias::test_exports::N;
 pub use twopc_mpc::{Error, Result};
 use twopc_mpc::paillier::PLAINTEXT_SPACE_SCALAR_LIMBS;
 pub use twopc_mpc::secp256k1::{GroupElement, Scalar, SCALAR_LIMBS};
@@ -515,6 +518,50 @@ pub fn encrypt(to_encrypt: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
     bincode::serialize(
         &PaillierModulusSizedNumber::from(encryption_key.encrypt_with_randomness(&plaintext, &randomness, &deser_pub_params))
     ).unwrap()
+}
+
+pub fn generate_proof(public_key : Vec<u8>) {
+    let deser_pub_params: tiresias::encryption_key::PublicParameters = bincode::deserialize(&public_key).unwrap();
+    let language_public_parameters = public_parameters(deser_pub_params.clone());
+    let protocol_public_parameters = ProtocolPublicParameters::new(deser_pub_params.ciphertext_space_public_parameters());
+    let encryption_of_discrete_log_enhanced_language_public_parameters =
+        enhanced_maurer::PublicParameters::new::<
+            twopc_mpc::bulletproofs::RangeProof,
+            twopc_mpc::paillier::UnboundedEncDLWitness,
+            encryption_of_discrete_log::PublicParameters::<
+                PLAINTEXT_SPACE_SCALAR_LIMBS,
+                SCALAR_LIMBS,
+                GroupElement,
+                EncryptionKey,
+            >
+        >(
+            self.unbounded_encdl_witness_public_parameters,
+            self.range_proof_public_parameters.clone(),
+            language_public_parameters,
+        )?;
+}
+
+fn public_parameters(paillier_public_parameters : tiresias::encryption_key::PublicParameters)
+    -> encryption_of_discrete_log::PublicParameters::<PLAINTEXT_SPACE_SCALAR_LIMBS, SCALAR_LIMBS, GroupElement, EncryptionKey>
+{
+    let secp256k1_scalar_public_parameters = secp256k1::scalar::PublicParameters::default();
+
+    let secp256k1_group_public_parameters =
+        secp256k1::group_element::PublicParameters::default();
+
+    let generator = secp256k1_group_public_parameters.generator;
+
+    encryption_of_discrete_log::PublicParameters::<
+        PLAINTEXT_SPACE_SCALAR_LIMBS,
+        SCALAR_LIMBS,
+        GroupElement,
+        EncryptionKey,
+    >::new::<PLAINTEXT_SPACE_SCALAR_LIMBS, SCALAR_LIMBS, GroupElement, EncryptionKey>(
+        secp256k1_scalar_public_parameters,
+        secp256k1_group_public_parameters,
+        paillier_public_parameters,
+        generator,
+    )
 }
 
 fn pad_vector(vec: Vec<u8>) -> Vec<u8> {
