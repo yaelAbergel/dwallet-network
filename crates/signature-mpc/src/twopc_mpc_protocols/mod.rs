@@ -527,10 +527,3 @@ fn pad_vector(vec: Vec<u8>) -> Vec<u8> {
     padded_vec.extend(vec);
     padded_vec
 }
-
-fn pad_hex_string(hex: &str) -> String {
-    let target_length = 256;
-    let mut padded_hex = String::from("0").repeat(target_length - hex.len());
-    padded_hex.push_str(hex);
-    padded_hex
-}
