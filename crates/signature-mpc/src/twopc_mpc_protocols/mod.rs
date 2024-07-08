@@ -494,7 +494,8 @@ pub fn generate_keypair() -> (Vec<u8>, Vec<u8>) {
 pub fn encrypt(to_encrypt: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
     println!("itayush");
     let deser_pub_params: tiresias::encryption_key::PublicParameters = bincode::deserialize(&public_key).unwrap();
-    let PLAINTEXT: LargeBiPrimeSizedNumber = LargeBiPrimeSizedNumber::from_be_slice(&to_encrypt.as_slice());
+    let padded_to_encrypt = pad_vector(to_encrypt);
+    let PLAINTEXT: LargeBiPrimeSizedNumber = LargeBiPrimeSizedNumber::from_be_slice(&padded_to_encrypt);
     let encryption_key = EncryptionKey::new(&deser_pub_params).unwrap();
     let plaintext = PlaintextSpaceGroupElement::new(
         PLAINTEXT,
@@ -515,4 +516,21 @@ pub fn encrypt(to_encrypt: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
     bincode::serialize(
         &PaillierModulusSizedNumber::from(encryption_key.encrypt_with_randomness(&plaintext, &randomness, &deser_pub_params))
     ).unwrap()
+}
+
+fn pad_vector(vec: Vec<u8>) -> Vec<u8> {
+    let target_length = 256;
+    if vec.len() >= target_length {
+        return vec;
+    }
+    let mut padded_vec = vec![0; target_length - vec.len()];
+    padded_vec.extend(vec);
+    padded_vec
+}
+
+fn pad_hex_string(hex: &str) -> String {
+    let target_length = 256;
+    let mut padded_hex = String::from("0").repeat(target_length - hex.len());
+    padded_hex.push_str(hex);
+    padded_hex
 }
