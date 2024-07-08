@@ -529,21 +529,32 @@ pub fn generate_proof(public_key : Vec<u8>) {
         .clone();
 
     let encryption_of_discrete_log_enhanced_language_public_parameters =
-        enhanced_maurer::PublicParameters::new::<
+        enhanced_maurer::PublicParameters::<
+            maurer::SOUND_PROOFS_REPETITIONS,
+            twopc_mpc::secp256k1::bulletproofs::RANGE_CLAIMS_PER_SCALAR,
+            COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
             twopc_mpc::bulletproofs::RangeProof,
             twopc_mpc::paillier::UnboundedEncDLWitness,
-            encryption_of_discrete_log::PublicParameters::<
+    encryption_of_discrete_log::Language<
+        PLAINTEXT_SPACE_SCALAR_LIMBS,
+    SCALAR_LIMBS,
+    GroupElement,
+    EncryptionKey,
+    >,
+    >::new::<
+            twopc_mpc::bulletproofs::RangeProof,
+            twopc_mpc::paillier::UnboundedEncDLWitness,
+            encryption_of_discrete_log::Language<
                 PLAINTEXT_SPACE_SCALAR_LIMBS,
                 SCALAR_LIMBS,
                 GroupElement,
                 EncryptionKey,
-            >
+            >,
         >(
             unbounded_witness_public_parameters,
             range::bulletproofs::PublicParameters::default(),
             language_public_parameters,
-        )?;
-
+        );
 }
 
 fn public_parameters(paillier_public_parameters : tiresias::encryption_key::PublicParameters)
