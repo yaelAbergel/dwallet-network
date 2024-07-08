@@ -492,7 +492,6 @@ pub fn generate_keypair() -> (Vec<u8>, Vec<u8>) {
 }
 
 pub fn encrypt(to_encrypt: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
-    println!("itayush");
     let deser_pub_params: tiresias::encryption_key::PublicParameters = bincode::deserialize(&public_key).unwrap();
     let padded_to_encrypt = pad_vector(to_encrypt);
     let PLAINTEXT: LargeBiPrimeSizedNumber = LargeBiPrimeSizedNumber::from_be_slice(&padded_to_encrypt);
