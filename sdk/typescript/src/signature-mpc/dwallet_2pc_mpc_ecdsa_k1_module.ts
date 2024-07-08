@@ -19,6 +19,7 @@ export {
 	recovery_id_keccak256 as recoveryIdKeccak256,
 	recovery_id_sha256 as recoveryIdSha256,
 	generate_keypair,
+	generate_proof,
 	encrypt,
 	init_panic_hook,
 } from '@dwallet-network/signature-mpc-wasm';
