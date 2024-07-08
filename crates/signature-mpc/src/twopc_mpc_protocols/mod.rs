@@ -28,6 +28,7 @@ use maurer::language;
 pub use proof::aggregation::{
     CommitmentRoundParty, DecommitmentRoundParty, ProofAggregationRoundParty, ProofShareRoundParty,
 };
+use proof::range;
 use rand::rngs::OsRng;
 use serde::{Deserialize, Serialize};
 pub use tiresias::{
@@ -523,7 +524,10 @@ pub fn encrypt(to_encrypt: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
 pub fn generate_proof(public_key : Vec<u8>) {
     let deser_pub_params: tiresias::encryption_key::PublicParameters = bincode::deserialize(&public_key).unwrap();
     let language_public_parameters = public_parameters(deser_pub_params.clone());
-    let protocol_public_parameters = ProtocolPublicParameters::new(deser_pub_params.ciphertext_space_public_parameters());
+    let unbounded_witness_public_parameters = language_public_parameters
+        .randomness_space_public_parameters()
+        .clone();
+
     let encryption_of_discrete_log_enhanced_language_public_parameters =
         enhanced_maurer::PublicParameters::new::<
             twopc_mpc::bulletproofs::RangeProof,
@@ -535,10 +539,11 @@ pub fn generate_proof(public_key : Vec<u8>) {
                 EncryptionKey,
             >
         >(
-            self.unbounded_encdl_witness_public_parameters,
-            self.range_proof_public_parameters.clone(),
+            unbounded_witness_public_parameters,
+            range::bulletproofs::PublicParameters::default(),
             language_public_parameters,
         )?;
+
 }
 
 fn public_parameters(paillier_public_parameters : tiresias::encryption_key::PublicParameters)
