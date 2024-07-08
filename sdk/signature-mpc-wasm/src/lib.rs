@@ -235,6 +235,12 @@ pub fn encrypt(text: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
     signature_mpc::twopc_mpc_protocols::encrypt(text, public_key)
 }
 
+#[wasm_bindgen]
+pub fn generate_proof(secret_share: Vec<u8>, encrypted_secret_share: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
+    println!("itayush");
+    Vec::new()
+}
+
 #[derive(Serialize, Deserialize)]
 /// Error type for better JS handling and generalization
 /// of Rust / WASM -> JS error conversion.
