@@ -492,16 +492,17 @@ pub fn generate_keypair() -> (Vec<u8>, Vec<u8>) {
 }
 
 pub fn encrypt(to_encrypt: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
+    println!("itayush");
     let deser_pub_params: tiresias::encryption_key::PublicParameters = bincode::deserialize(&public_key).unwrap();
-    const N: LargeBiPrimeSizedNumber = LargeBiPrimeSizedNumber::from_be_hex("97431848911c007fa3a15b718ae97da192e68a4928c0259f2d19ab58ed01f1aa930e6aeb81f0d4429ac2f037def9508b91b45875c11668cea5dc3d4941abd8fbb2d6c8750e88a69727f982e633051f60252ad96ba2e9c9204f4c766c1c97bc096bb526e4b7621ec18766738010375829657c77a23faf50e3a31cb471f72c7abecdec61bdf45b2c73c666aa3729add2d01d7d96172353380c10011e1db3c47199b72da6ae769690c883e9799563d6605e0670a911a57ab5efc69a8c5611f158f1ae6e0b1b6434bafc21238921dc0b98a294195e4e88c173c8dab6334b207636774daad6f35138b9802c1784f334a82cbff480bb78976b22bb0fb41e78fdcb8095");
-    let deser_plaintext= bincode::deserialize(&to_encrypt).unwrap_or(N); // This is not true
+    let PLAINTEXT: LargeBiPrimeSizedNumber = LargeBiPrimeSizedNumber::from_be_slice(&to_encrypt.as_slice());
     let encryption_key = EncryptionKey::new(&deser_pub_params).unwrap();
     let plaintext = PlaintextSpaceGroupElement::new(
-        deser_plaintext,
+        PLAINTEXT,
         deser_pub_params.plaintext_space_public_parameters(),
     )
         .unwrap();
-    const RANDOMNESS: LargeBiPrimeSizedNumber = LargeBiPrimeSizedNumber::from_be_hex("4aba7692cfc2e1a30d46dc393c4d406837df82896da97268b377b8455ce9364d93ff7d0c051eed84f2335eeae95eaf5182055a9738f62d37d06cf4b24c663006513c823418d63db307a96a1ec6c4089df23a7cc69c4c64f914420955a3468d93087feedea153e05d94d184e823796dd326f8f6444405665b9a6af3a5fedf4d0e787792667e6e73e4631ea2cbcf7baa58fff7eb25eb739c31fadac1cd066d97bcd822af06a1e4df4a2ab76d252ddb960bbdc333fd38c912d27fa775e598d856a87ce770b1379dde2fbfce8d82f8692e7e1b33130d556c97b690d0b5f7a2f8652b79a8f07a35d3c4b9074be68daa04f13e7c54124d9dd4fe794a49375131d9c0b1");
+    const RANDOMNESS: LargeBiPrimeSizedNumber = LargeBiPrimeSizedNumber::from_le_hex(
+        "4aba7692cfc2e1a30d46dc393c4d406837df82896da97268b377b8455ce9364d93ff7d0c051eed84f2335eeae95eaf5182055a9738f62d37d06cf4b24c663006513c823418d63db307a96a1ec6c4089df23a7cc69c4c64f914420955a3468d93087feedea153e05d94d184e823796dd326f8f6444405665b9a6af3a5fedf4d0e787792667e6e73e4631ea2cbcf7baa58fff7eb25eb739c31fadac1cd066d97bcd822af06a1e4df4a2ab76d252ddb960bbdc333fd38c912d27fa775e598d856a87ce770b1379dde2fbfce8d82f8692e7e1b33130d556c97b690d0b5f7a2f8652b79a8f07a35d3c4b9074be68daa04f13e7c54124d9dd4fe794a49375131d9c0b1");
     let randomness = RandomnessSpaceGroupElement::new(
         RandomnessSpaceValue::new(
             RANDOMNESS,
@@ -515,4 +516,3 @@ pub fn encrypt(to_encrypt: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
         &PaillierModulusSizedNumber::from(encryption_key.encrypt_with_randomness(&plaintext, &randomness, &deser_pub_params))
     ).unwrap()
 }
-

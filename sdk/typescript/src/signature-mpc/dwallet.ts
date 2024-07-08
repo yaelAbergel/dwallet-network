@@ -80,13 +80,11 @@ export const storePublicKey = async (
 		arguments: [purePubKey],
 		// tx.pure(bcs.vector(bcs.vector(bcs.u8())).serialize(messages))
 	});
-	const result = await client.signAndExecuteTransactionBlock({
+	await client.signAndExecuteTransactionBlock({
 		signer: keypair,
 		transactionBlock: tx,
 		options: {
 			showEffects: true,
 		},
 	});
-	console.log(result);
 };
-
