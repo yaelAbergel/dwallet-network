@@ -699,7 +699,7 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
         &mut OsRng,
     )
         .unwrap();
-    let witnesses = vec![(witness, randomness)];
+    let witnesses: Vec<language::WitnessSpaceGroupElement<1, Lang>> = vec![(witness, randomness).into()];
     // </editor-fold>
 
     // <editor-fold desc="code from within valid_proof_verifies">
@@ -730,6 +730,7 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
         witnesses, &enhanced_language_public_parameters, &mut OsRng
     )
         .unwrap();
+    println!("{:?}", witnesses);
     // </editor-fold>
 }
 
