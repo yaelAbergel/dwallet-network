@@ -574,8 +574,15 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
 
 }
 
+pub type Lang = encryption_of_discrete_log::Language<
+    { tiresias::PLAINTEXT_SPACE_SCALAR_LIMBS },
+    { U256::LIMBS },
+    secp256k1::GroupElement,
+    tiresias::EncryptionKey,
+>;
+
 fn public_parameters(paillier_public_parameters : tiresias::encryption_key::PublicParameters)
-    -> encryption_of_discrete_log::PublicParameters::<PLAINTEXT_SPACE_SCALAR_LIMBS, SCALAR_LIMBS, GroupElement, EncryptionKey>
+    -> language::PublicParameters<maurer::SOUND_PROOFS_REPETITIONS, Lang>
 {
     let secp256k1_scalar_public_parameters = secp256k1::scalar::PublicParameters::default();
 
