@@ -11,6 +11,7 @@ import {
 	generate_keypair,
 	init_panic_hook,
 	storePublicKey,
+	generate_proof,
 } from '../../src/signature-mpc';
 import { setup, TestToolbox } from './utils/setup';
 
@@ -79,11 +80,8 @@ describe('Test key share transfer', () => {
 		await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
 		init_panic_hook();
 		let keyshare = '62662BC0DD55F09545680B34A2CB005E6821D6C5FBCAA082397C0C712F292AF7';
-		try {
-			let parsedKeyshare = Uint8Array.from(Buffer.from(keyshare, 'hex'));
-			console.log(encrypt(parsedKeyshare, pub_key));
-		} catch (e) {
-			console.log(e);
-		}
+		let parsedKeyshare = Uint8Array.from(Buffer.from(keyshare, 'hex'));
+		let encryptedKey = encrypt(parsedKeyshare, pub_key);
+		let _b = generate_proof(parsedKeyshare, encryptedKey, pub_key);
 	});
 });

@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 use shared_crypto::intent::IntentScope;
 use std::fmt::{Debug, Display, Formatter};
 use std::marker::PhantomData;
-use signature_mpc::twopc_mpc_protocols::{Commitment, DecentralizedPartyPresign, DecryptionPublicParameters, DKGDecentralizedPartyOutput, EncDHCommitment, EncDHDecommitment, EncDHProofShare, EncDLCommitment, EncDLDecommitment, EncDLProofShare, LargeBiPrimeSizedNumber, PaillierModulusSizedNumber, PartyID, PresignDecentralizedPartyOutput, PublicKeyValue, PublicNonceEncryptedPartialSignatureAndProof, SecretKeyShareEncryptionAndProof, SecretKeyShareSizedNumber, SignatureNonceSharesCommitmentsAndBatchedProof, tiresias_deal_trusted_shares};
+pub use signature_mpc::twopc_mpc_protocols::{Commitment, DecentralizedPartyPresign, DecryptionPublicParameters, DKGDecentralizedPartyOutput, EncDHCommitment, EncDHDecommitment, EncDHProofShare, EncDLCommitment, EncDLDecommitment, EncDLProofShare, LargeBiPrimeSizedNumber, PaillierModulusSizedNumber, PartyID, PresignDecentralizedPartyOutput, PublicKeyValue, PublicNonceEncryptedPartialSignatureAndProof, SecretKeyShareEncryptionAndProof, SecretKeyShareSizedNumber, SignatureNonceSharesCommitmentsAndBatchedProof, tiresias_deal_trusted_shares};
 
 pub use crate::digests::CheckpointContentsDigest;
 pub use crate::digests::CheckpointDigest;
