@@ -204,7 +204,7 @@ pub fn verify_signature(
     public_key: PublicKeyValue,
     signatures: Vec<Vec<u8>>
 ) -> bool {
-    messages.into_iter().zip(signatures).map(|(message, signature)| { 
+    messages.into_iter().zip(signatures).map(|(message, signature)| {
         match hash {
             Hash::KECCAK256 => {
                 let signature: Signature<k256::Secp256k1> =
@@ -427,7 +427,7 @@ pub fn decrypt_signature_decentralized_party_sign(
 }
 
 pub fn message_digest(message: &[u8], hash: &Hash) -> secp256k1::Scalar {
-    
+
     //todo: remove unwrap!
     let m = match hash {
         Hash::KECCAK256 =>  bits2field::<k256::Secp256k1>(
@@ -521,14 +521,27 @@ pub fn encrypt(to_encrypt: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
     ).unwrap()
 }
 
-pub fn generate_proof(public_key : Vec<u8>) {
-    let deser_pub_params: tiresias::encryption_key::PublicParameters = bincode::deserialize(&public_key).unwrap();
-    let language_public_parameters = public_parameters(deser_pub_params.clone());
+pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
+    let paillier_public_parameters: tiresias::encryption_key::PublicParameters = bincode::deserialize(&public_key).unwrap();
+
+    let padded_to_encrypt = pad_vector(secret_share);
+    let secret_key_plaintext: LargeBiPrimeSizedNumber = LargeBiPrimeSizedNumber::from_be_slice(&padded_to_encrypt);
+    let language_public_parameters = public_parameters(paillier_public_parameters.clone());
+    let randomness = tiresias::RandomnessSpaceGroupElement::sample(
+        language_public_parameters
+            .encryption_scheme_public_parameters
+            .randomness_space_public_parameters(),
+        &mut OsRng,
+    )
+        .unwrap();
+
+    // <editor-fold desc="Create public parameters">
+
     let unbounded_witness_public_parameters = language_public_parameters
         .randomness_space_public_parameters()
         .clone();
-
     let encryption_of_discrete_log_enhanced_language_public_parameters =
+        // <editor-fold desc="public params types">
         enhanced_maurer::EnhancedPublicParameters::<
             maurer::SOUND_PROOFS_REPETITIONS,
             twopc_mpc::secp256k1::bulletproofs::RANGE_CLAIMS_PER_SCALAR,
@@ -555,6 +568,10 @@ pub fn generate_proof(public_key : Vec<u8>) {
             range::bulletproofs::PublicParameters::default(),
             language_public_parameters,
         );
+    // </editor-fold>
+    // </editor-fold>
+
+
 }
 
 fn public_parameters(paillier_public_parameters : tiresias::encryption_key::PublicParameters)
