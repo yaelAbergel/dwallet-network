@@ -698,7 +698,9 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
     // </editor-fold>
 
     // <editor-fold desc="code from within valid_proof_verifies">
-    let enhanced_language_public_parameters = enhanced_maurer::language::EnhancedLanguage::PublicParameters::new::<
+    let enhanced_language_public_parameters = enhanced_maurer::language::EnhancedLanguage::<
+        maurer::SOUND_PROOFS_REPETITIONS
+    >::PublicParameters::new::<
         range::bulletproofs::RangeProof,
         tiresias::RandomnessSpaceGroupElement,
         Lang,
