@@ -696,6 +696,19 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
     )
         .unwrap();
     // </editor-fold>
+
+    // <editor-fold desc="code from within valid_proof_verifies">
+    let enhanced_language_public_parameters = enhanced_maurer::language::EnhancedLanguage::PublicParameters::new::<
+        range::bulletproofs::RangeProof,
+        tiresias::RandomnessSpaceGroupElement,
+        Lang,
+    >(
+        unbounded_witness_public_parameters,
+        range::bulletproofs::PublicParameters::default(),
+        language_public_parameters,
+    )
+        .unwrap();
+    // </editor-fold>
 }
 
 pub type Lang = encryption_of_discrete_log::Language<
