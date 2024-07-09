@@ -703,33 +703,16 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
     pub const RANGE_CLAIMS_PER_SCALAR: usize =
         Uint::<{ secp256k1::SCALAR_LIMBS }>::BITS / RANGE_CLAIM_BITS;
 
-    // let enhanced_language_public_parameters = enhanced_language_public_parameters::<
-    //     maurer::SOUND_PROOFS_REPETITIONS,
-    //     RANGE_CLAIMS_PER_SCALAR,
-    //     UnboundedWitnessSpaceGroupElement,
-    //     Lang,
-    // >(
-    //     unbounded_witness_public_parameters,
-    //     language_public_parameters,
-    // );
+    let enhanced_language_public_parameters = enhanced_language_public_parameters::<
+        {maurer::SOUND_PROOFS_REPETITIONS},
+        RANGE_CLAIMS_PER_SCALAR,
+        tiresias::RandomnessSpaceGroupElement,
+        Lang,
+    >(
+        unbounded_witness_public_parameters,
+        language_public_parameters,
+    );
 
-    // let enhanced_language_public_parameters = enhanced_maurer::language::EnhancedLanguage::<
-    //     maurer::SOUND_PROOFS_REPETITIONS,
-    //     RANGE_CLAIMS_PER_SCALAR,
-    //     _,
-    //     _,
-    //     _,
-    //     _
-    // >::PublicParameters::new::<
-    //     range::bulletproofs::RangeProof,
-    //     tiresias::RandomnessSpaceGroupElement,
-    //     Lang,
-    // >(
-    //     unbounded_witness_public_parameters,
-    //     range::bulletproofs::PublicParameters::default(),
-    //     language_public_parameters,
-    // )
-    //     .unwrap();
     // </editor-fold>
 }
 
