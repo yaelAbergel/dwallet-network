@@ -32,6 +32,7 @@ pub use proof::aggregation::{
     CommitmentRoundParty, DecommitmentRoundParty, ProofAggregationRoundParty, ProofShareRoundParty,
 };
 use proof::range;
+use proof::range::bulletproofs::RANGE_CLAIM_BITS;
 use rand::rngs::OsRng;
 use serde::{Deserialize, Serialize};
 use tiresias::test_exports::N;
@@ -682,7 +683,7 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
     let unbounded_witness_public_parameters = language_public_parameters.randomness_space_public_parameters().clone();
     // </editor-fold>
 
-    // <editor-fold desc="Create witness">
+    // <editor-fold desc="Create witnesses">
     let witness = tiresias::PlaintextSpaceGroupElement::new(
         Uint::<{ tiresias::PLAINTEXT_SPACE_SCALAR_LIMBS }>::from(secret_key_plaintext),
         paillier_public_parameters.plaintext_space_public_parameters(),
@@ -695,21 +696,40 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
         &mut OsRng,
     )
         .unwrap();
+    let witnesses = vec![(witness, randomness)];
     // </editor-fold>
 
     // <editor-fold desc="code from within valid_proof_verifies">
-    let enhanced_language_public_parameters = enhanced_maurer::language::EnhancedLanguage::<
-        maurer::SOUND_PROOFS_REPETITIONS
-    >::PublicParameters::new::<
-        range::bulletproofs::RangeProof,
-        tiresias::RandomnessSpaceGroupElement,
-        Lang,
-    >(
-        unbounded_witness_public_parameters,
-        range::bulletproofs::PublicParameters::default(),
-        language_public_parameters,
-    )
-        .unwrap();
+    pub const RANGE_CLAIMS_PER_SCALAR: usize =
+        Uint::<{ secp256k1::SCALAR_LIMBS }>::BITS / RANGE_CLAIM_BITS;
+
+    // let enhanced_language_public_parameters = enhanced_language_public_parameters::<
+    //     maurer::SOUND_PROOFS_REPETITIONS,
+    //     RANGE_CLAIMS_PER_SCALAR,
+    //     UnboundedWitnessSpaceGroupElement,
+    //     Lang,
+    // >(
+    //     unbounded_witness_public_parameters,
+    //     language_public_parameters,
+    // );
+
+    // let enhanced_language_public_parameters = enhanced_maurer::language::EnhancedLanguage::<
+    //     maurer::SOUND_PROOFS_REPETITIONS,
+    //     RANGE_CLAIMS_PER_SCALAR,
+    //     _,
+    //     _,
+    //     _,
+    //     _
+    // >::PublicParameters::new::<
+    //     range::bulletproofs::RangeProof,
+    //     tiresias::RandomnessSpaceGroupElement,
+    //     Lang,
+    // >(
+    //     unbounded_witness_public_parameters,
+    //     range::bulletproofs::PublicParameters::default(),
+    //     language_public_parameters,
+    // )
+    //     .unwrap();
     // </editor-fold>
 }
 
@@ -729,3 +749,54 @@ fn pad_vector(vec: Vec<u8>) -> Vec<u8> {
     padded_vec.extend(vec);
     padded_vec
 }
+
+
+
+// <editor-fold desc="Itay games">
+use proof::range::bulletproofs::COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS;
+use enhanced_maurer::{EnhanceableLanguage, EnhancedLanguage, PublicParameters as MaurerPublicParameters};
+
+pub(crate) fn enhanced_language_public_parameters<
+    const REPETITIONS: usize,
+    const NUM_RANGE_CLAIMS: usize,
+    UnboundedWitnessSpaceGroupElement: group::GroupElement + Samplable,
+    Lang: EnhanceableLanguage<
+        REPETITIONS,
+        NUM_RANGE_CLAIMS,
+        COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
+        UnboundedWitnessSpaceGroupElement,
+    >,
+>(
+    unbounded_witness_public_parameters: UnboundedWitnessSpaceGroupElement::PublicParameters,
+    language_public_parameters: Lang::PublicParameters,
+) -> maurer::language::PublicParameters<
+    REPETITIONS,
+    EnhancedLang<REPETITIONS, NUM_RANGE_CLAIMS, UnboundedWitnessSpaceGroupElement, Lang>,
+> {
+    MaurerPublicParameters::new::<
+        range::bulletproofs::RangeProof,
+        UnboundedWitnessSpaceGroupElement,
+        Lang,
+    >(
+        unbounded_witness_public_parameters,
+        range::bulletproofs::PublicParameters::default(),
+        language_public_parameters,
+    )
+        .unwrap()
+}
+
+pub(crate) type EnhancedLang<
+    const REPETITIONS: usize,
+    const NUM_RANGE_CLAIMS: usize,
+    UnboundedWitnessSpaceGroupElement,
+    Lang,
+> = EnhancedLanguage<
+    REPETITIONS,
+    NUM_RANGE_CLAIMS,
+    { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
+    range::bulletproofs::RangeProof,
+    UnboundedWitnessSpaceGroupElement,
+    Lang,
+>;
+
+// </editor-fold>
