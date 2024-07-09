@@ -653,6 +653,9 @@ pub fn encrypt(to_encrypt: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
     .unwrap()
 }
 
+use proof::range::{
+    bulletproofs};
+
 pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
     let padded_to_encrypt = pad_vector(secret_share);
     let secret_key_plaintext: LargeBiPrimeSizedNumber =
@@ -704,7 +707,7 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
         Uint::<{ secp256k1::SCALAR_LIMBS }>::BITS / RANGE_CLAIM_BITS;
 
     let enhanced_language_public_parameters = enhanced_language_public_parameters::<
-        {maurer::SOUND_PROOFS_REPETITIONS},
+        { maurer::SOUND_PROOFS_REPETITIONS },
         RANGE_CLAIMS_PER_SCALAR,
         tiresias::RandomnessSpaceGroupElement,
         Lang,
@@ -713,6 +716,20 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
         language_public_parameters,
     );
     println!("{:?}", enhanced_language_public_parameters);
+    // </editor-fold>
+
+    // <editor-fold desc="Generating witnesses within valid_proof_verify">
+    let witnesses = EnhancedLanguage::<
+        {maurer::SOUND_PROOFS_REPETITIONS},
+        RANGE_CLAIMS_PER_SCALAR,
+        { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
+        bulletproofs::RangeProof,
+        tiresias::RandomnessSpaceGroupElement,
+        Lang,
+    >::generate_witnesses(
+        witnesses, &enhanced_language_public_parameters, &mut OsRng
+    )
+        .unwrap();
     // </editor-fold>
 }
 
