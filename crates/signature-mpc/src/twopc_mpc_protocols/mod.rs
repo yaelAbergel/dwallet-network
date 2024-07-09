@@ -715,7 +715,6 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
         unbounded_witness_public_parameters,
         language_public_parameters,
     );
-    println!("{:?}", enhanced_language_public_parameters);
     // </editor-fold>
 
     // <editor-fold desc="Generating witnesses within valid_proof_verify">
@@ -730,8 +729,29 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
         witnesses, &enhanced_language_public_parameters, &mut OsRng
     )
         .unwrap();
-    println!("{:?}", witnesses);
     // </editor-fold>
+
+    // <editor-fold desc="Generating the proof">
+    let (proof, statements) = enhanced_maurer::proof::Proof::<
+        { maurer::SOUND_PROOFS_REPETITIONS },
+        RANGE_CLAIMS_PER_SCALAR,
+        COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
+        bulletproofs::RangeProof,
+        tiresias::RandomnessSpaceGroupElement,
+        Lang,
+        PhantomData<()>,
+    >::prove(
+        &PhantomData,
+        &enhanced_language_public_parameters,
+        witnesses,
+        &mut OsRng,
+    )
+        .unwrap();
+    // </editor-fold>
+
+    println!("the proof is {:?}", proof);
+    println!("the statements are {:?}", statements);
+
 }
 
 pub type Lang = encryption_of_discrete_log::Language<
