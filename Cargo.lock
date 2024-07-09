@@ -11371,6 +11371,7 @@ dependencies = [
  "ecdsa 0.16.9",
  "enhanced_maurer",
  "group 0.1.0",
+ "hex",
  "homomorphic_encryption",
  "k256 0.13.3 (git+https://github.com/ycscaly/elliptic-curves.git?branch=13.3-fixed)",
  "maurer",

@@ -712,7 +712,7 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
         unbounded_witness_public_parameters,
         language_public_parameters,
     );
-
+    println!("{:?}", enhanced_language_public_parameters);
     // </editor-fold>
 }
 
