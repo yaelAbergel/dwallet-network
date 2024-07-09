@@ -17,7 +17,7 @@ use enhanced_maurer::encryption_of_discrete_log;
 pub use enhanced_maurer::language::EnhancedLanguageStatementAccessors;
 pub use group::PartyID;
 pub use group::Value;
-use group::{secp256k1, AffineXCoordinate, GroupElement as _};
+use group::{secp256k1, AffineXCoordinate, GroupElement as _, Samplable};
 pub use homomorphic_encryption::AdditivelyHomomorphicDecryptionKeyShare;
 use homomorphic_encryption::{
     AdditivelyHomomorphicDecryptionKey, AdditivelyHomomorphicEncryptionKey,
@@ -679,12 +679,20 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
         paillier_public_parameters.clone(),
         generator,
     );
+    let unbounded_witness_public_parameters = language_public_parameters.randomness_space_public_parameters().clone();
     // </editor-fold>
 
     // <editor-fold desc="Create witness">
     let witness = tiresias::PlaintextSpaceGroupElement::new(
         Uint::<{ tiresias::PLAINTEXT_SPACE_SCALAR_LIMBS }>::from(secret_key_plaintext),
         paillier_public_parameters.plaintext_space_public_parameters(),
+    )
+        .unwrap();
+    let randomness = RandomnessSpaceGroupElement::sample(
+        language_public_parameters
+            .encryption_scheme_public_parameters
+            .randomness_space_public_parameters(),
+        &mut OsRng,
     )
         .unwrap();
     // </editor-fold>
