@@ -6,6 +6,7 @@ module dwallet_system::dwallet_transfer {
     use dwallet::tx_context::{TxContext};
     use dwallet::transfer;
     use dwallet::tx_context;
+    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::{DWallet, output};
 
     struct PublicKey has key {
         id: UID,
@@ -22,5 +23,9 @@ module dwallet_system::dwallet_transfer {
         let pk_id = object::id(&pk);
         transfer::freeze_object(pk);
         pk_id
+    }
+
+    public fun read_dkg_output(wallet: &DWallet): vector<u8>{
+        output(wallet)
     }
 }

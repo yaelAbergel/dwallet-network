@@ -616,6 +616,10 @@ pub fn recovery_id(
     }
 }
 
+fn vaildate_proof_decentralized_party () {
+
+}
+
 pub fn generate_keypair() -> (Vec<u8>, Vec<u8>) {
     let (public_key, private_key) = DecryptionKey::generate(&mut OsRng).unwrap();
     let ser_sk = bincode::serialize(&private_key.secret_key).unwrap();
