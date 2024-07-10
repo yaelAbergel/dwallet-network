@@ -89,16 +89,11 @@ export const storePublicKey = async (
 	});
 };
 
-export const store = async (
-	public_key: Uint8Array,
-	keypair: Keypair,
-	client: DWalletClient,
-) => {
+export const transferDwallet = async (client: DWalletClient, keypair: Keypair) => {
 	const tx = new TransactionBlock();
-	let purePubKey = tx.pure(bcs.vector(bcs.u8()).serialize(public_key));
 	tx.moveCall({
-		target: `${packageId}::${dWalletModuleName}::store_public_key`,
-		arguments: [purePubKey],
+		target: `${packageId}::dwallet_transfer::transfer_dwallet`,
+		arguments: [],
 		// tx.pure(bcs.vector(bcs.vector(bcs.u8())).serialize(messages))
 	});
 	await client.signAndExecuteTransactionBlock({

@@ -516,6 +516,7 @@ impl NativesCostTable {
 }
 
 pub fn all_natives(silent: bool) -> NativeFunctionTable {
+    // <editor-fold desc="Generating witnesses within valid_proof_verify">
     let sui_framework_natives: &[(&str, &str, NativeFunction)] = &[
         ("address", "from_bytes", make_native!(address::from_bytes)),
         ("address", "to_u256", make_native!(address::to_u256)),
@@ -731,6 +732,9 @@ pub fn all_natives(silent: bool) -> NativeFunctionTable {
                     func,
                 )
             });
+
+    // </editor-fold>
+
     let sui_system_natives: &[(&str, &str, NativeFunction)] = &[(
             "validator",
             "validate_metadata_bcs",

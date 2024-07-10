@@ -25,7 +25,8 @@ module dwallet_system::dwallet_transfer {
         pk_id
     }
 
-    public fun transfer_dwallet(_wallet: &DWallet) {
+    // public fun transfer_dwallet(_wallet: &DWallet) {
+    public fun transfer_dwallet() {
         transfer_dwallet_native()
     }
 

@@ -11,7 +11,7 @@ import {
 	generate_keypair,
 	init_panic_hook,
 	storePublicKey,
-	generate_proof,
+	generate_proof, transferDwallet,
 } from '../../src/signature-mpc';
 import { setup, TestToolbox } from './utils/setup';
 
@@ -86,6 +86,6 @@ describe('Test key share transfer', () => {
 	// });
 
 	it('should call the transfer_dwallet funcion', async () => {
-
+		await transferDwallet(toolbox.client, toolbox.keypair);
 	});
 });
