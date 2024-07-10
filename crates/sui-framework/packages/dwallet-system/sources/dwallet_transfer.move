@@ -6,7 +6,7 @@ module dwallet_system::dwallet_transfer {
     use dwallet::tx_context::{TxContext};
     use dwallet::transfer;
     use dwallet::tx_context;
-    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::{DWallet, output};
+    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::{DWallet};
 
     struct PublicKey has key {
         id: UID,
@@ -25,7 +25,7 @@ module dwallet_system::dwallet_transfer {
         pk_id
     }
 
-    public fun transfer_dwallet(wallet: &DWallet) {
+    public fun transfer_dwallet(_wallet: &DWallet) {
         transfer_dwallet_native()
     }
 
