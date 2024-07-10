@@ -53,8 +53,27 @@ pub fn transfer_dwallet_native(
         context,
         twopc_mpc_dkg_cost_params.transfer_dwallet_gas
     );
+
     let cost = context.gas_used();
-    println!("yayy");
+    // let centralized_party_public_key_share_decommitment_and_proof = pop_arg!(args, Vector);
+    // let centralized_party_public_key_share_decommitment_and_proof_ref = centralized_party_public_key_share_decommitment_and_proof.to_vec_u8()?;
+    // let Ok(centralized_party_public_key_share_decommitment_and_proof) = bcs::from_bytes::<PublicKeyShareDecommitmentAndProof<ProtocolContext>>(&centralized_party_public_key_share_decommitment_and_proof_ref) else {
+    //     return Ok(NativeResult::err(
+    //         cost,
+    //         INVALID_INPUT
+    //     ));
+    // };
+    let serialized_dwallet = pop_arg!(args, Vector);
+    let serialized_dwallet_vec = serialized_dwallet.to_vec_u8()?;
+    let Ok(dwallet) = bcs::from_bytes::<SecretKeyShareEncryptionAndProof<ProtocolContext>>(&serialized_dwallet_vec) else {
+        return Ok(NativeResult::err(
+            cost,
+            INVALID_INPUT
+        ));
+    };
+
+    println!("the dwallet is {:?}", dwallet);
+
     Ok(NativeResult::ok(
         cost,
         smallvec![]

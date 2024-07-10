@@ -6,6 +6,8 @@ module dwallet_system::dwallet_transfer {
     use dwallet::tx_context::{TxContext};
     use dwallet::transfer;
     use dwallet::tx_context;
+    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::DWallet;
+    use std::bcs;
 
     struct PublicKey has key {
         id: UID,
@@ -25,9 +27,9 @@ module dwallet_system::dwallet_transfer {
     }
 
     // public fun transfer_dwallet(_wallet: &DWallet) {
-    public fun transfer_dwallet() {
-        transfer_dwallet_native()
+    public fun transfer_dwallet(dwallet: &DWallet) {
+        transfer_dwallet_native(bcs::to_bytes(dwallet));
     }
 
-    native fun transfer_dwallet_native();
+    native fun transfer_dwallet_native(wallet: vector<u8>);
 }
