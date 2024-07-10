@@ -433,6 +433,8 @@ impl ConsensusTransactionOrdering {
 #[skip_serializing_none]
 #[derive(Clone, Serialize, Debug, ProtocolConfigAccessors)]
 pub struct ProtocolConfig {
+
+
     pub version: ProtocolVersion,
 
     feature_flags: FeatureFlags,
@@ -862,6 +864,8 @@ pub struct ProtocolConfig {
 
     // twopc_mpc::sign_verify_encrypted_signature_parts_prehash_cost_base
     sign_verify_encrypted_signature_parts_prehash_cost_base: Option<u64>,
+
+    transfer_dwallet_cost_base: Option<u64>,
 
     /// === Execution Version ===
     execution_version: Option<u64>,
@@ -1455,6 +1459,7 @@ impl ProtocolConfig {
             dkg_verify_decommitment_and_proof_of_centralized_party_public_key_share_cost_base: Some(52),
             // twopc_mpc::sign_verify_encrypted_signature_parts_prehash_cost_base
             sign_verify_encrypted_signature_parts_prehash_cost_base: Some(52),
+            transfer_dwallet_cost_base: Some(52),
 
             max_size_written_objects: None,
             max_size_written_objects_system_tx: None,

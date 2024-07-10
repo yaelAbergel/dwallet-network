@@ -25,6 +25,11 @@ pub struct TwoPCMPCDKGCostParams {
     pub sign_verify_encrypted_signature_parts_prehash_cost_base: InternalGas,
 }
 
+#[derive(Clone)]
+pub struct TransferDWalletCostParams {
+    pub transfer_dwallet_gas: InternalGas,
+}
+
 /***************************************************************************************************
  * native fun transfer_dwallet
  **************************************************************************************************/
@@ -33,6 +38,21 @@ pub fn transfer_dwallet_native(
     ty_args: Vec<Type>,
     mut args: VecDeque<Value>,
 ) -> PartialVMResult<NativeResult> {
+    let twopc_mpc_dkg_cost_params = &context
+        .extensions()
+        .get::<NativesCostTable>()
+        .transfer_dwallet_cost_params
+        .clone();
+
+    // Load the cost parameters from the protocol config
+    let object_runtime = context
+        .extensions()
+        .get::<ObjectRuntime>();
+    // Charge the base cost for this oper
+    native_charge_gas_early_exit!(
+        context,
+        twopc_mpc_dkg_cost_params.transfer_dwallet_gas
+    );
     let cost = context.gas_used();
     println!("yayy");
     Ok(NativeResult::ok(

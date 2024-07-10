@@ -56,7 +56,7 @@ use std::sync::Arc;
 use sui_protocol_config::ProtocolConfig;
 use sui_types::{MOVE_STDLIB_ADDRESS, SUI_FRAMEWORK_ADDRESS, SUI_SYSTEM_ADDRESS};
 use transfer::TransferReceiveObjectInternalCostParams;
-use crate::crypto::twopc_mpc::TwoPCMPCDKGCostParams;
+use crate::crypto::twopc_mpc::{TransferDWalletCostParams, TwoPCMPCDKGCostParams};
 
 mod address;
 mod crypto;
@@ -73,6 +73,8 @@ mod validator;
 
 #[derive(Tid)]
 pub struct NativesCostTable {
+    transfer_dwallet_cost_params: TransferDWalletCostParams,
+
     // Address natives
     pub address_from_bytes_cost_params: AddressFromBytesCostParams,
     pub address_to_u256_cost_params: AddressToU256CostParams,
@@ -510,6 +512,9 @@ impl NativesCostTable {
                 sign_verify_encrypted_signature_parts_prehash_cost_base: protocol_config
                     .sign_verify_encrypted_signature_parts_prehash_cost_base()
                     .into(),
+            },
+            transfer_dwallet_cost_params: TransferDWalletCostParams {
+                transfer_dwallet_gas: protocol_config.transfer_dwallet_cost_base().into(),
             },
         }
     }
