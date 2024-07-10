@@ -6,7 +6,6 @@ use std::fmt::{Debug, Display};
 use std::marker::PhantomData;
 
 pub use commitment::Commitment;
-use commitment::GroupsPublicParametersAccessors;
 use crypto_bigint::{Uint, U256};
 use ecdsa::signature::DigestVerifier;
 use ecdsa::{
