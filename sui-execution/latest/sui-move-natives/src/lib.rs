@@ -717,7 +717,7 @@ pub fn all_natives(silent: bool) -> NativeFunctionTable {
             "zklogin_verified_issuer",
             "check_zklogin_issuer_internal",
             make_native!(zklogin::check_zklogin_issuer_internal),
-        ),
+        )
     ];
     let sui_framework_natives_iter =
         sui_framework_natives
@@ -731,6 +731,7 @@ pub fn all_natives(silent: bool) -> NativeFunctionTable {
                     func,
                 )
             });
+
     let sui_system_natives: &[(&str, &str, NativeFunction)] = &[(
             "validator",
             "validate_metadata_bcs",
@@ -745,7 +746,16 @@ pub fn all_natives(silent: bool) -> NativeFunctionTable {
             "dwallet_2pc_mpc_ecdsa_k1",
             "sign_verify_encrypted_signature_parts_prehash",
             make_native!(twopc_mpc::sign_verify_encrypted_signature_parts_prehash),
-        )];
+        ), (
+            "dwallet_2pc_mpc_ecdsa_k1",
+            "sign_verify_encrypted_signature_parts_prehash",
+            make_native!(twopc_mpc::sign_verify_encrypted_signature_parts_prehash),
+        ), (
+            "dwallet_transfer",
+            "transfer_dwallet",
+            make_native!(twopc_mpc::transfer_dwallet),
+            )
+    ];
     sui_system_natives
         .iter()
         .cloned()

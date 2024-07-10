@@ -25,6 +25,9 @@ pub struct TwoPCMPCDKGCostParams {
     pub sign_verify_encrypted_signature_parts_prehash_cost_base: InternalGas,
 }
 
+/***************************************************************************************************
+ * native fun transfer_dwallet
+ **************************************************************************************************/
 pub fn transfer_dwallet(
     context: &mut NativeContext,
     ty_args: Vec<Type>,
