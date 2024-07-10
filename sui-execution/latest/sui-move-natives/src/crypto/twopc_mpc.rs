@@ -28,30 +28,36 @@ pub struct TwoPCMPCDKGCostParams {
 /***************************************************************************************************
  * native fun transfer_dwallet
  **************************************************************************************************/
-pub fn transfer_dwallet(
+pub fn transfer_dwallet_native(
     context: &mut NativeContext,
     ty_args: Vec<Type>,
     mut args: VecDeque<Value>,
 ) -> PartialVMResult<NativeResult> {
-    debug_assert!(ty_args.is_empty());
-    // debug_assert!(args.len() == 3);
-
-    // Load the cost parameters from the protocol config
-    let twopc_mpc_dkg_cost_params = &context
-        .extensions()
-        .get::<NativesCostTable>()
-        .twopc_mpc_dkg_cost_params
-        .clone();
-
-    // Load the cost parameters from the protocol config
-    let object_runtime = context
-        .extensions()
-        .get::<ObjectRuntime>();
-    // Charge the base cost for this oper
-    native_charge_gas_early_exit!(
-        context,
-        twopc_mpc_dkg_cost_params.dkg_verify_decommitment_and_proof_of_centralized_party_public_key_share_cost_base
-    );
+    let cost = context.gas_used();
+    println!("yayy");
+    Ok(NativeResult::ok(
+        cost,
+        smallvec![]
+    ))
+    // debug_assert!(ty_args.is_empty());
+    // // debug_assert!(args.len() == 3);
+    //
+    // // Load the cost parameters from the protocol config
+    // let twopc_mpc_dkg_cost_params = &context
+    //     .extensions()
+    //     .get::<NativesCostTable>()
+    //     .twopc_mpc_dkg_cost_params
+    //     .clone();
+    //
+    // // Load the cost parameters from the protocol config
+    // let object_runtime = context
+    //     .extensions()
+    //     .get::<ObjectRuntime>();
+    // // Charge the base cost for this oper
+    // native_charge_gas_early_exit!(
+    //     context,
+    //     twopc_mpc_dkg_cost_params.dkg_verify_decommitment_and_proof_of_centralized_party_public_key_share_cost_base
+    // );
 }
 
 /***************************************************************************************************

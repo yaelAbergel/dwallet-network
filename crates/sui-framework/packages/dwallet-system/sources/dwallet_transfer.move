@@ -26,6 +26,8 @@ module dwallet_system::dwallet_transfer {
     }
 
     public fun transfer_dwallet(wallet: &DWallet) {
-        let wallet_output = output(wallet);
+        transfer_dwallet_native()
     }
+
+    native fun transfer_dwallet_native();
 }
