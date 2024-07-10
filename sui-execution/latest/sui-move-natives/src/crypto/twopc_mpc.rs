@@ -43,26 +43,15 @@ pub fn transfer_dwallet_native(
         .get::<NativesCostTable>()
         .transfer_dwallet_cost_params
         .clone();
-
-    // Load the cost parameters from the protocol config
     let object_runtime = context
         .extensions()
         .get::<ObjectRuntime>();
-    // Charge the base cost for this oper
     native_charge_gas_early_exit!(
         context,
         twopc_mpc_dkg_cost_params.transfer_dwallet_gas
     );
 
     let cost = context.gas_used();
-    // let centralized_party_public_key_share_decommitment_and_proof = pop_arg!(args, Vector);
-    // let centralized_party_public_key_share_decommitment_and_proof_ref = centralized_party_public_key_share_decommitment_and_proof.to_vec_u8()?;
-    // let Ok(centralized_party_public_key_share_decommitment_and_proof) = bcs::from_bytes::<PublicKeyShareDecommitmentAndProof<ProtocolContext>>(&centralized_party_public_key_share_decommitment_and_proof_ref) else {
-    //     return Ok(NativeResult::err(
-    //         cost,
-    //         INVALID_INPUT
-    //     ));
-    // };
     let serialized_dwallet = pop_arg!(args, Vector);
     let serialized_dwallet_vec = serialized_dwallet.to_vec_u8()?;
     let Ok(dwallet) = bcs::from_bytes::<SecretKeyShareEncryptionAndProof<ProtocolContext>>(&serialized_dwallet_vec) else {
@@ -78,25 +67,6 @@ pub fn transfer_dwallet_native(
         cost,
         smallvec![]
     ))
-    // debug_assert!(ty_args.is_empty());
-    // // debug_assert!(args.len() == 3);
-    //
-    // // Load the cost parameters from the protocol config
-    // let twopc_mpc_dkg_cost_params = &context
-    //     .extensions()
-    //     .get::<NativesCostTable>()
-    //     .twopc_mpc_dkg_cost_params
-    //     .clone();
-    //
-    // // Load the cost parameters from the protocol config
-    // let object_runtime = context
-    //     .extensions()
-    //     .get::<ObjectRuntime>();
-    // // Charge the base cost for this oper
-    // native_charge_gas_early_exit!(
-    //     context,
-    //     twopc_mpc_dkg_cost_params.dkg_verify_decommitment_and_proof_of_centralized_party_public_key_share_cost_base
-    // );
 }
 
 /***************************************************************************************************
