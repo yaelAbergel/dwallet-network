@@ -745,7 +745,13 @@ pub fn all_natives(silent: bool) -> NativeFunctionTable {
             "dwallet_2pc_mpc_ecdsa_k1",
             "sign_verify_encrypted_signature_parts_prehash",
             make_native!(twopc_mpc::sign_verify_encrypted_signature_parts_prehash),
-        )];
+        ),
+        (
+            "dwallet_transfer",
+            "transfer_dwallet_native",
+            make_native!(twopc_mpc::transfer_dwallet_native),
+        )
+    ];
     sui_system_natives
         .iter()
         .cloned()
