@@ -24,6 +24,33 @@ pub struct TwoPCMPCDKGCostParams {
     /// Base cost for invoking the `sign_verify_encrypted_signature_parts_prehash` function
     pub sign_verify_encrypted_signature_parts_prehash_cost_base: InternalGas,
 }
+
+pub fn transfer_dwallet(
+    context: &mut NativeContext,
+    ty_args: Vec<Type>,
+    mut args: VecDeque<Value>,
+) -> PartialVMResult<NativeResult> {
+    debug_assert!(ty_args.is_empty());
+    // debug_assert!(args.len() == 3);
+
+    // Load the cost parameters from the protocol config
+    let twopc_mpc_dkg_cost_params = &context
+        .extensions()
+        .get::<NativesCostTable>()
+        .twopc_mpc_dkg_cost_params
+        .clone();
+
+    // Load the cost parameters from the protocol config
+    let object_runtime = context
+        .extensions()
+        .get::<ObjectRuntime>();
+    // Charge the base cost for this oper
+    native_charge_gas_early_exit!(
+        context,
+        twopc_mpc_dkg_cost_params.dkg_verify_decommitment_and_proof_of_centralized_party_public_key_share_cost_base
+    );
+}
+
 /***************************************************************************************************
  * native fun dkg_verify_decommitment_and_proof_of_centralized_party_public_key_share
  * Implementation of the Move native function `dwallet_2pc_mpc_ecdsa_k1::dkg_verify_decommitment_and_proof_of_centralized_party_public_key_share(commitment_to_centralized_party_secret_key_share: vector<u8>, secret_key_share_encryption_and_proof: vector<u8>, centralized_party_public_key_share_decommitment_and_proofs: vector<u8>): (vector<u8>, vector<u8>);`

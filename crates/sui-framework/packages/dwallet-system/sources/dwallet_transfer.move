@@ -25,7 +25,7 @@ module dwallet_system::dwallet_transfer {
         pk_id
     }
 
-    public fun read_dkg_output(wallet: &DWallet): vector<u8>{
-        output(wallet)
+    public fun transfer_dwallet(wallet: &DWallet) {
+        let wallet_output = output(wallet);
     }
 }
