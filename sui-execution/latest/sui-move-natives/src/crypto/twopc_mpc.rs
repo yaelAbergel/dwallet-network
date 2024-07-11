@@ -13,6 +13,8 @@ use move_vm_types::{
 use smallvec::smallvec;
 use std::collections::VecDeque;
 use signature_mpc::twopc_mpc_protocols::{Commitment, decentralized_party_dkg_verify_decommitment_and_proof_of_centralized_party_public_key_share, decentralized_party_sign_verify_encrypted_signature_parts_prehash, DecentralizedPartyPresign, DKGDecentralizedPartyOutput, ProtocolContext, PublicKeyShareDecommitmentAndProof, PublicNonceEncryptedPartialSignatureAndProof, SecretKeyShareEncryptionAndProof};
+use sui_types::messages_signature_mpc::SignatureMPCOutput;
+use sui_types::signature_mpc::DKGSessionOutput;
 use crate::object_runtime::ObjectRuntime;
 
 pub const INVALID_INPUT: u64 = 0;
@@ -56,7 +58,7 @@ pub fn transfer_dwallet_native(
     let cost = context.gas_used();
     let serialized_dwallet = pop_arg!(args, Vector);
     let serialized_dwallet_vec = serialized_dwallet.to_vec_u8()?;
-    let Ok(dwallet) = bcs::from_bytes::<SecretKeyShareEncryptionAndProof<ProtocolContext>>(&serialized_dwallet_vec) else {
+    let Ok(dwallet) = bcs::from_bytes::<DKGSessionOutput>(&serialized_dwallet_vec) else {
         return Ok(NativeResult::err(
             cost,
             INVALID_INPUT
