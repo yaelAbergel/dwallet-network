@@ -64,7 +64,7 @@ pub fn transfer_dwallet_native(
             INVALID_INPUT
         ));
     };
-
+    dwallet.commitment_to_centralized_party_secret_key_share;
     println!("the dwallet is {:?}", dwallet);
 
     Ok(NativeResult::ok(
