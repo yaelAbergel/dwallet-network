@@ -1,13 +1,15 @@
 // Copyright (c) dWallet Labs, Ltd.
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 
+mod validate_proof;
+
 use std::collections::{HashMap, HashSet};
 use std::fmt::{Debug, Display};
 use std::marker::PhantomData;
 
 pub use commitment::Commitment;
 // use commitment::GroupsPublicParametersAccessors;
-use crypto_bigint::{Uint, U256};
+use crypto_bigint::{U256, Uint};
 use ecdsa::signature::DigestVerifier;
 use ecdsa::{
     elliptic_curve::ops::Reduce,
@@ -18,7 +20,7 @@ use enhanced_maurer::encryption_of_discrete_log;
 pub use enhanced_maurer::language::EnhancedLanguageStatementAccessors;
 pub use group::PartyID;
 pub use group::Value;
-use group::{secp256k1, AffineXCoordinate, GroupElement as _, Samplable};
+use group::{AffineXCoordinate, GroupElement as _, Samplable, secp256k1};
 pub use homomorphic_encryption::AdditivelyHomomorphicDecryptionKeyShare;
 use homomorphic_encryption::{
     AdditivelyHomomorphicDecryptionKey, AdditivelyHomomorphicEncryptionKey,
@@ -27,7 +29,7 @@ use homomorphic_encryption::{
 use k256::elliptic_curve::group::GroupEncoding;
 use k256::sha2::digest::FixedOutput;
 use k256::sha2::Digest;
-use k256::{elliptic_curve, sha2, AffinePoint, CompressedPoint};
+use k256::{AffinePoint, CompressedPoint, elliptic_curve, sha2};
 use maurer::language;
 pub use proof::aggregation::{
     CommitmentRoundParty, DecommitmentRoundParty, ProofAggregationRoundParty, ProofShareRoundParty,
@@ -36,21 +38,20 @@ use proof::range;
 use proof::range::bulletproofs::RANGE_CLAIM_BITS;
 use rand::rngs::OsRng;
 use serde::{Deserialize, Serialize};
-use tiresias::test_exports::N;
 pub use tiresias::{
+    AdjustedLagrangeCoefficientSizedNumber,
     decryption_key_share::PublicParameters as DecryptionPublicParameters,
-    encryption_key::PublicParameters as EncryptionPublicParameters,
-    test_exports::deal_trusted_shares as tiresias_deal_trusted_shares,
-    AdjustedLagrangeCoefficientSizedNumber, DecryptionKeyShare, LargeBiPrimeSizedNumber,
-    PaillierModulusSizedNumber, SecretKeyShareSizedNumber,
+    DecryptionKeyShare,
+    encryption_key::PublicParameters as EncryptionPublicParameters, LargeBiPrimeSizedNumber, PaillierModulusSizedNumber,
+    SecretKeyShareSizedNumber, test_exports::deal_trusted_shares as tiresias_deal_trusted_shares,
 };
 pub use tiresias::{DecryptionKey, EncryptionKey};
 use tiresias::{PlaintextSpaceGroupElement, RandomnessSpaceGroupElement, RandomnessSpaceValue};
 use twopc_mpc::paillier::PLAINTEXT_SPACE_SCALAR_LIMBS;
 pub use twopc_mpc::secp256k1::paillier::bulletproofs::{
-    CentralizedPartyPresign, DKGCentralizedPartyOutput, DKGCommitmentRoundParty,
-    DKGDecentralizedPartyOutput, DKGDecommitmentRoundParty, DKGDecommitmentRoundState,
-    DecentralizedPartyPresign, DecommitmentProofVerificationRoundParty, EncDHCommitment,
+    CentralizedPartyPresign, DecentralizedPartyPresign, DecommitmentProofVerificationRoundParty,
+    DKGCentralizedPartyOutput, DKGCommitmentRoundParty, DKGDecentralizedPartyOutput,
+    DKGDecommitmentRoundParty, DKGDecommitmentRoundState, EncDHCommitment,
     EncDHCommitmentRoundParty, EncDHDecommitment, EncDHDecommitmentRoundParty,
     EncDHProofAggregationOutput, EncDHProofAggregationRoundParty, EncDHProofShare,
     EncDHProofShareRoundParty, EncDLCommitment, EncDLCommitmentRoundParty, EncDLDecommitment,
@@ -617,19 +618,6 @@ pub fn recovery_id(
     }
 }
 
-fn validate_proof (dkg_output: SecretKeyShareEncryptionAndProof<ProtocolContext>) {
-    pub const DUMMY_PUBLIC_KEY: LargeBiPrimeSizedNumber = LargeBiPrimeSizedNumber::from_be_hex("97431848911c007fa3a15b718ae97da192e68a4928c0259f2d19ab58ed01f1aa930e6aeb81f0d4429ac2f037def9508b91b45875c11668cea5dc3d4941abd8fbb2d6c8750e88a69727f982e633051f60252ad96ba2e9c9204f4c766c1c97bc096bb526e4b7621ec18766738010375829657c77a23faf50e3a31cb471f72c7abecdec61bdf45b2c73c666aa3729add2d01d7d96172353380c10011e1db3c47199b72da6ae769690c883e9799563d6605e0670a911a57ab5efc69a8c5611f158f1ae6e0b1b6434bafc21238921dc0b98a294195e4e88c173c8dab6334b207636774daad6f35138b9802c1784f334a82cbff480bb78976b22bb0fb41e78fdcb8095");
-    let protocol_public_parameters = ProtocolPublicParameters::new(DUMMY_PUBLIC_KEY);
-    let _ = range::CommitmentSchemeCommitmentSpaceGroupElement::<
-        COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
-        {twopc_mpc::secp256k1::bulletproofs::RANGE_CLAIMS_PER_SCALAR},
-        RangeProof,
-    >::new(
-        dkg_output.range_proof_commitment,
-        protocol_public_parameters.range_proof_enc_dl_public_parameters.commitment_scheme_public_parameters().commitment_space_public_parameters(),
-    );
-}
-
 pub fn generate_keypair() -> (Vec<u8>, Vec<u8>) {
     let (public_key, private_key) = DecryptionKey::generate(&mut OsRng).unwrap();
     let ser_sk = bincode::serialize(&private_key.secret_key).unwrap();
@@ -790,7 +778,6 @@ use enhanced_maurer::{
     EnhanceableLanguage, EnhancedLanguage, PublicParameters as MaurerPublicParameters,
 };
 use proof::range::bulletproofs::COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS;
-use twopc_mpc::bulletproofs::RangeProof;
 
 pub(crate) fn enhanced_language_public_parameters<
     const REPETITIONS: usize,
