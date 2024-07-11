@@ -58,14 +58,13 @@ pub fn transfer_dwallet_native(
     let cost = context.gas_used();
     let serialized_dwallet = pop_arg!(args, Vector);
     let serialized_dwallet_vec = serialized_dwallet.to_vec_u8()?;
-    let Ok(dwallet) = bcs::from_bytes::<DKGSessionOutput>(&serialized_dwallet_vec) else {
+    let Ok(dwallet) = DKGSessionOutput::from_bcs_bytes((&serialized_dwallet_vec)) else {
         return Ok(NativeResult::err(
             cost,
             INVALID_INPUT
         ));
     };
-    dwallet.commitment_to_centralized_party_secret_key_share;
-    println!("the dwallet is {:?}", dwallet);
+    let serialized_dkg_output = bcs::from_bytes::<SecretKeyShareEncryptionAndProof<ProtocolContext>>(&dwallet.secret_key_share_encryption_and_proof).unwrap();
 
     Ok(NativeResult::ok(
         cost,
