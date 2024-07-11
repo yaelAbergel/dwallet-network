@@ -9,9 +9,10 @@ import {
 	createPartialUserSignedMessages,
 	encrypt,
 	generate_keypair,
+	generate_proof,
 	init_panic_hook,
 	storePublicKey,
-	generate_proof, transferDwallet,
+	transferDwallet,
 } from '../../src/signature-mpc';
 import { setup, TestToolbox } from './utils/setup';
 

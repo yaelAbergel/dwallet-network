@@ -38,6 +38,8 @@ pub fn transfer_dwallet_native(
     ty_args: Vec<Type>,
     mut args: VecDeque<Value>,
 ) -> PartialVMResult<NativeResult> {
+    debug_assert!(ty_args.is_empty());
+    debug_assert!(args.len() == 1);
     let twopc_mpc_dkg_cost_params = &context
         .extensions()
         .get::<NativesCostTable>()
@@ -204,7 +206,7 @@ pub fn sign_verify_encrypted_signature_parts_prehash(
 
     let messages = pop_arg!(args, Vec<Value>);
     let messages = messages.into_iter().map(|m| m.value_as::<Vec<u8>>()).collect::<PartialVMResult<Vec<_>>>()?;
-    
+
     let signature_mpc_tiresias_public_parameters = object_runtime.protocol_config.signature_mpc_tiresias_public_parameters().unwrap();
     let valid = decentralized_party_sign_verify_encrypted_signature_parts_prehash(signature_mpc_tiresias_public_parameters, messages, public_nonce_encrypted_partial_signature_and_proofs, dkg_output, presigns, hash.into()).is_ok();
 

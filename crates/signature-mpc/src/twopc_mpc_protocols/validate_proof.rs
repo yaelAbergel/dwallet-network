@@ -25,13 +25,13 @@ fn validate_proof (dkg_output: &SecretKeyShareEncryptionAndProof<ProtocolContext
     let deser_pub_params: tiresias::encryption_key::PublicParameters =
         bincode::deserialize(&public_key).unwrap();
 
-    let statement = (
-        range_proof_commitment,
-        (
-            deserialized_encrypted_keyshare.clone(),
-            deser_pub_params,
-        )
-            .into(),
-    )
-        .into();
+    // let statement = (
+    //     range_proof_commitment,
+    //     (
+    //         deserialized_encrypted_keyshare.clone(),
+    //         deser_pub_params,
+    //     )
+    //         .into(),
+    // )
+    //     .into();
 }

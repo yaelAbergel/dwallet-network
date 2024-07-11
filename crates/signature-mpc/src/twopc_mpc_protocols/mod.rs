@@ -657,6 +657,9 @@ pub fn encrypt(to_encrypt: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
 
 use proof::range::bulletproofs;
 
+pub const RANGE_CLAIMS_PER_SCALAR: usize =
+    Uint::<{ secp256k1::SCALAR_LIMBS }>::BITS / RANGE_CLAIM_BITS;
+
 pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
     let padded_to_encrypt = pad_vector(secret_share);
     let secret_key_plaintext: LargeBiPrimeSizedNumber =
@@ -707,8 +710,7 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
     // </editor-fold>
 
     // <editor-fold desc="code from within valid_proof_verifies">
-    pub const RANGE_CLAIMS_PER_SCALAR: usize =
-        Uint::<{ secp256k1::SCALAR_LIMBS }>::BITS / RANGE_CLAIM_BITS;
+
 
     let enhanced_language_public_parameters = enhanced_language_public_parameters::<
         { maurer::SOUND_PROOFS_REPETITIONS },
