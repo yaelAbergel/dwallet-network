@@ -1075,7 +1075,7 @@ dependencies = [
 [[package]]
 name = "twopc_mpc"
 version = "0.1.0"
-source = "git+https://github.com/dwallet-labs/2pc-mpc.git#fc02927574c124b9351f6ce92cbdb395bb76cbd9"
+source = "git+https://github.com/ItayLevyOfficial/2pc-mpc.git?branch=itaylevyofficial/19-public-range_proof_commitment#922d10634e56d0673e19f48c426769e04dff2216"
 dependencies = [
  "commitment",
  "crypto-bigint",
