@@ -252,6 +252,7 @@ impl SignatureMPCAggregator {
             return;
         };
         let session_ref = session_ref.clone();
+        println!("Received message: {:?}", message.summary.message);
         match &message.summary.message {
             SignatureMPCMessageProtocols::DKG(m) => {
                 let mut state = dkg_session_states
@@ -378,6 +379,7 @@ impl SignatureMPCAggregator {
                         submit.clone(),
                         failed_messages_indices.clone(),
                         involved_parties.clone(),
+                        state.clone()
                     );
                 }
                 if state.should_identify_malicious_actors() {
@@ -632,21 +634,30 @@ impl SignatureMPCAggregator {
             if let Some(m) = m {
                 match m {
                     SignRoundCompletion::ProofsMessage(proofs, message_indices, involved_parties) => {
-                        let _ = submit
+                        let res = submit
                             .sign_and_submit_message(
                                 &SignatureMPCMessageSummary::new(
                                     epoch,
                                     SignatureMPCMessageProtocols::Sign(
-                                    SignMessage::Proofs {
-                                        proofs,
-                                        involved_parties,
-                                        failed_messages_indices: message_indices,}
-                                    ),
-                                    session_id,
+                                        SignMessage::Proofs {
+                                            proofs,
+                                            involved_parties,
+                                            failed_messages_indices: message_indices,}
+                                        ),
+                                        session_id,
                                 ),
                                 &epoch_store,
                             )
                             .await;
+
+                        match res {
+                            Ok(_) => {
+                                println!("Proofs submitted successfully");
+                            }
+                            Err(e) => {
+                                error!("Failed to submit proofs: {:?}", e);
+                            }
+                        }
                     }
                     SignRoundCompletion::SignatureOutput(sigs) => {
                         let _ = submit
@@ -765,6 +776,7 @@ impl SignatureMPCAggregator {
                 hash,
             } => {
                 session_refs.insert(session_id, session_ref);
+
                 if let Ok((round, message)) = SignRound::new(
                     tiresias_public_parameters.clone(),
                     tiresias_key_share_decryption_key_share,

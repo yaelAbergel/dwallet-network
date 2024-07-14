@@ -132,15 +132,12 @@ pub fn spawn_proof_generation_and_conditional_malicious_identification(
     submit: Arc<dyn SubmitSignatureMPC>,
     failed_messages_indices: Vec<usize>,
     involved_parties: Vec<PartyID>,
+    state: SignState
 ) {
     spawn_monitored_task!(async move {
-        let mut mut_state = sign_session_states.get_mut(&session_id).unwrap();
-        let state = mut_state.clone();
-
         if !state.clone().proofs.unwrap().contains_key(&party_id) {
             let proofs = generate_proofs(&state, &failed_messages_indices);
             let proofs: Vec<_> = proofs.iter().map(|(proof, _)| proof.clone()).collect();
-            mut_state.insert_proofs(party_id, proofs.clone());
             let _ = submit
                 .sign_and_submit_message(
                     &SignatureMPCMessageSummary::new(
