@@ -252,7 +252,6 @@ impl SignatureMPCAggregator {
             return;
         };
         let session_ref = session_ref.clone();
-        println!("Received message: {:?}", message.summary.message);
         match &message.summary.message {
             SignatureMPCMessageProtocols::DKG(m) => {
                 let mut state = dkg_session_states
