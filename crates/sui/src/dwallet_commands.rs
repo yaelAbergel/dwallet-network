@@ -236,39 +236,6 @@ impl SuiDWalletCommands {
                     }
                 }
                 let output = output.unwrap();
-
-
-                // let mut stream = client.read_api().subscribe_transaction(TransactionFilter::ToAddress(context.active_address()?)).await?;
-                //
-                // let mut output: Option<DKGSessionOutput> = None;
-                // while let Some(effects) = stream.next().await {
-                //     if let SuiTransactionBlockEffects::V1(effects) = effects? {
-                //         let obj_ref = &effects.created[0];
-                //
-                //         let response = client
-                //             .read_api()
-                //             .get_object_with_options(
-                //                 obj_ref.object_id(),
-                //                 SuiObjectDataOptions::bcs_lossless(),
-                //             )
-                //             .await?;
-                //
-                //         output = response.data.iter().find_map(|o| {
-                //             if let Some(bcs_object) = &o.bcs {
-                //                 let move_object = bcs_object.try_as_move();
-                //                 let output = move_object.map(|o| DKGSessionOutput::from_bcs_bytes(&o.bcs_bytes).ok()).flatten();
-                //                 output.filter(|o| o.session_id.bytes == session_id)
-                //             } else {
-                //                 None
-                //             }
-                //         });
-                //         if output.is_some() {
-                //             break;
-                //         }
-                //     }
-                // }
-                // let output = output.unwrap();
-
                 let secret_key_share_encryption_and_proof = bcs::from_bytes::<SecretKeyShareEncryptionAndProof<ProtocolContext>>(&output.secret_key_share_encryption_and_proof)?;
 
                 let (

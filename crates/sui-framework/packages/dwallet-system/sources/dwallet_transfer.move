@@ -9,7 +9,7 @@ module dwallet_system::dwallet_transfer {
     use dwallet::tx_context;
     use dwallet::tx_context::TxContext;
 
-    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::DWallet;
+    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::{DWallet, public_key};
 
     struct PublicKey has key {
         id: UID,
@@ -30,7 +30,7 @@ module dwallet_system::dwallet_transfer {
 
     // public fun transfer_dwallet(_wallet: &DWallet) {
     public fun transfer_dwallet(dwallet: &DWallet) {
-        transfer_dwallet_native(bcs::to_bytes(dwallet));
+        transfer_dwallet_native(bcs::to_bytes(&public_key(dwallet)));
     }
 
     native fun transfer_dwallet_native(wallet: vector<u8>);

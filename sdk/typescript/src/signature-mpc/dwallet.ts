@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 
 import { bcs } from '../bcs/index.js';
-import { TransactionBlock } from '../builder/index.js';
+import { TransactionBlock, TransactionObjectInput } from '../builder/index.js';
 import type { DWalletClient } from '../client/index.js';
 import type { Keypair } from '../cryptography/index.js';
 import { fetchObjectBySessionId } from './utils.js';
@@ -89,11 +89,15 @@ export const storePublicKey = async (
 	});
 };
 
-export const transferDwallet = async (client: DWalletClient, keypair: Keypair) => {
+export const transferDwallet = async (
+	client: DWalletClient,
+	keypair: Keypair,
+	addr: TransactionObjectInput,
+) => {
 	const tx = new TransactionBlock();
 	tx.moveCall({
 		target: `${packageId}::dwallet_transfer::transfer_dwallet`,
-		arguments: [tx.object('0x3b47e70c5c8fb170a5108052d540db57f32acca1bcdd7e13ae60e3837aac16ed')],
+		arguments: [tx.object(addr)],
 		// tx.pure(bcs.vector(bcs.vector(bcs.u8())).serialize(messages))
 	});
 	await client.signAndExecuteTransactionBlock({
