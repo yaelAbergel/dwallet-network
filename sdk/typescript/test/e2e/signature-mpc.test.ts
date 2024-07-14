@@ -87,10 +87,6 @@ describe('Test key share transfer', () => {
 	// });
 
 	it('should call the transfer_dwallet funcion', async () => {
-		await transferDwallet(
-			toolbox.client,
-			toolbox.keypair,
-			'0x184108e30016fdac450079bff0f386b4b3d473b1b16bc30abe1c0a32a1d5c68e',
-		);
+		await transferDwallet(toolbox.client, toolbox.keypair);
 	});
 });

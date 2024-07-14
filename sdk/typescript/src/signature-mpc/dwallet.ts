@@ -89,15 +89,11 @@ export const storePublicKey = async (
 	});
 };
 
-export const transferDwallet = async (
-	client: DWalletClient,
-	keypair: Keypair,
-	addr: TransactionObjectInput,
-) => {
+export const transferDwallet = async (client: DWalletClient, keypair: Keypair) => {
 	const tx = new TransactionBlock();
 	tx.moveCall({
 		target: `${packageId}::dwallet_transfer::transfer_dwallet`,
-		arguments: [tx.object(addr)],
+		arguments: [tx.object('0x184108e30016fdac450079bff0f386b4b3d473b1b16bc30abe1c0a32a1d5c68e')],
 		// tx.pure(bcs.vector(bcs.vector(bcs.u8())).serialize(messages))
 	});
 	await client.signAndExecuteTransactionBlock({
