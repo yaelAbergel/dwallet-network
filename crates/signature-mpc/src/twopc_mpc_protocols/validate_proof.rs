@@ -22,27 +22,28 @@ pub const RANGE_CLAIMS_PER_SCALAR: usize =
     Uint::<{ secp256k1::SCALAR_LIMBS }>::BITS / RANGE_CLAIM_BITS;
 
 pub fn validate_proof(
-    encryption_key_public_parameters : Vec<u8>,
-    proof: SecretShareProof,
+    paillier_public_parameters : Vec<u8>, // public key of the encrypted secret key share
+    proof: SecretShareProof, // proof of the encrypted secret key share
     rang_proof_commitment: range::CommitmentSchemeCommitmentSpaceGroupElement::<
         COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
         { twopc_mpc::secp256k1::bulletproofs::RANGE_CLAIMS_PER_SCALAR },
         RangeProof,
-    >,
-    decentralized_party_public_key_share: twopc_mpc::secp256k1::GroupElement,
-    encrypted_decentralized_party_secret_key_share: <EncryptionKey as AdditivelyHomomorphicEncryptionKey<{ PLAINTEXT_SPACE_SCALAR_LIMBS }>>::CiphertextSpaceGroupElement,
+    >, // from the encryption
+    decentralized_party_public_key_share: twopc_mpc::secp256k1::GroupElement, // public key of the decentralized party form the dkg round
+    encrypted_secret_key_share: // from the encryption
+        <EncryptionKey as AdditivelyHomomorphicEncryptionKey<{ PLAINTEXT_SPACE_SCALAR_LIMBS }>>::CiphertextSpaceGroupElement,
 ) {
 
     pub const DUMMY_PUBLIC_KEY: LargeBiPrimeSizedNumber = LargeBiPrimeSizedNumber::from_be_hex("97431848911c007fa3a15b718ae97da192e68a4928c0259f2d19ab58ed01f1aa930e6aeb81f0d4429ac2f037def9508b91b45875c11668cea5dc3d4941abd8fbb2d6c8750e88a69727f982e633051f60252ad96ba2e9c9204f4c766c1c97bc096bb526e4b7621ec18766738010375829657c77a23faf50e3a31cb471f72c7abecdec61bdf45b2c73c666aa3729add2d01d7d96172353380c10011e1db3c47199b72da6ae769690c883e9799563d6605e0670a911a57ab5efc69a8c5611f158f1ae6e0b1b6434bafc21238921dc0b98a294195e4e88c173c8dab6334b207636774daad6f35138b9802c1784f334a82cbff480bb78976b22bb0fb41e78fdcb8095");
     let protocol_public_parameters = ProtocolPublicParameters::new(DUMMY_PUBLIC_KEY);
 
     let paillier_public_parameters: tiresias::encryption_key::PublicParameters =
-        bincode::deserialize(&encryption_key_public_parameters).unwrap();
+        bincode::deserialize(&paillier_public_parameters).unwrap();
 
     let statement = (
         rang_proof_commitment,
         (
-            encrypted_decentralized_party_secret_key_share.clone(),
+            encrypted_secret_key_share.clone(),
             decentralized_party_public_key_share,
         )
         .into(),
