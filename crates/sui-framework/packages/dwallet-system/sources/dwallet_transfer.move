@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 
 module dwallet_system::dwallet_transfer {
+    use std::debug;
     use dwallet::object::{Self, ID, UID};
     use dwallet::transfer;
     use dwallet::tx_context;
@@ -30,6 +31,7 @@ module dwallet_system::dwallet_transfer {
 
     // public fun transfer_dwallet(_wallet: &DWallet) {
     public fun transfer_dwallet(session: &DKGSession) {
+        debug::print(session);
         transfer_dwallet_native(commitment_to_centralized_party_secret_key_share(session));
     }
 
