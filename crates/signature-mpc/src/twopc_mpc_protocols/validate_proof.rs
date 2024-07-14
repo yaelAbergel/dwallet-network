@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use commitment::{Commitment, GroupsPublicParametersAccessors};
 use crypto_bigint::Uint;
-use enhanced_maurer::{encryption_of_discrete_log, Proof};
+use enhanced_maurer::{encryption_of_discrete_log, Proof, StatementSpaceGroupElement};
 use group::secp256k1;
 use homomorphic_encryption::AdditivelyHomomorphicEncryptionKey;
 use proof::range;
@@ -24,12 +24,15 @@ pub const RANGE_CLAIMS_PER_SCALAR: usize =
 pub fn validate_proof(
     paillier_public_parameters : Vec<u8>, // public key of the encrypted secret key share
     proof: SecretShareProof, // proof of the encrypted secret key share
-    rang_proof_commitment: range::CommitmentSchemeCommitmentSpaceGroupElement::<
+    rang_proof_commitment: StatementSpaceGroupElement<
+        { maurer::SOUND_PROOFS_REPETITIONS },
+        RANGE_CLAIMS_PER_SCALAR,
         COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
-        { twopc_mpc::secp256k1::bulletproofs::RANGE_CLAIMS_PER_SCALAR },
         RangeProof,
+        tiresias::RandomnessSpaceGroupElement,
+        Lang,
     >, // from the encryption
-    decentralized_party_public_key_share: twopc_mpc::secp256k1::GroupElement, // public key of the decentralized party form the dkg round
+    centralized_party_public_key_share: twopc_mpc::secp256k1::GroupElement, // public key of the decentralized party form the dkg round
     encrypted_secret_key_share: // from the encryption
         <EncryptionKey as AdditivelyHomomorphicEncryptionKey<{ PLAINTEXT_SPACE_SCALAR_LIMBS }>>::CiphertextSpaceGroupElement,
 ) {
@@ -44,7 +47,7 @@ pub fn validate_proof(
         rang_proof_commitment,
         (
             encrypted_secret_key_share.clone(),
-            decentralized_party_public_key_share,
+            centralized_party_public_key_share,
         )
         .into(),
     )

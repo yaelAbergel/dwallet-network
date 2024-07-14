@@ -16,7 +16,7 @@ use ecdsa::{
     hazmat::{bits2field, DigestPrimitive},
     RecoveryId, Signature, VerifyingKey,
 };
-use enhanced_maurer::encryption_of_discrete_log;
+use enhanced_maurer::{encryption_of_discrete_log, StatementSpaceGroupElement};
 pub use enhanced_maurer::language::EnhancedLanguageStatementAccessors;
 pub use group::PartyID;
 pub use group::Value;
@@ -655,7 +655,7 @@ pub fn encrypt(to_encrypt: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
     .unwrap()
 }
 
-use proof::range::bulletproofs;
+use proof::range::{bulletproofs, PublicParametersAccessors};
 
 pub const RANGE_CLAIMS_PER_SCALAR: usize =
     Uint::<{ secp256k1::SCALAR_LIMBS }>::BITS / RANGE_CLAIM_BITS;
@@ -670,7 +670,18 @@ pub type SecretShareProof = enhanced_maurer::proof::Proof::<
     PhantomData<()>,
 >;
 
-pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
+pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>)
+    -> (
+        SecretShareProof,
+        StatementSpaceGroupElement<
+            { maurer::SOUND_PROOFS_REPETITIONS },
+            RANGE_CLAIMS_PER_SCALAR,
+            COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
+            RangeProof,
+            tiresias::RandomnessSpaceGroupElement,
+            Lang,
+        >
+) {
     let padded_to_encrypt = pad_vector(secret_share);
     let secret_key_plaintext: LargeBiPrimeSizedNumber =
         LargeBiPrimeSizedNumber::from_be_slice(&padded_to_encrypt);
@@ -756,8 +767,9 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
     .unwrap();
     // </editor-fold>
 
-    println!("the proof is {:?}", proof);
-    println!("the statements are {:?}", statements);
+    (proof, statements.commitment_scheme_public_parameters())
+    // println!("the proof is {:?}", proof);
+    // println!("the statements are {:?}", statements.commitment_scheme_public_parameters());
 }
 
 pub type Lang = encryption_of_discrete_log::Language<
@@ -782,6 +794,7 @@ use enhanced_maurer::{
     EnhanceableLanguage, EnhancedLanguage, PublicParameters as MaurerPublicParameters,
 };
 use proof::range::bulletproofs::COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS;
+use twopc_mpc::bulletproofs::RangeProof;
 
 pub(crate) fn enhanced_language_public_parameters<
     const REPETITIONS: usize,
