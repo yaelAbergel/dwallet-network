@@ -660,6 +660,16 @@ use proof::range::bulletproofs;
 pub const RANGE_CLAIMS_PER_SCALAR: usize =
     Uint::<{ secp256k1::SCALAR_LIMBS }>::BITS / RANGE_CLAIM_BITS;
 
+pub type SecretShareProof = enhanced_maurer::proof::Proof::<
+    { maurer::SOUND_PROOFS_REPETITIONS },
+    RANGE_CLAIMS_PER_SCALAR,
+    COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
+    bulletproofs::RangeProof,
+    tiresias::RandomnessSpaceGroupElement,
+    Lang,
+    PhantomData<()>,
+>;
+
 pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
     let padded_to_encrypt = pad_vector(secret_share);
     let secret_key_plaintext: LargeBiPrimeSizedNumber =
@@ -737,15 +747,7 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) {
     // </editor-fold>
 
     // <editor-fold desc="Generating the proof">
-    let (proof, statements) = enhanced_maurer::proof::Proof::<
-        { maurer::SOUND_PROOFS_REPETITIONS },
-        RANGE_CLAIMS_PER_SCALAR,
-        COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
-        bulletproofs::RangeProof,
-        tiresias::RandomnessSpaceGroupElement,
-        Lang,
-        PhantomData<()>,
-    >::prove(
+    let (proof, statements) = SecretShareProof::prove(
         &PhantomData,
         &enhanced_language_public_parameters,
         witnesses,
