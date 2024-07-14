@@ -90,7 +90,7 @@ describe('Test key share transfer', () => {
 		await transferDwallet(
 			toolbox.client,
 			toolbox.keypair,
-			'0x7aa21900460b4ca7b96126035a0e4dc54d58399da4b1f7fecabebc7fe94ca187',
+			'0x184108e30016fdac450079bff0f386b4b3d473b1b16bc30abe1c0a32a1d5c68e',
 		);
 	});
 });

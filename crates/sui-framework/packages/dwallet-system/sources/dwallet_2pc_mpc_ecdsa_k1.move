@@ -79,6 +79,10 @@ module dwallet_system::dwallet_2pc_mpc_ecdsa_k1 {
         sender: address,
     }
 
+    public fun commitment_to_centralized_party_secret_key_share(session: &DKGSession): vector<u8> {
+        session.commitment_to_centralized_party_secret_key_share
+    }
+
     struct DKGSessionOutput has key {
         id: UID,
         session_id: ID,
