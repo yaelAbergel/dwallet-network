@@ -143,11 +143,12 @@ pub fn spawn_proof_generation_and_conditional_malicious_identification(
                     &SignatureMPCMessageSummary::new(
                     epoch,
                     SignatureMPCMessageProtocols::Sign(
-                        SignMessage::Proofs {
+                        SignMessage::Proofs ((
                             proofs,
                             failed_messages_indices,
                             involved_parties,
-                        },
+                            )
+                        ),
                     ),
                     session_id,
                     ),
