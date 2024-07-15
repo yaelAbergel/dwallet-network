@@ -19,5 +19,5 @@ fn main() {
     // let centralized_public_key :PaillierModulusSizedNumber = bincode::deserialize(&centralized_public_key).unwrap();
     // let centralized_public_key = centralized_public_key.into();
     //
-    validate_proof(pub_key, proof, commitment, encrypted_key, centralized_public_key);
+    // validate_proof(pub_key, proof, commitment, encrypted_key, centralized_public_key);
 }
