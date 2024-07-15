@@ -673,17 +673,10 @@ pub type SecretShareProof = enhanced_maurer::proof::Proof::<
 >;
 
 pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>)
-    -> (
-        SecretShareProof,
-        StatementSpaceGroupElement<
-            { maurer::SOUND_PROOFS_REPETITIONS },
-            RANGE_CLAIMS_PER_SCALAR,
-            COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
-            RangeProof,
-            tiresias::RandomnessSpaceGroupElement,
-            Lang,
-        >
-) {
+    ->
+        SecretShareProof
+        // CommitmentSpaceGroupElement,
+ {
     let padded_to_encrypt = pad_vector(secret_share);
     let secret_key_plaintext: LargeBiPrimeSizedNumber =
         LargeBiPrimeSizedNumber::from_be_slice(&padded_to_encrypt);
@@ -769,7 +762,8 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>)
     .unwrap();
     // </editor-fold>
 
-    (proof, statements.commitment_scheme_public_parameters())
+    proof
+    // (proof, statements[0].range_proof_commitment())
     // println!("the proof is {:?}", proof);
     // println!("the statements are {:?}", statements.commitment_scheme_public_parameters());
 }

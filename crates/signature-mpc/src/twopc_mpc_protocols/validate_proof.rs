@@ -1,4 +1,3 @@
-use std::marker::PhantomData;
 use commitment::{Commitment, GroupsPublicParametersAccessors};
 use crypto_bigint::Uint;
 use enhanced_maurer::{encryption_of_discrete_log, Proof, StatementSpaceGroupElement};
@@ -8,22 +7,42 @@ use proof::range;
 use proof::range::bulletproofs::{COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS, RANGE_CLAIM_BITS};
 use proof::range::PublicParametersAccessors;
 use rand_core::OsRng;
+use std::marker::PhantomData;
 use tiresias::{LargeBiPrimeSizedNumber, PaillierModulusSizedNumber};
 use twopc_mpc::bulletproofs::RangeProof;
-use twopc_mpc::paillier::{EncryptionKey, PLAINTEXT_SPACE_SCALAR_LIMBS, UnboundedEncDLWitness};
+use twopc_mpc::paillier::{EncryptionKey, UnboundedEncDLWitness, PLAINTEXT_SPACE_SCALAR_LIMBS};
 use twopc_mpc::secp256k1::paillier::bulletproofs::{
     ProtocolPublicParameters, SecretKeyShareEncryptionAndProof,
 };
 
-use crate::twopc_mpc_protocols::{enhanced_language_public_parameters, generate_proof, Lang, ProtocolContext, SecretShareProof};
-pub use twopc_mpc::secp256k1::{Scalar, SCALAR_LIMBS, GroupElement};
+use crate::twopc_mpc_protocols::{
+    enhanced_language_public_parameters, generate_proof, Lang, ProtocolContext, SecretShareProof,
+};
+pub use twopc_mpc::secp256k1::{GroupElement, Scalar, SCALAR_LIMBS};
 
 pub const RANGE_CLAIMS_PER_SCALAR: usize =
     Uint::<{ secp256k1::SCALAR_LIMBS }>::BITS / RANGE_CLAIM_BITS;
 
+// fn itay_play(
+//     encrypted_decentralized_party_secret_key_share: <EncryptionKey as AdditivelyHomomorphicEncryptionKey<{ PLAINTEXT_SPACE_SCALAR_LIMBS }>>::CiphertextSpaceGroupElement,
+//     decentralized_party_public_key_share: &GroupElement,
+//     range_proof_commitment: <<RangeProof as RangeProof<{ COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS }>>::CommitmentScheme<{ RANGE_CLAIMS_PER_SCALAR }> as HomomorphicCommitmentScheme<{ COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS }>>::CommitmentSpaceGroupElement)
+// -> GroupElement<<<RangeProof as RangeProof<{ COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS }>>::CommitmentScheme<{ RANGE_CLAIMS_PER_SCALAR }> as HomomorphicCommitmentScheme<{ COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS }>>::CommitmentSpaceGroupElement, StatementSpaceGroupElement<{ PLAINTEXT_SPACE_SCALAR_LIMBS }, { SCALAR_LIMBS }, GroupElement, EncryptionKey>>{
+//     let statement = (
+//         range_proof_commitment,
+//         (
+//             encrypted_decentralized_party_secret_key_share.clone(),
+//             decentralized_party_public_key_share.clone(),
+//         )
+//             .into(),
+//     )
+//         .into();
+//     statement
+// }
+
 pub fn validate_proof(
-    paillier_public_parameters : Vec<u8>, // public key of the encrypted secret key share
-    proof: SecretShareProof, // proof of the encrypted secret key share
+    paillier_public_parameters: Vec<u8>, // public key of the encrypted secret key share
+    proof: SecretShareProof,             // proof of the encrypted secret key share
     range_proof_commitment: StatementSpaceGroupElement<
         { maurer::SOUND_PROOFS_REPETITIONS },
         RANGE_CLAIMS_PER_SCALAR,
@@ -36,26 +55,17 @@ pub fn validate_proof(
     encrypted_secret_key_share: // from the encryption
     <EncryptionKey as AdditivelyHomomorphicEncryptionKey<{ PLAINTEXT_SPACE_SCALAR_LIMBS }>>::CiphertextSpaceGroupElement,
 ) {
-
     pub const DUMMY_PUBLIC_KEY: LargeBiPrimeSizedNumber = LargeBiPrimeSizedNumber::from_be_hex("97431848911c007fa3a15b718ae97da192e68a4928c0259f2d19ab58ed01f1aa930e6aeb81f0d4429ac2f037def9508b91b45875c11668cea5dc3d4941abd8fbb2d6c8750e88a69727f982e633051f60252ad96ba2e9c9204f4c766c1c97bc096bb526e4b7621ec18766738010375829657c77a23faf50e3a31cb471f72c7abecdec61bdf45b2c73c666aa3729add2d01d7d96172353380c10011e1db3c47199b72da6ae769690c883e9799563d6605e0670a911a57ab5efc69a8c5611f158f1ae6e0b1b6434bafc21238921dc0b98a294195e4e88c173c8dab6334b207636774daad6f35138b9802c1784f334a82cbff480bb78976b22bb0fb41e78fdcb8095");
     let protocol_public_parameters = ProtocolPublicParameters::new(DUMMY_PUBLIC_KEY);
 
     let paillier_public_parameters: tiresias::encryption_key::PublicParameters =
         bincode::deserialize(&paillier_public_parameters).unwrap();
 
-
-
-    let a = (
-        encrypted_secret_key_share.clone(),
-        centralized_party_public_key_share.clone(),
-    )
-        .into();
-
-    let statement = (
+    let statement = itay_play(
+        encrypted_secret_key_share,
+        &centralized_party_public_key_share,
         range_proof_commitment,
-        a,
-    )
-        .into();
+    );
 
     //
     // let statement = (
@@ -101,10 +111,12 @@ pub fn validate_proof(
         language_public_parameters,
     );
 
-    proof.verify(
-        &PhantomData,
-        &enhanced_language_public_parameters,
-        vec![statement],
-        &mut OsRng,
-    ).unwrap();
+    proof
+        .verify(
+            &PhantomData,
+            &enhanced_language_public_parameters,
+            vec![statement],
+            &mut OsRng,
+        )
+        .unwrap();
 }
