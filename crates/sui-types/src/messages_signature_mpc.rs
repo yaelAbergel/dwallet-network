@@ -70,6 +70,15 @@ impl SignatureMPCBulletProofAggregatesMessage {
     }
 }
 
+impl SignMessage {
+    pub fn round(&self) -> SignatureMPCRound {
+        match self {
+            SignMessage::DecryptionShares(_) => 1,
+            SignMessage::Proofs { .. } => 2
+        }
+    }
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub enum SignatureMPCMessageProtocols {
     DKG(SignatureMPCBulletProofAggregatesMessage),
@@ -352,7 +361,7 @@ impl SignatureMPCMessage {
             SignatureMPCMessageProtocols::DKG(m) => m.round(),
             SignatureMPCMessageProtocols::PresignFirstRound(m) => m.round(),
             SignatureMPCMessageProtocols::PresignSecondRound(m) => m.round(),
-            SignatureMPCMessageProtocols::Sign(_) => 1,
+            SignatureMPCMessageProtocols::Sign(m) => m.round(),
         }
     }
 }
