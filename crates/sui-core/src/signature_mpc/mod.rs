@@ -484,10 +484,6 @@ impl SignatureMPCAggregator {
             if let Some(m) = m {
                 match m {
                     PresignRoundCompletion::Message(m) => {
-                        // if let Some(mut s) = presign_session_states.get_mut(&session_id) {
-                        //     let _ = s.insert_first_round(party_id, m.clone());
-                        //     drop(s);
-                        // }
                         let _ = submit
                             .sign_and_submit_message(
                                 &SignatureMPCMessageSummary::new(
@@ -511,25 +507,6 @@ impl SignatureMPCAggregator {
                                 );
                             }
                         }
-                        // if let Some(mut s) = presign_session_states.get_mut(&session_id) {
-                        //     let _ = s.insert_second_round(party_id, message_to_submit.clone());
-                        //     drop(s);
-                        // if let Some(r) = presign_session_rounds.get_mut(&session_id) {
-                        //     if state.ready_for_complete_second_round(&r) {
-                        //         Self::spawn_complete_presign_second_round(
-                        //             epoch,
-                        //             epoch_store.clone(),
-                        //             party_id,
-                        //             session_id,
-                        //             session_ref,
-                        //             state.clone(),
-                        //             presign_session_rounds.clone(),
-                        //             presign_session_states.clone(),
-                        //             submit.clone(),
-                        //         );
-                        //     }
-                        // }
-                        //}
                         let _ = submit
                             .sign_and_submit_message(
                                 &SignatureMPCMessageSummary::new(
@@ -651,7 +628,7 @@ impl SignatureMPCAggregator {
                         message_indices,
                         involved_parties,
                     ) => {
-                        let res = submit
+                        let _ = submit
                             .sign_and_submit_message(
                                 &SignatureMPCMessageSummary::new(
                                     epoch,
@@ -666,14 +643,6 @@ impl SignatureMPCAggregator {
                             )
                             .await;
 
-                        match res {
-                            Ok(_) => {
-                                println!("Proofs submitted successfully");
-                            }
-                            Err(e) => {
-                                error!("Failed to submit proofs: {:?}", e);
-                            }
-                        }
                     }
                     SignRoundCompletion::SignatureOutput(sigs) => {
                         let _ = submit
