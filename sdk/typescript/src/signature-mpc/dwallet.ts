@@ -89,6 +89,24 @@ export const storePublicKey = async (
 	});
 };
 
+export const getEqncryptionPublicKey = async (keypair: Keypair, client: DWalletClient) => {
+	const tx = new TransactionBlock();
+
+	tx.moveCall({
+		target: `${packageId}::dwallet_transfer::get_public_key`,
+		arguments: [tx.object('0x8d5d695603b4eeb998af542a8d74d3ab8b97ab24adc04c8abd6c65ddc98fb2ed')],
+		// tx.pure(bcs.vector(bcs.vector(bcs.u8())).serialize(messages))
+	});
+
+	await client.signAndExecuteTransactionBlock({
+		signer: keypair,
+		transactionBlock: tx,
+		options: {
+			showEffects: true,
+		},
+	});
+};
+
 export const transferDwallet = async (client: DWalletClient, keypair: Keypair) => {
 	const tx = new TransactionBlock();
 	tx.moveCall({

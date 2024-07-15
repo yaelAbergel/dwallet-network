@@ -1,7 +1,7 @@
 // Copyright (c) dWallet Labs, Ltd.
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 
-mod validate_proof;
+pub mod validate_proof;
 
 use std::collections::{HashMap, HashSet};
 use std::fmt::{Debug, Display};

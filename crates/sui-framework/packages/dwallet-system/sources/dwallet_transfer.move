@@ -29,6 +29,10 @@ module dwallet_system::dwallet_transfer {
         pk_id
     }
 
+    public fun get_public_key(public_key: &PublicKey): &PublicKey {
+        public_key
+    }
+
     // public fun transfer_dwallet(_wallet: &DWallet) {
     public fun transfer_dwallet(session: &DKGSession) {
         debug::print(session);
