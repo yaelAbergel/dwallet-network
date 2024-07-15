@@ -81,8 +81,10 @@ impl SignState {
         match message {
             SignMessage::DecryptionShares(shares) => {
                 let _ = self.decryption_shares.insert(party_id, shares);
+                println!("received {:?} shares to {:?}", self.decryption_shares.len(), party_id);
             }
             SignMessage::Proofs { proofs, failed_messages_indices, involved_parties } => {
+                println!("received {:?} proofs to {:?}", self.proofs.clone().unwrap().len(), party_id);
                 self.failed_messages_indices = Some(failed_messages_indices.clone());
                 self.involved_parties = involved_parties.clone();
                 self.insert_proofs(party_id, proofs.clone());

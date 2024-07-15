@@ -343,7 +343,7 @@ impl SignatureMPCMessage {
             SignatureMPCMessageProtocols::DKG(_) => 1,
             SignatureMPCMessageProtocols::PresignFirstRound(_) => 2,
             SignatureMPCMessageProtocols::PresignSecondRound(_) => 3,
-            SignatureMPCMessageProtocols::Sign(_) => 3,
+            SignatureMPCMessageProtocols::Sign(_) => 4,
         }
     }
 
