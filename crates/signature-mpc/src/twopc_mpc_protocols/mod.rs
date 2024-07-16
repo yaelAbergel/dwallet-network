@@ -34,8 +34,8 @@ use maurer::language;
 pub use proof::aggregation::{
     CommitmentRoundParty, DecommitmentRoundParty, ProofAggregationRoundParty, ProofShareRoundParty,
 };
-use proof::range;
 use proof::range::bulletproofs::RANGE_CLAIM_BITS;
+use proof::{range, AggregatableRangeProof};
 use rand::rngs::OsRng;
 use serde::{Deserialize, Serialize};
 pub use tiresias::{
@@ -669,7 +669,17 @@ pub type SecretShareProof = enhanced_maurer::proof::Proof<
     PhantomData<()>,
 >;
 
-pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) -> SecretShareProof {
+pub fn generate_proof(
+    public_key: Vec<u8>,
+    secret_share: Vec<u8>,
+) -> (
+    SecretShareProof,
+    range::CommitmentSchemeCommitmentSpaceValue<
+        { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
+        { RANGE_CLAIMS_PER_SCALAR },
+        bulletproofs::RangeProof,
+    >,
+) {
     let padded_to_encrypt = pad_vector(secret_share);
     let secret_key_plaintext: LargeBiPrimeSizedNumber =
         LargeBiPrimeSizedNumber::from_be_slice(&padded_to_encrypt);
@@ -753,7 +763,8 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) -> SecretShare
     )
     .unwrap();
     // </editor-fold>
-    proofs
+    let first_statement_commitment = statements[0].range_proof_commitment();
+    (proofs, first_statement_commitment.value())
     // (proof, statements[0].range_proof_commitment())
     // println!("the proof is {:?}", proof);
     // println!("the statements are {:?}", statements.commitment_scheme_public_parameters());
