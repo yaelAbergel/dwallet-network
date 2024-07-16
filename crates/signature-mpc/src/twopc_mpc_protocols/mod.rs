@@ -9,18 +9,18 @@ use std::marker::PhantomData;
 
 pub use commitment::Commitment;
 // use commitment::GroupsPublicParametersAccessors;
-use crypto_bigint::{U256, Uint};
+use crypto_bigint::{Uint, U256};
 use ecdsa::signature::DigestVerifier;
 use ecdsa::{
     elliptic_curve::ops::Reduce,
     hazmat::{bits2field, DigestPrimitive},
     RecoveryId, Signature, VerifyingKey,
 };
-use enhanced_maurer::{encryption_of_discrete_log, StatementSpaceGroupElement};
 pub use enhanced_maurer::language::EnhancedLanguageStatementAccessors;
+use enhanced_maurer::{encryption_of_discrete_log, Proof, StatementSpaceGroupElement};
 pub use group::PartyID;
 pub use group::Value;
-use group::{AffineXCoordinate, GroupElement as _, Samplable, secp256k1};
+use group::{secp256k1, AffineXCoordinate, GroupElement as _, Samplable};
 pub use homomorphic_encryption::AdditivelyHomomorphicDecryptionKeyShare;
 use homomorphic_encryption::{
     AdditivelyHomomorphicDecryptionKey, AdditivelyHomomorphicEncryptionKey,
@@ -29,7 +29,7 @@ use homomorphic_encryption::{
 use k256::elliptic_curve::group::GroupEncoding;
 use k256::sha2::digest::FixedOutput;
 use k256::sha2::Digest;
-use k256::{AffinePoint, CompressedPoint, elliptic_curve, sha2};
+use k256::{elliptic_curve, sha2, AffinePoint, CompressedPoint};
 use maurer::language;
 pub use proof::aggregation::{
     CommitmentRoundParty, DecommitmentRoundParty, ProofAggregationRoundParty, ProofShareRoundParty,
@@ -39,19 +39,19 @@ use proof::range::bulletproofs::RANGE_CLAIM_BITS;
 use rand::rngs::OsRng;
 use serde::{Deserialize, Serialize};
 pub use tiresias::{
-    AdjustedLagrangeCoefficientSizedNumber,
     decryption_key_share::PublicParameters as DecryptionPublicParameters,
-    DecryptionKeyShare,
-    encryption_key::PublicParameters as EncryptionPublicParameters, LargeBiPrimeSizedNumber, PaillierModulusSizedNumber,
-    SecretKeyShareSizedNumber, test_exports::deal_trusted_shares as tiresias_deal_trusted_shares,
+    encryption_key::PublicParameters as EncryptionPublicParameters,
+    test_exports::deal_trusted_shares as tiresias_deal_trusted_shares,
+    AdjustedLagrangeCoefficientSizedNumber, DecryptionKeyShare, LargeBiPrimeSizedNumber,
+    PaillierModulusSizedNumber, SecretKeyShareSizedNumber,
 };
 pub use tiresias::{DecryptionKey, EncryptionKey};
 use tiresias::{PlaintextSpaceGroupElement, RandomnessSpaceGroupElement, RandomnessSpaceValue};
 use twopc_mpc::paillier::PLAINTEXT_SPACE_SCALAR_LIMBS;
 pub use twopc_mpc::secp256k1::paillier::bulletproofs::{
-    CentralizedPartyPresign, DecentralizedPartyPresign, DecommitmentProofVerificationRoundParty,
-    DKGCentralizedPartyOutput, DKGCommitmentRoundParty, DKGDecentralizedPartyOutput,
-    DKGDecommitmentRoundParty, DKGDecommitmentRoundState, EncDHCommitment,
+    CentralizedPartyPresign, DKGCentralizedPartyOutput, DKGCommitmentRoundParty,
+    DKGDecentralizedPartyOutput, DKGDecommitmentRoundParty, DKGDecommitmentRoundState,
+    DecentralizedPartyPresign, DecommitmentProofVerificationRoundParty, EncDHCommitment,
     EncDHCommitmentRoundParty, EncDHDecommitment, EncDHDecommitmentRoundParty,
     EncDHProofAggregationOutput, EncDHProofAggregationRoundParty, EncDHProofShare,
     EncDHProofShareRoundParty, EncDLCommitment, EncDLCommitmentRoundParty, EncDLDecommitment,
@@ -649,11 +649,9 @@ pub fn encrypt(to_encrypt: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
     )
     .unwrap();
 
-    bincode::serialize(
-        &PaillierModulusSizedNumber::from(
-            encryption_key.encrypt_with_randomness(&plaintext, &randomness, &deser_pub_params),
-        )
-    )
+    bincode::serialize(&PaillierModulusSizedNumber::from(
+        encryption_key.encrypt_with_randomness(&plaintext, &randomness, &deser_pub_params),
+    ))
     .unwrap()
 }
 
@@ -662,7 +660,7 @@ use proof::range::{bulletproofs, PublicParametersAccessors};
 pub const RANGE_CLAIMS_PER_SCALAR: usize =
     Uint::<{ secp256k1::SCALAR_LIMBS }>::BITS / RANGE_CLAIM_BITS;
 
-pub type SecretShareProof = enhanced_maurer::proof::Proof::<
+pub type SecretShareProof = enhanced_maurer::proof::Proof<
     { maurer::SOUND_PROOFS_REPETITIONS },
     RANGE_CLAIMS_PER_SCALAR,
     COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
@@ -672,11 +670,23 @@ pub type SecretShareProof = enhanced_maurer::proof::Proof::<
     PhantomData<()>,
 >;
 
-pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>)
-    ->
-        SecretShareProof
-        // CommitmentSpaceGroupElement,
- {
+pub fn generate_proof(
+    public_key: Vec<u8>,
+    secret_share: Vec<u8>,
+) -> (
+    Proof<
+        SCALAR_LIMBS,
+        { RANGE_CLAIMS_PER_SCALAR },
+        { SCALAR_LIMBS },
+        RangeProof,
+        RandomnessSpaceGroupElement,
+        Lang,
+        PhantomData<()>,
+    >,
+    Vec<GroupElement>,
+)
+// CommitmentSpaceGroupElement,
+{
     let padded_to_encrypt = pad_vector(secret_share);
     let secret_key_plaintext: LargeBiPrimeSizedNumber =
         LargeBiPrimeSizedNumber::from_be_slice(&padded_to_encrypt);
@@ -727,7 +737,6 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>)
 
     // <editor-fold desc="code from within valid_proof_verifies">
 
-
     let enhanced_language_public_parameters = enhanced_language_public_parameters::<
         { maurer::SOUND_PROOFS_REPETITIONS },
         RANGE_CLAIMS_PER_SCALAR,
@@ -753,7 +762,7 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>)
     // </editor-fold>
 
     // <editor-fold desc="Generating the proof">
-    let (proof, statements) = SecretShareProof::prove(
+    let (proofs, statements) = SecretShareProof::prove(
         &PhantomData,
         &enhanced_language_public_parameters,
         witnesses,
@@ -761,8 +770,7 @@ pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>)
     )
     .unwrap();
     // </editor-fold>
-
-    proof
+    (proofs, statements)
     // (proof, statements[0].range_proof_commitment())
     // println!("the proof is {:?}", proof);
     // println!("the statements are {:?}", statements.commitment_scheme_public_parameters());
