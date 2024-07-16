@@ -3,6 +3,8 @@ use tiresias::{CiphertextSpaceGroupElement, CiphertextSpaceValue, PaillierModulu
 use twopc_mpc::secp256k1::SCALAR_LIMBS;
 use signature_mpc::twopc_mpc_protocols::validate_proof::validate_proof;
 // use signature_mpc::twopc_mpc_protocols::validate_proof::validate_proof;
+use homomorphic_encryption::AdditivelyHomomorphicEncryptionKey;
+use twopc_mpc::paillier::PLAINTEXT_SPACE_SCALAR_LIMBS;
 
 fn main() {
     let keyshare = "62662BC0DD55F09545680B34A2CB005E6821D6C5FBCAA082397C0C712F292AF7";
@@ -15,6 +17,8 @@ fn main() {
     let serialized_encrypted_key = encrypt(parsed_keyshare.clone(), pub_key.clone());
     let proof = generate_proof(pub_key.clone(), parsed_keyshare);
     let encrypted_key: CiphertextSpaceValue = bincode::deserialize(&serialized_encrypted_key).unwrap();
+    println!("encrypted_key: {:?}", encrypted_key);
+    let encryptedElement = AdditivelyHomomorphicEncryptionKey::<PLAINTEXT_SPACE_SCALAR_LIMBS>::CiphertextSpaceGroupElement.from(encrypted_key);
     //
     // let centralized_public_key :PaillierModulusSizedNumber = bincode::deserialize(&centralized_public_key).unwrap();
     // let centralized_public_key = centralized_public_key.into();
