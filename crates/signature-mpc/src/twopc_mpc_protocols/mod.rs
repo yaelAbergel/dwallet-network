@@ -164,6 +164,7 @@ pub fn decentralized_party_dkg_verify_decommitment_and_proof_of_centralized_part
     >,
     secret_key_share_encryption_and_proof: SecretKeyShareEncryptionAndProof<ProtocolContext>,
 ) -> twopc_mpc::Result<(DKGDecentralizedPartyOutput, Vec<u8>)> {
+
     let protocol_public_parameters = ProtocolPublicParameters::new(
         LargeBiPrimeSizedNumber::from_be_hex(tiresias_public_parameters),
     );

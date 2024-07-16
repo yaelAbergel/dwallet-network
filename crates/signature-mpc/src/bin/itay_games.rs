@@ -58,7 +58,6 @@ fn main() {
     .unwrap();
     println!("commitment : {:?}", range_proof_commitment);
 
-
     //
     // let centralized_public_key :PaillierModulusSizedNumber = bincode::deserialize(&centralized_public_key).unwrap();
     // let centralized_public_key = centralized_public_key.into();
