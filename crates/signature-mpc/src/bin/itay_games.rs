@@ -1,4 +1,4 @@
-use commitment::{GroupsPublicParametersAccessors as GroupsPublicParametersAccessors_1};
+use commitment::GroupsPublicParametersAccessors as GroupsPublicParametersAccessors_1;
 use group::GroupElement;
 // use signature_mpc::twopc_mpc_protocols::validate_proof::validate_proof;
 use homomorphic_encryption::{AdditivelyHomomorphicEncryptionKey, GroupsPublicParametersAccessors};
@@ -7,9 +7,13 @@ use proof::range::bulletproofs;
 use proof::range::bulletproofs::COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS;
 use tiresias::LargeBiPrimeSizedNumber;
 use twopc_mpc::paillier::CiphertextSpaceGroupElement;
+use twopc_mpc::secp256k1::paillier;
 use twopc_mpc::secp256k1::paillier::bulletproofs::ProtocolPublicParameters;
 
-use signature_mpc::twopc_mpc_protocols::{encrypt, EncryptedDecentralizedPartySecretKeyShare, EncryptedDecentralizedPartySecretKeyShareValue, generate_keypair, generate_proof, RANGE_CLAIMS_PER_SCALAR};
+use signature_mpc::twopc_mpc_protocols::{
+    encrypt, generate_keypair, generate_proof, EncryptedDecentralizedPartySecretKeyShare,
+    EncryptedDecentralizedPartySecretKeyShareValue, ProtocolContext, RANGE_CLAIMS_PER_SCALAR,
+};
 
 fn main() {
     let keyshare = "62662BC0DD55F09545680B34A2CB005E6821D6C5FBCAA082397C0C712F292AF7";
@@ -28,27 +32,32 @@ fn main() {
     let protocol_public_parameters = ProtocolPublicParameters::new(DUMMY_PUBLIC_KEY);
     let deser_pub_params: tiresias::encryption_key::PublicParameters =
         bincode::deserialize(&pub_key).unwrap();
-    let encrypted_secret_share: CiphertextSpaceGroupElement = EncryptedDecentralizedPartySecretKeyShare::new(
-        encrypted_key,
-        deser_pub_params.ciphertext_space_public_parameters(),
-    )
-    .unwrap();
+    let encrypted_secret_share: CiphertextSpaceGroupElement =
+        EncryptedDecentralizedPartySecretKeyShare::new(
+            encrypted_key,
+            deser_pub_params.ciphertext_space_public_parameters(),
+        )
+        .unwrap();
     // println!("encrypted secret share: {:?}", encrypted_secret_share);
     // println!("proof: {:?}", proof);
 
-
     let range_proof_commitment = range::CommitmentSchemeCommitmentSpaceGroupElement::<
         { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
-        {RANGE_CLAIMS_PER_SCALAR},
+        { RANGE_CLAIMS_PER_SCALAR },
         bulletproofs::RangeProof,
     >::new(
         commitment_value,
         // self.range_proof_public_parameters
         //     .commitment_scheme_public_parameters()
         //     .commitment_space_public_parameters(),
-        protocol_public_parameters.range_proof_enc_dl_public_parameters.commitment_scheme_public_parameters.commitment_space_public_parameters()
-    ).unwrap();
+        protocol_public_parameters
+            .range_proof_enc_dl_public_parameters
+            .commitment_scheme_public_parameters
+            .commitment_space_public_parameters(),
+    )
+    .unwrap();
     println!("commitment : {:?}", range_proof_commitment);
+
 
     //
     // let centralized_public_key :PaillierModulusSizedNumber = bincode::deserialize(&centralized_public_key).unwrap();
