@@ -1,7 +1,7 @@
-use commitment::GroupsPublicParametersAccessors;
+use commitment::{GroupsPublicParametersAccessors as GroupsPublicParametersAccessors_1};
 use group::GroupElement;
 // use signature_mpc::twopc_mpc_protocols::validate_proof::validate_proof;
-use homomorphic_encryption::{AdditivelyHomomorphicEncryptionKey};
+use homomorphic_encryption::{AdditivelyHomomorphicEncryptionKey, GroupsPublicParametersAccessors};
 use proof::range;
 use proof::range::bulletproofs;
 use proof::range::bulletproofs::COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS;
@@ -28,11 +28,11 @@ fn main() {
     let protocol_public_parameters = ProtocolPublicParameters::new(DUMMY_PUBLIC_KEY);
     let deser_pub_params: tiresias::encryption_key::PublicParameters =
         bincode::deserialize(&pub_key).unwrap();
-    // let encrypted_secret_share: CiphertextSpaceGroupElement = EncryptedDecentralizedPartySecretKeyShare::new(
-    //     encrypted_key,
-    //     deser_pub_params.ciphertext_space_public_parameters(),
-    // )
-    // .unwrap();
+    let encrypted_secret_share: CiphertextSpaceGroupElement = EncryptedDecentralizedPartySecretKeyShare::new(
+        encrypted_key,
+        deser_pub_params.ciphertext_space_public_parameters(),
+    )
+    .unwrap();
     // println!("encrypted secret share: {:?}", encrypted_secret_share);
     // println!("proof: {:?}", proof);
 
