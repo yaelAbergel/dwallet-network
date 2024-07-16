@@ -651,7 +651,6 @@ pub fn encrypt(to_encrypt: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
 
     let encrypted_ciphertext =
         encryption_key.encrypt_with_randomness(&plaintext, &randomness, &deser_pub_params);
-    encrypted_ciphertext.value();
     bincode::serialize(&encrypted_ciphertext.value()).unwrap()
 }
 
