@@ -673,19 +673,7 @@ pub type SecretShareProof = enhanced_maurer::proof::Proof<
 pub fn generate_proof(
     public_key: Vec<u8>,
     secret_share: Vec<u8>,
-) -> (
-    Proof<
-        SCALAR_LIMBS,
-        { RANGE_CLAIMS_PER_SCALAR },
-        { SCALAR_LIMBS },
-        RangeProof,
-        RandomnessSpaceGroupElement,
-        Lang,
-        PhantomData<()>,
-    >,
-    Vec<GroupElement>,
-)
-// CommitmentSpaceGroupElement,
+) -> SecretShareProof
 {
     let padded_to_encrypt = pad_vector(secret_share);
     let secret_key_plaintext: LargeBiPrimeSizedNumber =
@@ -770,7 +758,7 @@ pub fn generate_proof(
     )
     .unwrap();
     // </editor-fold>
-    (proofs, statements)
+    proofs
     // (proof, statements[0].range_proof_commitment())
     // println!("the proof is {:?}", proof);
     // println!("the statements are {:?}", statements.commitment_scheme_public_parameters());
