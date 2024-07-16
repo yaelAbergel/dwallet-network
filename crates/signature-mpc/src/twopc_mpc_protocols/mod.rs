@@ -649,10 +649,10 @@ pub fn encrypt(to_encrypt: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
     )
     .unwrap();
 
-    bincode::serialize(&PaillierModulusSizedNumber::from(
-        encryption_key.encrypt_with_randomness(&plaintext, &randomness, &deser_pub_params),
-    ))
-    .unwrap()
+    let encrypted_ciphertext =
+        encryption_key.encrypt_with_randomness(&plaintext, &randomness, &deser_pub_params);
+    encrypted_ciphertext.value();
+    bincode::serialize(&encrypted_ciphertext.value()).unwrap()
 }
 
 use proof::range::{bulletproofs, PublicParametersAccessors};
@@ -670,11 +670,7 @@ pub type SecretShareProof = enhanced_maurer::proof::Proof<
     PhantomData<()>,
 >;
 
-pub fn generate_proof(
-    public_key: Vec<u8>,
-    secret_share: Vec<u8>,
-) -> SecretShareProof
-{
+pub fn generate_proof(public_key: Vec<u8>, secret_share: Vec<u8>) -> SecretShareProof {
     let padded_to_encrypt = pad_vector(secret_share);
     let secret_key_plaintext: LargeBiPrimeSizedNumber =
         LargeBiPrimeSizedNumber::from_be_slice(&padded_to_encrypt);

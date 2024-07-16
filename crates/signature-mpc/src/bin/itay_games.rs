@@ -1,5 +1,7 @@
-use tiresias::PaillierModulusSizedNumber;
 use signature_mpc::twopc_mpc_protocols::{encrypt, generate_keypair, generate_proof};
+use tiresias::{CiphertextSpaceGroupElement, CiphertextSpaceValue, PaillierModulusSizedNumber};
+use twopc_mpc::secp256k1::SCALAR_LIMBS;
+use signature_mpc::twopc_mpc_protocols::validate_proof::validate_proof;
 // use signature_mpc::twopc_mpc_protocols::validate_proof::validate_proof;
 
 fn main() {
@@ -10,14 +12,12 @@ fn main() {
     // let centralized_public_key = hex::decode(centralized_public_key).expect("Decoding failed");
 
     let (pub_key, _) = generate_keypair();
-    let encrypted_key = encrypt(parsed_keyshare.clone(), pub_key.clone());
+    let serialized_encrypted_key = encrypt(parsed_keyshare.clone(), pub_key.clone());
     let proof = generate_proof(pub_key.clone(), parsed_keyshare);
-
-    // let encrypted_key :PaillierModulusSizedNumber = bincode::deserialize(&encrypted_key).unwrap();
-    // let encrypted_key = encrypted_key.into();
+    let encrypted_key: CiphertextSpaceValue = bincode::deserialize(&serialized_encrypted_key).unwrap();
     //
     // let centralized_public_key :PaillierModulusSizedNumber = bincode::deserialize(&centralized_public_key).unwrap();
     // let centralized_public_key = centralized_public_key.into();
     //
-    // validate_proof(pub_key, proof, commitment, encrypted_key, centralized_public_key);
+    // validate_proof(pub_key, proof, centralized_public_key, encrypted_key);
 }
