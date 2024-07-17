@@ -14,7 +14,7 @@ use rand_core::OsRng;
 use crate::twopc_mpc_protocols;
 
 use crate::twopc_mpc_protocols::{encrypt, EncryptedDecentralizedPartySecretKeyShare, EncryptedDecentralizedPartySecretKeyShareValue, generate_keypair, generate_proof};
-
+use std::marker::PhantomData;
 pub const RANGE_CLAIMS_PER_SCALAR: usize =
     Uint::<{ secp256k1::SCALAR_LIMBS }>::BITS / RANGE_CLAIM_BITS;
 
@@ -159,6 +159,11 @@ pub fn itay_ide_tricks(public_key: Value) {
     )
         .into();
     let statement = (range_proof_commitment, b).into();
-    proof.verify(&mut OsRng)
+    proof.verify(
+    &PhantomData,
+    &encryption_of_discrete_log_enhanced_language_public_parameters,
+    vec![statement],
+    &mut OsRng
+    ).unwrap();
 }
 
