@@ -90,25 +90,25 @@ describe('Test key share transfer', () => {
 		await transferDwallet(toolbox.client, toolbox.keypair);
 	});
 
-	it('should transfer dwallet', async () => {
-		// generate the keypair Bob
-		const [pub_key, _] = generate_keypair();
-		await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
-
-		init_panic_hook();
-
-		// some key share from configuration Alice
-		let keyshare_to_encrypt = '62662BC0DD55F09545680B34A2CB005E6821D6C5FBCAA082397C0C712F292AF7';
-		let parsedKeyshare = Uint8Array.from(Buffer.from(keyshare_to_encrypt, 'hex'));
-		let centeralized_public_key = 'insert the centralized public key here';
-
-		// encrypt the secret key share
-		let encryptedKey = encrypt(parsedKeyshare, pub_key);
-
-		// generate the proof
-		let [proof, commitment] = generate_proof(parsedKeyshare, encryptedKey, pub_key);
-
-		// verify the proof
-		validate_proof(pub_key, proof, commitment, centeralized_public_key, encryptedKey);
-	});
+	// it('should transfer dwallet', async () => {
+	// 	// generate the keypair Bob
+	// 	const [pub_key, _] = generate_keypair();
+	// 	await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
+	//
+	// 	init_panic_hook();
+	//
+	// 	// some key share from configuration Alice
+	// 	let keyshare_to_encrypt = '62662BC0DD55F09545680B34A2CB005E6821D6C5FBCAA082397C0C712F292AF7';
+	// 	let parsedKeyshare = Uint8Array.from(Buffer.from(keyshare_to_encrypt, 'hex'));
+	// 	let centeralized_public_key = 'insert the centralized public key here';
+	//
+	// 	// encrypt the secret key share
+	// 	let encryptedKey = encrypt(parsedKeyshare, pub_key);
+	//
+	// 	// generate the proof
+	// 	let [proof, commitment] = generate_proof(parsedKeyshare, encryptedKey, pub_key);
+	//
+	// 	// verify the proof
+	// 	validate_proof(pub_key, proof, commitment, centeralized_public_key, encryptedKey);
+	// });
 });

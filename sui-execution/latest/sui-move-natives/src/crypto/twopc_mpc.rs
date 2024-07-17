@@ -65,7 +65,8 @@ pub fn transfer_dwallet_native(
     //     ));
     // };
 
-    let res = bcs::from_bytes::<Commitment>(&serialized_dwallet_vec);
+    let res = bcs::from_bytes::<SecretKeyShareEncryptionAndProof<ProtocolContext>>(&serialized_dwallet_vec);
+
 
     Ok(NativeResult::ok(
         cost,

@@ -2,14 +2,12 @@
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 
 module dwallet_system::dwallet_transfer {
-    use std::debug;
     use dwallet::object::{Self, ID, UID};
     use dwallet::transfer;
     use dwallet::tx_context;
     use dwallet::tx_context::TxContext;
 
-    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::{commitment_to_centralized_party_secret_key_share,
-        DKGSession
+    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::{DWallet, output
     };
 
     struct PublicKey has key {
@@ -34,9 +32,8 @@ module dwallet_system::dwallet_transfer {
     }
 
     // public fun transfer_dwallet(_wallet: &DWallet) {
-    public fun transfer_dwallet(session: &DKGSession) {
-        debug::print(session);
-        transfer_dwallet_native(commitment_to_centralized_party_secret_key_share(session));
+    public fun transfer_dwallet(wallet: &DWallet) {
+        transfer_dwallet_native(output(wallet));
     }
 
     native fun transfer_dwallet_native(wallet: vector<u8>);
