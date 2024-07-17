@@ -10,6 +10,7 @@ pub use twopc_mpc::secp256k1::{Scalar, SCALAR_LIMBS};
 use twopc_mpc::secp256k1::paillier::bulletproofs::ProtocolPublicParameters;
 use proof::range;
 use proof::range::bulletproofs;
+use rand_core::OsRng;
 use crate::twopc_mpc_protocols;
 
 use crate::twopc_mpc_protocols::{encrypt, EncryptedDecentralizedPartySecretKeyShare, EncryptedDecentralizedPartySecretKeyShareValue, generate_keypair, generate_proof};
@@ -158,5 +159,6 @@ pub fn itay_ide_tricks(public_key: Value) {
     )
         .into();
     let statement = (range_proof_commitment, b).into();
+    proof.verify(&mut OsRng)
 }
 
