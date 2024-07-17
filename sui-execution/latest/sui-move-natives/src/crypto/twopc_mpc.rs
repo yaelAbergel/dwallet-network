@@ -65,8 +65,8 @@ pub fn transfer_dwallet_native(
     //     ));
     // };
 
-    let res = bcs::from_bytes::<SecretKeyShareEncryptionAndProof<ProtocolContext>>(&serialized_dwallet_vec);
-
+    let res = bcs::from_bytes::<DKGDecentralizedPartyOutput>(&serialized_dwallet_vec);
+    let a = res.unwrap().public_key_share;
 
     Ok(NativeResult::ok(
         cost,
