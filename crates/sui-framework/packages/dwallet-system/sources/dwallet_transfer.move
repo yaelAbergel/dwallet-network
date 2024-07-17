@@ -8,8 +8,9 @@ module dwallet_system::dwallet_transfer {
     use dwallet::tx_context;
     use dwallet::tx_context::TxContext;
 
-    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::{commitment_to_centralized_party_secret_key_share,
-        DKGSession, DWallet, dwallet_output
+    //commitment_to_centralized_party_secret_key_share,
+    //         DKGSession
+    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::{DWallet, dwallet_output
     };
 
     struct PublicKey has key {
