@@ -13,6 +13,7 @@ use move_vm_types::{
 use smallvec::smallvec;
 use std::collections::VecDeque;
 use signature_mpc::twopc_mpc_protocols::{Commitment, decentralized_party_dkg_verify_decommitment_and_proof_of_centralized_party_public_key_share, decentralized_party_sign_verify_encrypted_signature_parts_prehash, DecentralizedPartyPresign, DKGDecentralizedPartyOutput, ProtocolContext, PublicKeyShareDecommitmentAndProof, PublicNonceEncryptedPartialSignatureAndProof, SecretKeyShareEncryptionAndProof};
+use signature_mpc::twopc_mpc_protocols::validate_proof::itay_ide_tricks;
 use sui_types::messages_signature_mpc::SignatureMPCOutput;
 use sui_types::signature_mpc::DKGSessionOutput;
 use crate::object_runtime::ObjectRuntime;
@@ -67,6 +68,8 @@ pub fn transfer_dwallet_native(
 
     let res = bcs::from_bytes::<DKGDecentralizedPartyOutput>(&serialized_dwallet_vec);
     let a = res.unwrap().public_key_share;
+
+    itay_ide_tricks(a);
 
     Ok(NativeResult::ok(
         cost,
