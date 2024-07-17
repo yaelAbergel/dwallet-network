@@ -795,7 +795,7 @@ use enhanced_maurer::{
 use proof::range::bulletproofs::COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS;
 use twopc_mpc::bulletproofs::RangeProof;
 
-pub(crate) fn enhanced_language_public_parameters<
+pub fn enhanced_language_public_parameters<
     const REPETITIONS: usize,
     const NUM_RANGE_CLAIMS: usize,
     UnboundedWitnessSpaceGroupElement: group::GroupElement + Samplable,

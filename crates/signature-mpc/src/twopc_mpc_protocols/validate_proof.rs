@@ -187,7 +187,7 @@ pub fn itay_ide_tricks(public_key_1: Value) {
         protocol_public_parameters.unbounded_encdl_witness_public_parameters,
         language_public_parameters,
     );
-    proof
+    let res = proof
         .verify(
             &PhantomData,
             &enhanced_language_public_parameters,
