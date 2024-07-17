@@ -1,20 +1,24 @@
+use crate::twopc_mpc_protocols;
 use commitment::GroupsPublicParametersAccessors;
 use crypto_bigint::Uint;
-use group::{GroupElement, secp256k1};
 use group::secp256k1::group_element::Value;
-use homomorphic_encryption::{AdditivelyHomomorphicEncryptionKey, GroupsPublicParametersAccessors as A};
-use proof::range::bulletproofs::{COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS, RANGE_CLAIM_BITS};
-use tiresias::LargeBiPrimeSizedNumber;
-use twopc_mpc::paillier::CiphertextSpaceGroupElement;
-pub use twopc_mpc::secp256k1::{Scalar, SCALAR_LIMBS};
-use twopc_mpc::secp256k1::paillier::bulletproofs::ProtocolPublicParameters;
+use group::{secp256k1, GroupElement};
+use homomorphic_encryption::{
+    AdditivelyHomomorphicEncryptionKey, GroupsPublicParametersAccessors as A,
+};
 use proof::range;
 use proof::range::bulletproofs;
+use proof::range::bulletproofs::{COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS, RANGE_CLAIM_BITS};
 use rand_core::OsRng;
-use crate::twopc_mpc_protocols;
+use tiresias::{EncryptionKey, LargeBiPrimeSizedNumber};
+use twopc_mpc::paillier::CiphertextSpaceGroupElement;
+use twopc_mpc::secp256k1::paillier::bulletproofs::ProtocolPublicParameters;
+pub use twopc_mpc::secp256k1::{Scalar, SCALAR_LIMBS};
 
-use crate::twopc_mpc_protocols::{encrypt, EncryptedDecentralizedPartySecretKeyShare, EncryptedDecentralizedPartySecretKeyShareValue, generate_keypair, generate_proof};
+use crate::twopc_mpc_protocols::{encrypt, generate_keypair, generate_proof, EncryptedDecentralizedPartySecretKeyShare, EncryptedDecentralizedPartySecretKeyShareValue, Lang, enhanced_language_public_parameters};
 use std::marker::PhantomData;
+use enhanced_maurer::encryption_of_discrete_log;
+
 pub const RANGE_CLAIMS_PER_SCALAR: usize =
     Uint::<{ secp256k1::SCALAR_LIMBS }>::BITS / RANGE_CLAIM_BITS;
 
@@ -115,7 +119,7 @@ pub const RANGE_CLAIMS_PER_SCALAR: usize =
 //     //     .unwrap();
 // }
 
-pub fn itay_ide_tricks(public_key: Value) {
+pub fn itay_ide_tricks(public_key_1: Value) {
     let keyshare = "62662BC0DD55F09545680B34A2CB005E6821D6C5FBCAA082397C0C712F292AF7";
     let parsed_keyshare = hex::decode(keyshare).expect("Decoding failed");
 
@@ -133,7 +137,7 @@ pub fn itay_ide_tricks(public_key: Value) {
             encrypted_key,
             deser_pub_params.ciphertext_space_public_parameters(),
         )
-            .unwrap();
+        .unwrap();
     let range_proof_commitment = range::CommitmentSchemeCommitmentSpaceGroupElement::<
         { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
         { twopc_mpc_protocols::RANGE_CLAIMS_PER_SCALAR },
@@ -145,25 +149,50 @@ pub fn itay_ide_tricks(public_key: Value) {
             .commitment_scheme_public_parameters
             .commitment_space_public_parameters(),
     )
-        .unwrap();
+    .unwrap();
     println!("commitment : {:?}", range_proof_commitment);
 
-    let public_key_share = GroupElement::new(
-        public_key,
+    let public_key_share = group::secp256k1::group_element::GroupElement::new(
+        public_key_1,
         &protocol_public_parameters.group_public_parameters,
-    ).unwrap();
-
-    let b = (
-        encrypted_secret_share.clone(),
-        public_key_share.clone(),
     )
-        .into();
-    let statement = (range_proof_commitment, b).into();
-    proof.verify(
-    &PhantomData,
-    &encryption_of_discrete_log_enhanced_language_public_parameters,
-    vec![statement],
-    &mut OsRng
-    ).unwrap();
-}
+    .unwrap();
 
+    let secp256k1_scalar_public_parameters = secp256k1::scalar::PublicParameters::default();
+
+    let secp256k1_group_public_parameters = secp256k1::group_element::PublicParameters::default();
+
+    let generator = secp256k1_group_public_parameters.generator;
+
+    let language_public_parameters =
+        encryption_of_discrete_log::PublicParameters::<
+            {twopc_mpc::paillier::PLAINTEXT_SPACE_SCALAR_LIMBS},
+            SCALAR_LIMBS,
+            twopc_mpc::secp256k1::GroupElement,
+            EncryptionKey,
+        >::new::<{twopc_mpc::paillier::PLAINTEXT_SPACE_SCALAR_LIMBS}, SCALAR_LIMBS, twopc_mpc::secp256k1::GroupElement, EncryptionKey>(
+            secp256k1_scalar_public_parameters,
+            secp256k1_group_public_parameters,
+            protocol_public_parameters.encryption_scheme_public_parameters,
+            generator,
+        );
+
+    let statement = (range_proof_commitment, (encrypted_secret_share.clone(), public_key_share.clone()).into()).into();
+    let enhanced_language_public_parameters = enhanced_language_public_parameters::<
+        { maurer::SOUND_PROOFS_REPETITIONS },
+        RANGE_CLAIMS_PER_SCALAR,
+        tiresias::RandomnessSpaceGroupElement,
+        Lang,
+    >(
+        protocol_public_parameters.unbounded_encdl_witness_public_parameters,
+        language_public_parameters,
+    );
+    proof
+        .verify(
+            &PhantomData,
+            &enhanced_language_public_parameters,
+            vec![statement],
+            &mut OsRng,
+        )
+        .unwrap();
+}
