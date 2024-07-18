@@ -90,6 +90,8 @@ describe('Test key share transfer', () => {
 		await transferDwallet(toolbox.client, toolbox.keypair);
 	});
 
+	// IQJNF3tN3uXYvEk4d8T6/n8nM4eUBKrH01Y9n782tG/cqCECJtydcT3fJoThgYtlMsja1cM4molks7u6RAAYV9HPhFJ/uprz0KiOSlxlanv/1S97RvvGX+yjXMsbJI26r9UZxpFdCRPxZBjrGNfNUEZWbov3btDkZ49ky8v8lXnz/YKpYYjF1iiLa/i4OOpVCf3VIYBLAI0dpN0s/2kLRJLX2M9KCanYNJzuh8lYy7GfZMeid8p/9+NMS4mV83B8eZi79UbfReTEs9A9ZOog84vLDw9zxHvVV8ff6Av+2BJJX1aZRhLbUwCnmq+d421ldNDgEzHdqR33qYC6T0yrWN69611TSyGK3mgqKkiYQwYUoaSXaikbbp2mIk1LE+3y6BJflhwpzFYvIsiEkX9AEOotSIxyxQpKDN7dAGxp1Fz5v/eeRTeL9twuMEhoO/CjbMcEuZXu57UsVCQzSOcGx9Hb/Dm2v4oS4hpbhTZ5vz1ub4M1guzGnFt9eIuXaLXayrT6UclfwygkGtdz7VhsMAb59+WLOGRvJsJ7unKIV+Az6Ip/hd0iAapoQYVSzdWOBVxmrjdYYh1gJ6T4AJSU7PHte/2uOcCmW0G5TyAyeaq5r14PX33o9A0buo6Fusty5LCXGTFRkBurqP/qMorjYo7RCrOrYnVuMU+rMO/w8tvcINdE009rAqASqd6j0SPuE+rEdKmMbpmkGSMBTZKxZokJtj+gJdD+j1d7B3rRcAESBzIwOqo09l4RHOWw1PBvExyDRyEDP9FhKBKWwM7r59OWDuAERSXtejD3RD6IOKfOAPYzFUY=
+
 	// it('should transfer dwallet', async () => {
 	// 	// generate the keypair Bob
 	// 	const [pub_key, _] = generate_keypair();

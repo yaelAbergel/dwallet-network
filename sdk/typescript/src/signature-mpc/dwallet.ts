@@ -111,7 +111,7 @@ export const transferDwallet = async (client: DWalletClient, keypair: Keypair) =
 	const tx = new TransactionBlock();
 	tx.moveCall({
 		target: `${packageId}::dwallet_transfer::transfer_dwallet`,
-		arguments: [tx.object('0x595dc851ff18dab049ffd79be3b6f2084051fbf8794ec4332479fd17b1f475f9')],
+		arguments: [tx.object('0x22983d9c11c3adc332e5be6a29be77bbab978cb00cb4b166b1efd083eb509032')],
 		// tx.pure(bcs.vector(bcs.vector(bcs.u8())).serialize(messages))
 	});
 	await client.signAndExecuteTransactionBlock({
