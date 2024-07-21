@@ -386,11 +386,12 @@ impl<
                             //     output.value = SignatureMPCOutputValue::Sign{ sigs: sigs.clone(), aggregator_party_id: (authority_index + 1) as u8 };
                             // }
                             let output = match &output.value {
-                                SignatureMPCOutputValue::Sign { sigs, .. } => {
+                                SignatureMPCOutputValue::Sign { sigs, messages, .. } => {
                                     let mut copied_output = output.clone();
                                     copied_output.value = SignatureMPCOutputValue::Sign {
                                         sigs: sigs.clone(),
                                         aggregator_party_id: (authority_index + 1) as u8,
+                                        messages
                                     };
                                     &copied_output.clone()
                                 }

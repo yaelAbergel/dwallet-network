@@ -93,7 +93,7 @@ impl SignMessage {
         match self {
             SignMessage::DecryptionShares(_) => 1,
             SignMessage::Proofs(_) => 2,
-            SignMessage::StartIAFlow(_, _) => 3
+            SignMessage::StartIAFlow(_, _) => 3,
         }
     }
 }
@@ -183,7 +183,8 @@ pub enum SignatureMPCOutputValue {
     Sign {
         sigs: Vec<Vec<u8>>,
         /// Used to punish a malicious validator in case of an attempt to send an invalid signature
-        aggregator_party_id: u8
+        aggregator_party_id: u8,
+        messages: Vec<Vec<u8>>,
     },
 }
 
@@ -215,7 +216,7 @@ impl Display for SignatureMPCOutputValue {
                     presigns,
                 )
             }
-            SignatureMPCOutputValue::Sign{ sigs, .. } => {
+            SignatureMPCOutputValue::Sign { sigs, .. } => {
                 write!(f, "DKGSignatureMPCOutputValue::Sign {{ sigs: {:?}}}", sigs,)
             }
         }
@@ -324,12 +325,17 @@ impl SignatureMPCOutput {
         session_id: SignatureMPCSessionID,
         session_ref: ObjectRef,
         sigs: Vec<Vec<u8>>,
+        messages: Vec<Vec<u8>>,
     ) -> SuiResult<SignatureMPCOutput> {
         Ok(Self {
             epoch,
             session_id,
             session_ref,
-            value: SignatureMPCOutputValue::Sign{sigs, aggregator_party_id: 0},
+            value: SignatureMPCOutputValue::Sign {
+                sigs,
+                aggregator_party_id: 0,
+                messages,
+            },
         })
     }
 

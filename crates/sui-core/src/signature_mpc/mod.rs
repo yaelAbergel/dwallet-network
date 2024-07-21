@@ -649,7 +649,7 @@ impl SignatureMPCAggregator {
                     SignRoundCompletion::SignatureOutput(sigs) => {
                         let _ = submit
                             .sign_and_submit_output(
-                                &SignatureMPCOutput::new_sign(epoch, session_id, session_ref, sigs)
+                                &SignatureMPCOutput::new_sign(epoch, session_id, session_ref, sigs, state.messages.unwrap())
                                     .unwrap(),
                                 &epoch_store,
                             )
