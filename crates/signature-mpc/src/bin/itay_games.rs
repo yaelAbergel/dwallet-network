@@ -24,8 +24,6 @@ fn main() {
     let secret_keyshare = "6AB56130FABB98FEA816056CF85E3C9E206F67F8DF68C091A70C4AA5D7BD9B2E";
     let (pub_key, _) = generate_keypair();
     let parsed_keyshare = hex::decode(secret_keyshare).expect("Decoding failed");
-    let (proof, commitment_value) = generate_proof(pub_key.clone(), parsed_keyshare.clone());
-
     let bytes_encrypted_key = encrypt(parsed_keyshare.clone(), pub_key.clone());
     let (proof, commitment_value) = generate_proof(pub_key.clone(), parsed_keyshare);
     let encrypted_key: EncryptedDecentralizedPartySecretKeyShareValue =
@@ -42,7 +40,7 @@ fn main() {
             .unwrap();
     let range_proof_commitment = range::CommitmentSchemeCommitmentSpaceGroupElement::<
         { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
-        { twopc_mpc_protocols::RANGE_CLAIMS_PER_SCALAR },
+        { RANGE_CLAIMS_PER_SCALAR },
         bulletproofs::RangeProof,
     >::new(
         commitment_value,
@@ -50,12 +48,6 @@ fn main() {
             .range_proof_enc_dl_public_parameters
             .commitment_scheme_public_parameters
             .commitment_space_public_parameters(),
-    )
-        .unwrap();
-
-    let public_key_share = group::secp256k1::group_element::GroupElement::new(
-        centralized_public_keyshare,
-        &protocol_public_parameters.group_public_parameters,
     )
         .unwrap();
     let secp256k1_scalar_public_parameters = secp256k1::scalar::PublicParameters::default();
@@ -69,12 +61,11 @@ fn main() {
             EncryptionKey,
         >::new::<{twopc_mpc::paillier::PLAINTEXT_SPACE_SCALAR_LIMBS}, SCALAR_LIMBS, twopc_mpc::secp256k1::GroupElement, EncryptionKey>(
             secp256k1_scalar_public_parameters,
-            secp256k1_group_public_parameters,
+            secp256k1_group_public_parameters.clone(),
             protocol_public_parameters.encryption_scheme_public_parameters,
             generator,
         );
 
-    let statement = (range_proof_commitment, (encrypted_secret_share.clone(), public_key_share.clone()).into()).into();
     let enhanced_language_public_parameters = twopc_mpc_protocols::enhanced_language_public_parameters::<
         { maurer::SOUND_PROOFS_REPETITIONS },
         RANGE_CLAIMS_PER_SCALAR,
@@ -84,6 +75,14 @@ fn main() {
         protocol_public_parameters.unbounded_encdl_witness_public_parameters,
         language_public_parameters,
     );
+    let public_key_share = group::secp256k1::group_element::GroupElement::new(
+        centralized_public_keyshare,
+        &secp256k1_group_public_parameters,
+    )
+        .unwrap();
+    let statement = (range_proof_commitment, (encrypted_secret_share.clone(), public_key_share.clone()).into()).into();
+
+
     let res = proof
         .verify(
             &PhantomData,
@@ -92,5 +91,5 @@ fn main() {
             &mut OsRng,
         )
         .unwrap();
-    println!("{:?}", res);
+    // println!("{:?}", res);
 }

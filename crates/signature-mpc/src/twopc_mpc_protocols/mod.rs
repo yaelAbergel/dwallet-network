@@ -734,7 +734,7 @@ pub fn generate_proof(
     let enhanced_language_public_parameters = enhanced_language_public_parameters::<
         { maurer::SOUND_PROOFS_REPETITIONS },
         RANGE_CLAIMS_PER_SCALAR,
-        tiresias::RandomnessSpaceGroupElement,
+        RandomnessSpaceGroupElement,
         Lang,
     >(
         unbounded_witness_public_parameters,
@@ -749,7 +749,7 @@ pub fn generate_proof(
             RANGE_CLAIMS_PER_SCALAR,
             { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
             bulletproofs::RangeProof,
-            tiresias::RandomnessSpaceGroupElement,
+            RandomnessSpaceGroupElement,
             Lang,
         >::generate_witnesses(witnesses, &enhanced_language_public_parameters, &mut OsRng)
         .unwrap();
@@ -813,12 +813,12 @@ pub fn enhanced_language_public_parameters<
     EnhancedLang<REPETITIONS, NUM_RANGE_CLAIMS, UnboundedWitnessSpaceGroupElement, Lang>,
 > {
     MaurerPublicParameters::new::<
-        range::bulletproofs::RangeProof,
+        bulletproofs::RangeProof,
         UnboundedWitnessSpaceGroupElement,
         Lang,
     >(
         unbounded_witness_public_parameters,
-        range::bulletproofs::PublicParameters::default(),
+        bulletproofs::PublicParameters::default(),
         language_public_parameters,
     )
     .unwrap()
