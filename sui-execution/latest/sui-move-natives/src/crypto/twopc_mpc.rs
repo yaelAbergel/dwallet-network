@@ -177,35 +177,35 @@ pub fn sign_verify_encrypted_signature_parts_prehash(
     ))
 }
 
-pub(crate) fn verify_signatures(
-    context: &mut NativeContext,
-    ty_args: Vec<Type>,
-    mut args: VecDeque<Value>, ) -> PartialVMResult<NativeResult> {
-    debug_assert!(ty_args.is_empty());
-    debug_assert!(args.len() == 1);
-    let twopc_mpc_dkg_cost_params = &context
-        .extensions()
-        .get::<NativesCostTable>()
-        .transfer_dwallet_cost_params
-        .clone();
-    let object_runtime = context
-        .extensions()
-        .get::<ObjectRuntime>();
-    native_charge_gas_early_exit!(
-        context,
-        twopc_mpc_dkg_cost_params.transfer_dwallet_gas
-    );
-
-    let cost = context.gas_used();
-    // let Ok(dwallet) = DKGSessionOutput::from_bcs_bytes((&serialized_dwallet_vec)) else {
-    //     return Ok(NativeResult::err(
-    //         cost,
-    //         INVALID_INPUT
-    //     ));
-    // };
-
-    Ok(NativeResult::ok(
-        cost,
-        smallvec![]
-    ))
-}
+// pub(crate) fn verify_signatures(
+//     context: &mut NativeContext,
+//     ty_args: Vec<Type>,
+//     mut args: VecDeque<Value>, ) -> PartialVMResult<NativeResult> {
+//     debug_assert!(ty_args.is_empty());
+//     debug_assert!(args.len() == 1);
+//     let twopc_mpc_dkg_cost_params = &context
+//         .extensions()
+//         .get::<NativesCostTable>()
+//         .transfer_dwallet_cost_params
+//         .clone();
+//     let object_runtime = context
+//         .extensions()
+//         .get::<ObjectRuntime>();
+//     native_charge_gas_early_exit!(
+//         context,
+//         twopc_mpc_dkg_cost_params.transfer_dwallet_gas
+//     );
+//
+//     let cost = context.gas_used();
+//     // let Ok(dwallet) = DKGSessionOutput::from_bcs_bytes((&serialized_dwallet_vec)) else {
+//     //     return Ok(NativeResult::err(
+//     //         cost,
+//     //         INVALID_INPUT
+//     //     ));
+//     // };
+//
+//     Ok(NativeResult::ok(
+//         cost,
+//         smallvec![]
+//     ))
+// }

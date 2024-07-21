@@ -752,11 +752,11 @@ pub fn all_natives(silent: bool) -> NativeFunctionTable {
             "sign_verify_encrypted_signature_parts_prehash",
             make_native!(twopc_mpc::sign_verify_encrypted_signature_parts_prehash),
         ),
-        (
-            "dwallet",
-            "verify_signatures_native",
-            make_native!(twopc_mpc::verify_signatures),
-        )
+        // (
+        //     "dwallet",
+        //     "verify_signatures_native",
+        //     make_native!(twopc_mpc::verify_signatures),
+        // )
     ];
     sui_system_natives
         .iter()

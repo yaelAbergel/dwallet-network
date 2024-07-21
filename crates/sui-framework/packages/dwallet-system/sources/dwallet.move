@@ -254,9 +254,7 @@ module dwallet_system::dwallet {
         ctx: &mut TxContext
     ) {
         assert!(tx_context::sender(ctx) == @0x0, ENotSystemAddress);
-        let is_valid = verify_signatures_native(session.messages, signatures);
-        if is_valid {
-            let sign_output = SignOutput {
+        let sign_output = SignOutput {
             id: object::new(ctx),
             session_id: object::id(session),
             dwallet_id: session.dwallet_id,
@@ -267,5 +265,5 @@ module dwallet_system::dwallet {
         transfer::transfer(sign_output, session.sender);
     }
 
-    native fun verify_signatures_native(messages: vector<vector<u8>>, signatures: vector<vector<u8>>): bool;
+    // native fun verify_signatures_native(messages: vector<vector<u8>>, signatures: vector<vector<u8>>): bool;
 }
