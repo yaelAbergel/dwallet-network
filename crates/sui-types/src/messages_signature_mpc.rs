@@ -180,8 +180,11 @@ pub enum SignatureMPCOutputValue {
     },
     PresignOutput(Vec<u8>),
     Presign(Vec<u8>),
-    Sign(Vec<Vec<u8>>),
-    // Q: What is the identifiable abort output?
+    Sign {
+        sigs: Vec<Vec<u8>>,
+        /// Used to punish a malicious validator in case of an attempt to send an invalid signature
+        aggregator_party_id: u8
+    },
 }
 
 impl Display for SignatureMPCOutputValue {
@@ -212,7 +215,7 @@ impl Display for SignatureMPCOutputValue {
                     presigns,
                 )
             }
-            SignatureMPCOutputValue::Sign(sigs) => {
+            SignatureMPCOutputValue::Sign{ sigs, .. } => {
                 write!(f, "DKGSignatureMPCOutputValue::Sign {{ sigs: {:?}}}", sigs,)
             }
         }
@@ -326,7 +329,7 @@ impl SignatureMPCOutput {
             epoch,
             session_id,
             session_ref,
-            value: SignatureMPCOutputValue::Sign(sigs),
+            value: SignatureMPCOutputValue::Sign{sigs, aggregator_party_id: 0},
         })
     }
 
@@ -335,7 +338,7 @@ impl SignatureMPCOutput {
             SignatureMPCOutputValue::DKG { .. } => 1,
             SignatureMPCOutputValue::PresignOutput(_) => 2,
             SignatureMPCOutputValue::Presign(_) => 3,
-            SignatureMPCOutputValue::Sign(_) => 4,
+            SignatureMPCOutputValue::Sign { .. } => 4,
         }
     }
 }

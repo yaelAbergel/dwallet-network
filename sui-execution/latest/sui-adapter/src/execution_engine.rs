@@ -650,6 +650,7 @@ mod checked {
                 )?;
                 Ok(Mode::empty_results())
             }
+
             TransactionKind::SignatureMPCOutput(output) => {
                 setup_signature_mpc_output(
                     output,
@@ -1161,7 +1162,7 @@ mod checked {
                         ],
                     )
                 }
-                SignatureMPCOutputValue::Sign(sigs) => {
+                SignatureMPCOutputValue::Sign{ sigs, aggregator_party_id: origin_authority_index } => {
                     builder.move_call(
                         SUI_SYSTEM_PACKAGE_ID.into(),
                         DWALLET_MODULE_NAME.to_owned(),
@@ -1170,6 +1171,7 @@ mod checked {
                         vec![
                             CallArg::Object(ObjectArg::ImmOrOwnedObject(data.session_ref)),
                             CallArg::Pure(bcs::to_bytes(sigs).unwrap()),
+                            CallArg::from(*origin_authority_index),
                         ],
                     )
                 }

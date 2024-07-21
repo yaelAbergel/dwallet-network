@@ -44,7 +44,9 @@ impl SignRound {
             presigns.clone(),
         )?;
 
-        let (decryption_shares, signature_threshold_decryption_round_parties): (Vec<_>, Vec<_>) = messages.iter().zip(sign_mpc_party_per_message.into_iter()).zip(public_nonce_encrypted_partial_signature_and_proofs.clone().into_iter()).map(|((m, party), public_nonce_encrypted_partial_signature_and_proof)| {
+        let (decryption_shares, signature_threshold_decryption_round_parties): (Vec<_>, Vec<_>) = messages.iter()
+            .zip(sign_mpc_party_per_message.into_iter()).zip(public_nonce_encrypted_partial_signature_and_proofs.clone().into_iter())
+            .map(|((m, party), public_nonce_encrypted_partial_signature_and_proof)| {
             let m = message_digest(m, &hash);
             party
                 .partially_decrypt_encrypted_signature_parts_prehash(
@@ -53,6 +55,13 @@ impl SignRound {
                     &mut OsRng,
                 )
         }).collect::<Result<Vec<((PaillierModulusSizedNumber, PaillierModulusSizedNumber), SignatureThresholdDecryptionParty)>>>()?.into_iter().unzip();
+        // let mut v = decryption_shares.clone();
+        // if party_id == 1 || party_id == 2 {
+        //     v[0] = (
+        //         PaillierModulusSizedNumber::from_u16(200),
+        //         PaillierModulusSizedNumber::from_u16(200),
+        //     );
+        // }
         Ok((
             SignRound::FirstRound {
                 signature_threshold_decryption_round_parties
@@ -129,9 +138,10 @@ impl SignState {
         parties: HashSet<PartyID>,
         session_id: SignatureMPCSessionID,
     ) -> Self {
-        let aggregator_party_id = ((u64::from_be_bytes((&session_id.0[0..8]).try_into().unwrap())
-            % parties.len() as u64)
-            + 1) as PartyID;
+        // let aggregator_party_id = ((u64::from_be_bytes((&session_id.0[0..8]).try_into().unwrap())
+        //     % parties.len() as u64)
+        //     + 1) as PartyID;
+        let aggregator_party_id = 2 as PartyID;
 
         Self {
             epoch,

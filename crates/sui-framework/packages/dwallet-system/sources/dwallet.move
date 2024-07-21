@@ -222,7 +222,8 @@ module dwallet_system::dwallet {
     }
 
     #[allow(unused_function)]
-    fun create_sign_output<S: store>(session: &SignSession<S>, signatures: vector<vector<u8>>, ctx: &mut TxContext) {
+    fun create_sign_output<S: store>(session: &SignSession<S>, signatures: vector<vector<u8>>, _validator_id: u8, ctx: &mut TxContext) {
+
         assert!(tx_context::sender(ctx) == @0x0, ENotSystemAddress);
 
         let sign_output = SignOutput {

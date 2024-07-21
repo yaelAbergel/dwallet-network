@@ -407,7 +407,7 @@ fn decrypt_signatures(
                  (
                      signature_threshold_decryption_round_party,
                      (
-                         (message, public_nonce_encrypted_partial_signature_and_proof),
+                         (_, public_nonce_encrypted_partial_signature_and_proof),
                          (partial_signature_decryption_shares, masked_nonce_decryption_shares),
                      ),
                  ),
@@ -428,7 +428,7 @@ fn decrypt_signatures(
                             .unwrap()
                             .to_vec()
                     }
-                    Err(_) => {
+                    Err(error) => {
                         failed_messages_indices.push(index);
                         Vec::new()
                     }

@@ -70,6 +70,9 @@ pub(crate) fn identify_batch_malicious_parties(
     let failed_messages_parties = generate_proofs(&state, &state.failed_messages_indices.clone().unwrap());
     let mut malicious_parties = HashSet::new();
     let involved_shares = get_involved_shares(&state);
+
+    // The failed_messages_indices are at the same length of the failed_messages_parties that been created from them, as a proof and a party are being generated
+    // for each failed message.
     for ((i, message_index), (_, party)) in state
         .clone()
         .failed_messages_indices

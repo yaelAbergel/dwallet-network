@@ -106,6 +106,7 @@ async fn run_notify<State: ExecutionState + Send + Sync + 'static>(
     loop {
         tokio::select! {
             Some(message) = rx_notify.recv() => {
+
                 state.handle_consensus_output(message).await;
             }
 
