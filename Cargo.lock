@@ -13109,6 +13109,7 @@ dependencies = [
 name = "sui-move-natives-latest"
 version = "0.1.0"
 dependencies = [
+ "base64 0.13.1",
  "bcs",
  "better_any",
  "fastcrypto",
