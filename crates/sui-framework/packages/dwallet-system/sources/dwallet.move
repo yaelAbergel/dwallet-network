@@ -6,7 +6,6 @@ module dwallet_system::dwallet {
     use dwallet::object::{Self, UID, ID};
     use dwallet::transfer;
     use dwallet::event;
-    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::DWallet;
     use dwallet::tx_context;
     use dwallet::tx_context::{TxContext};
 
@@ -254,24 +253,19 @@ module dwallet_system::dwallet {
         ctx: &mut TxContext
     ) {
         assert!(tx_context::sender(ctx) == @0x0, ENotSystemAddress);
-        let _wallet = get_dwallet(session.dwallet_id);
-        // let is_valid = verify_signatures_native(session.messages, signatures);
-        // if (is_valid) {
-        //     let sign_output = SignOutput {
-        //         id: object::new(ctx),
-        //         session_id: object::id(session),
-        //         dwallet_id: session.dwallet_id,
-        //         dwallet_cap_id: session.dwallet_cap_id,
-        //         signatures,
-        //         sender: session.sender,
-        //     };
-        //     transfer::transfer(sign_output, session.sender);
-        // };
+        let is_valid = verify_signatures_native(session.messages, _signatures, session.dwallet_id);
+        if (is_valid) {
+            let sign_output = SignOutput {
+                id: object::new(ctx),
+                session_id: object::id(session),
+                dwallet_id: session.dwallet_id,
+                dwallet_cap_id: session.dwallet_cap_id,
+                signatures: _signatures,
+                sender: session.sender,
+            };
+            transfer::transfer(sign_output, session.sender);
+        };
     }
 
-    fun get_dwallet(dwallet: &DWallet): &DWallet {
-        dwallet
-    }
-
-    // native fun verify_signatures_native(messages: vector<vector<u8>>, signatures: vector<vector<u8>>, public_key): bool;
+    native fun verify_signatures_native(messages: vector<vector<u8>>, signatures: vector<vector<u8>>, dwallet_id: ID): bool;
 }
