@@ -186,6 +186,7 @@ pub enum SignatureMPCOutputValue {
         /// Used to punish a malicious validator in case of an attempt to send an invalid signature
         aggregator_public_key: Vec<u8>,
         messages: Vec<Vec<u8>>,
+        dwallet_ref: ObjectRef
     },
 }
 
@@ -325,6 +326,7 @@ impl SignatureMPCOutput {
         epoch: EpochId,
         session_id: SignatureMPCSessionID,
         session_ref: ObjectRef,
+        dwallet_ref: ObjectRef,
         sigs: Vec<Vec<u8>>,
         messages: Vec<Vec<u8>>,
     ) -> SuiResult<SignatureMPCOutput> {

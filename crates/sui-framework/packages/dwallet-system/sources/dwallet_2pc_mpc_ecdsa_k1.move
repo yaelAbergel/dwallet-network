@@ -17,7 +17,6 @@ module dwallet_system::dwallet_2pc_mpc_ecdsa_k1 {
         dwallet_id, dwallet_cap_id, sender
     };
     use dwallet_system::dwallet;
-    use dwallet_system::dwallet::{create_dwallet_cap, DWalletCap, PartialUserSignedMessages};
 
     // <<<<<<<<<<<<<<<<<<<<<<<< Error codes <<<<<<<<<<<<<<<<<<<<<<<<
     const ENotSystemAddress: u64 = 0;
