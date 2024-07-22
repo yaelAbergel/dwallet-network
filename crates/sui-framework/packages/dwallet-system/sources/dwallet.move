@@ -12,7 +12,6 @@ module dwallet_system::dwallet {
     friend dwallet_system::dwallet_2pc_mpc_ecdsa_k1;
 
     // <<<<<<<<<<<<<<<<<<<<<<<< Error codes <<<<<<<<<<<<<<<<<<<<<<<<
-    const ENotSystemAddress: u64 = 0;
     const EMesssageApprovalDWalletMismatch: u64 = 1;
 
     // <<<<<<<<<<<<<<<<<<<<<<<< Error codes <<<<<<<<<<<<<<<<<<<<<<<<
@@ -76,7 +75,6 @@ module dwallet_system::dwallet {
     public fun dwallet_cap_id<S: store>(sign_session: &SignSession<S>): ID { sign_session.dwallet_cap_id }
     public fun messages<S: store>(sign_session: &SignSession<S>): vector<vector<u8>> { sign_session.messages }
     public fun sender<S: store>(sign_session: &SignSession<S>): address { sign_session.sender }
-    public fun sign_data<S: store>(sign_session: &SignSession<S>): S { sign_session.sign_data }
 
     #[allow(unused_field)]
     struct SignOutput has key {
