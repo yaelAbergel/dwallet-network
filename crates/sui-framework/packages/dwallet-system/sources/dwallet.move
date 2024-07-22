@@ -8,7 +8,6 @@ module dwallet_system::dwallet {
     use dwallet::event;
     use dwallet::tx_context;
     use dwallet::tx_context::{TxContext};
-    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::DWallet;
 
     friend dwallet_system::dwallet_2pc_mpc_ecdsa_k1;
 
@@ -73,9 +72,11 @@ module dwallet_system::dwallet {
         sign_data: S,
     }
 
-    public fun dwallet_id<S: store>(sign_session: &SignSession<S>): ID {
-        sign_session.dwallet_id
-    }
+    public fun dwallet_id<S: store>(sign_session: &SignSession<S>): ID { sign_session.dwallet_id }
+    public fun dwallet_cap_id<S: store>(sign_session: &SignSession<S>): ID { sign_session.dwallet_cap_id }
+    public fun messages<S: store>(sign_session: &SignSession<S>): vector<vector<u8>> { sign_session.messages }
+    public fun sender<S: store>(sign_session: &SignSession<S>): address { sign_session.sender }
+    public fun sign_data<S: store>(sign_session: &SignSession<S>): S { sign_session.sign_data }
 
     #[allow(unused_field)]
     struct SignOutput has key {
@@ -249,30 +250,4 @@ module dwallet_system::dwallet {
         });
         transfer::freeze_object(sign_session);
     }
-
-    #[allow(unused_function)]
-    fun create_sign_output<S: store>(
-        session: &SignSession<S>,
-        _dwallet: &DWallet,
-        _signatures: vector<vector<u8>>,
-        _validator_id: u8,
-        ctx: &mut TxContext
-    ) {
-
-        assert!(tx_context::sender(ctx) == @0x0, ENotSystemAddress);
-        let is_valid = verify_signatures_native(session.messages, _signatures, session.dwallet_id);
-        if (is_valid) {
-            let sign_output = SignOutput {
-                id: object::new(ctx),
-                session_id: object::id(session),
-                dwallet_id: session.dwallet_id,
-                dwallet_cap_id: session.dwallet_cap_id,
-                signatures: _signatures,
-                sender: session.sender,
-            };
-            transfer::transfer(sign_output, session.sender);
-        };
-    }
-
-    native fun verify_signatures_native(messages: vector<vector<u8>>, signatures: vector<vector<u8>>, dwallet_id: ID): bool;
 }
