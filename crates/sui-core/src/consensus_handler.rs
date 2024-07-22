@@ -1,33 +1,22 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 
-use crate::authority::authority_per_epoch_store::{
-    AuthorityPerEpochStore, ConsensusCertificateResult, ConsensusStats, ConsensusStatsAPI,
-    ExecutionIndicesWithStats,
-};
-use crate::authority::epoch_start_configuration::EpochStartConfigTrait;
-use crate::authority::{AuthorityMetrics, AuthorityState, AuthorityStore};
-use crate::checkpoints::{CheckpointService, CheckpointServiceNotify};
-use crate::consensus_throughput_calculator::ConsensusThroughputCalculator;
-use crate::consensus_types::committee_api::CommitteeAPI;
-use crate::consensus_types::consensus_output_api::ConsensusOutputAPI;
-use crate::consensus_types::AuthorityIndex;
-use crate::scoring_decision::update_low_scoring_authorities;
-use crate::signature_mpc::{SignatureMPCService, SignatureMPCServiceNotify};
-use crate::transaction_manager::TransactionManager;
+use std::collections::{HashMap, HashSet};
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
+use std::num::NonZeroUsize;
+use std::sync::Arc;
+
 use arc_swap::ArcSwap;
 use async_trait::async_trait;
 use lru::LruCache;
+use serde::{Deserialize, Serialize};
+use tracing::{debug, error, info, instrument, trace_span};
+
 use mysten_metrics::{monitored_scope, spawn_monitored_task};
 use narwhal_config::Committee;
 use narwhal_executor::{ExecutionIndices, ExecutionState};
 use narwhal_types::ConsensusOutput;
-use serde::{Deserialize, Serialize};
-use std::collections::hash_map::DefaultHasher;
-use std::collections::{HashMap, HashSet};
-use std::hash::{Hash, Hasher};
-use std::num::NonZeroUsize;
-use std::sync::Arc;
 use sui_types::authenticator_state::ActiveJwk;
 use sui_types::base_types::{AuthorityName, EpochId, TransactionDigest};
 use sui_types::digests::ConsensusCommitDigest;
@@ -41,7 +30,21 @@ use sui_types::messages_signature_mpc::{SignatureMPCOutput, SignatureMPCOutputVa
 use sui_types::storage::ObjectStore;
 use sui_types::sui_system_state::epoch_start_sui_system_state::EpochStartSystemStateTrait;
 use sui_types::transaction::{SenderSignedData, VerifiedTransaction};
-use tracing::{debug, error, info, instrument, trace_span};
+
+use crate::authority::{AuthorityMetrics, AuthorityState, AuthorityStore};
+use crate::authority::authority_per_epoch_store::{
+    AuthorityPerEpochStore, ConsensusCertificateResult, ConsensusStats, ConsensusStatsAPI,
+    ExecutionIndicesWithStats,
+};
+use crate::authority::epoch_start_configuration::EpochStartConfigTrait;
+use crate::checkpoints::{CheckpointService, CheckpointServiceNotify};
+use crate::consensus_throughput_calculator::ConsensusThroughputCalculator;
+use crate::consensus_types::AuthorityIndex;
+use crate::consensus_types::committee_api::CommitteeAPI;
+use crate::consensus_types::consensus_output_api::ConsensusOutputAPI;
+use crate::scoring_decision::update_low_scoring_authorities;
+use crate::signature_mpc::{SignatureMPCService, SignatureMPCServiceNotify};
+use crate::transaction_manager::TransactionManager;
 
 pub struct ConsensusHandlerInitializer {
     state: Arc<AuthorityState>,
@@ -382,16 +385,12 @@ impl<
                                 .try_aggregate_signed_signature_mpc_output(*output.clone())
                                 .is_ok()
                         {
-                            let authority_public_key = output.auth_sig().authority.0;
-                            // if let SignatureMPCOutputValue::Sign{ sigs, .. } = &output.value {
-                            //     output.value = SignatureMPCOutputValue::Sign{ sigs: sigs.clone(), aggregator_party_id: (authority_index + 1) as u8 };
-                            // }
                             let output = match &output.value {
                                 SignatureMPCOutputValue::Sign { sigs, messages, .. } => {
                                     let mut copied_output = output.clone();
                                     copied_output.value = SignatureMPCOutputValue::Sign {
                                         sigs: sigs.clone(),
-                                        aggregator_public_key: output.auth_sig().authority.0,
+                                        aggregator_public_key: output.auth_sig().authority.0.to_vec(),
                                         messages
                                     };
                                     &copied_output.clone()
@@ -898,23 +897,18 @@ impl SequencedConsensusTransaction {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::authority::authority_per_epoch_store::{ConsensusStats, ConsensusStatsAPI};
-    use crate::authority::test_authority_builder::TestAuthorityBuilder;
-    use crate::checkpoints::CheckpointServiceNoop;
-    use crate::consensus_adapter::consensus_tests::{test_certificates, test_gas_objects};
-    use crate::post_consensus_tx_reorder::PostConsensusTxReorder;
-    use crate::signature_mpc::SignatureMPCServiceNoop;
+    use std::collections::BTreeSet;
+
+    use prometheus::Registry;
+
     use narwhal_config::AuthorityIdentifier;
     use narwhal_test_utils::latest_protocol_version;
     use narwhal_types::{
         Batch, Certificate, CommittedSubDag, Header, HeaderV2Builder, ReputationScores,
     };
-    use prometheus::Registry;
     use shared_crypto::intent::Intent;
-    use std::collections::BTreeSet;
     use sui_protocol_config::{ConsensusTransactionOrdering, SupportedProtocolVersions};
-    use sui_types::base_types::{random_object_ref, AuthorityName, SuiAddress};
+    use sui_types::base_types::{AuthorityName, random_object_ref, SuiAddress};
     use sui_types::committee::Committee;
     use sui_types::messages_consensus::{
         AuthorityCapabilities, ConsensusTransaction, ConsensusTransactionKind,
@@ -924,6 +918,15 @@ mod tests {
     use sui_types::transaction::{
         CertifiedTransaction, SenderSignedData, TransactionData, TransactionDataAPI,
     };
+
+    use crate::authority::authority_per_epoch_store::{ConsensusStats, ConsensusStatsAPI};
+    use crate::authority::test_authority_builder::TestAuthorityBuilder;
+    use crate::checkpoints::CheckpointServiceNoop;
+    use crate::consensus_adapter::consensus_tests::{test_certificates, test_gas_objects};
+    use crate::post_consensus_tx_reorder::PostConsensusTxReorder;
+    use crate::signature_mpc::SignatureMPCServiceNoop;
+
+    use super::*;
 
     #[tokio::test]
     pub async fn test_consensus_handler() {

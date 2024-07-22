@@ -184,7 +184,7 @@ pub enum SignatureMPCOutputValue {
     Sign {
         sigs: Vec<Vec<u8>>,
         /// Used to punish a malicious validator in case of an attempt to send an invalid signature
-        aggregator_public_key: [u8; AuthorityPublicKey::LENGTH],
+        aggregator_public_key: Vec<u8>,
         messages: Vec<Vec<u8>>,
     },
 }
@@ -334,7 +334,7 @@ impl SignatureMPCOutput {
             session_ref,
             value: SignatureMPCOutputValue::Sign {
                 sigs,
-                aggregator_public_key: [0u8; AuthorityPublicKey::LENGTH],
+                aggregator_public_key: Vec::new(),
                 messages,
             },
         })
