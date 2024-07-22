@@ -755,7 +755,7 @@ pub fn all_natives(silent: bool) -> NativeFunctionTable {
         (
             "dwallet",
             "verify_signatures_native",
-            make_native!(twopc_mpc::verify_signatures),
+            make_native!(twopc_mpc::verify_signatures_native),
         )
     ];
     sui_system_natives

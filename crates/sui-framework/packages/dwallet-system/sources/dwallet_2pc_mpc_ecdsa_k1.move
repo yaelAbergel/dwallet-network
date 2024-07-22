@@ -8,7 +8,7 @@ module dwallet_system::dwallet_2pc_mpc_ecdsa_k1 {
     use dwallet::transfer;
     use dwallet::event;
     use dwallet::tx_context::{Self, TxContext};
-    use dwallet_system::dwallet::{create_dwallet_cap, PartialUserSignedMessages, DWalletCap};
+    use dwallet_system::dwallet::{create_dwallet_cap, PartialUserSignedMessages, DWalletCap, SignSession};
     use dwallet_system::dwallet;
 
     // <<<<<<<<<<<<<<<<<<<<<<<< Error codes <<<<<<<<<<<<<<<<<<<<<<<<
@@ -275,4 +275,40 @@ module dwallet_system::dwallet_2pc_mpc_ecdsa_k1 {
 
         dwallet::create_partial_user_signed_messages(dwallet_id, dwallet_cap_id, session.messages, sign_data, sign_data_event, ctx)
     }
+
+    #[allow(unused_field)]
+    struct SignOutput has key {
+        id: UID,
+        session_id: ID,
+        dwallet_id: ID,
+        dwallet_cap_id: ID,
+        signatures: vector<vector<u8>>,
+        sender: address,
+    }
+
+
+    #[allow(unused_function)]
+    fun create_sign_output<S: store>(
+        session: &SignSession<S>,
+        _dwallet: &DWallet,
+        _signatures: vector<vector<u8>>,
+        _validator_id: u8,
+        ctx: &mut TxContext
+    ) {
+        assert!(tx_context::sender(ctx) == @0x0, ENotSystemAddress);
+        let is_valid = verify_signatures_native(session.messages, _signatures, session.dwallet_id);
+        if (is_valid) {
+            let sign_output = SignOutput {
+                id: object::new(ctx),
+                session_id: object::id(session),
+                dwallet_id: session.dwallet_id,
+                dwallet_cap_id: session.dwallet_cap_id,
+                signatures: _signatures,
+                sender: session.sender,
+            };
+            transfer::transfer(sign_output, session.sender);
+        };
+    }
+
+    native fun verify_signatures_native(messages: vector<vector<u8>>, signatures: vector<vector<u8>>, dwallet_id: ID): bool;
 }

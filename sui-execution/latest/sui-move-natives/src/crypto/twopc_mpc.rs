@@ -177,7 +177,7 @@ pub fn sign_verify_encrypted_signature_parts_prehash(
     ))
 }
 
-pub(crate) fn verify_signatures(
+pub(crate) fn verify_signatures_native(
     context: &mut NativeContext,
     ty_args: Vec<Type>,
     mut args: VecDeque<Value>, ) -> PartialVMResult<NativeResult> {

@@ -65,7 +65,7 @@ mod checked {
         signature_mpc::{CREATE_DKG_OUTPUT_FUNC_NAME, DWALLET_2PC_MPC_ECDSA_K1_MODULE_NAME},
     };
     use sui_types::messages_signature_mpc::SignatureMPCOutputValue;
-    use sui_types::signature_mpc::{CREATE_PRESIGN_FUNC_NAME, CREATE_PRESIGN_OUTPUT_FUNC_NAME, CREATE_SIGN_OUTPUT_FUNC_NAME, DWALLET_MODULE_NAME, SignData};
+    use sui_types::signature_mpc::{CREATE_PRESIGN_FUNC_NAME, CREATE_PRESIGN_OUTPUT_FUNC_NAME, CREATE_SIGN_OUTPUT_FUNC_NAME, DWALLET_MODULE_NAME, GET_DWALLET_ID_FUNC_NAME, SignData};
 
     #[instrument(name = "tx_execute_to_effects", level = "debug", skip_all)]
     pub fn execute_transaction_to_effects<Mode: ExecutionMode>(
@@ -1163,6 +1163,15 @@ mod checked {
                     )
                 }
                 SignatureMPCOutputValue::Sign{ sigs, aggregator_party_id: origin_authority_index, messages } => {
+                    let [dwallet_id] = builder.move_call(
+                        SUI_SYSTEM_PACKAGE_ID.into(),
+                        DWALLET_MODULE_NAME.to_owned(),
+                        GET_DWALLET_ID_FUNC_NAME.to_owned(),
+                        vec![],
+                        vec![
+                            CallArg::Object(ObjectArg::ImmOrOwnedObject(data.session_ref))
+                        ],
+                    );
                     builder.move_call(
                         SUI_SYSTEM_PACKAGE_ID.into(),
                         DWALLET_MODULE_NAME.to_owned(),
@@ -1170,6 +1179,7 @@ mod checked {
                         vec![TypeTag::Struct(Box::new(SignData::type_()))],
                         vec![
                             CallArg::Object(ObjectArg::ImmOrOwnedObject(data.session_ref)),
+                            CallArg::Object(ObjectArg::ImmOrOwnedObject(dwallet_id)),
                             CallArg::Pure(bcs::to_bytes(sigs).unwrap()),
                             CallArg::from(*origin_authority_index),
                         ],

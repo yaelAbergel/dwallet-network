@@ -8,6 +8,7 @@ module dwallet_system::dwallet {
     use dwallet::event;
     use dwallet::tx_context;
     use dwallet::tx_context::{TxContext};
+    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::DWallet;
 
     friend dwallet_system::dwallet_2pc_mpc_ecdsa_k1;
 
@@ -70,6 +71,10 @@ module dwallet_system::dwallet {
         messages: vector<vector<u8>>,
         sender: address,
         sign_data: S,
+    }
+
+    public fun dwallet_id<S: store>(sign_session: &SignSession<S>): ID {
+        sign_session.dwallet_id
     }
 
     #[allow(unused_field)]
@@ -248,10 +253,12 @@ module dwallet_system::dwallet {
     #[allow(unused_function)]
     fun create_sign_output<S: store>(
         session: &SignSession<S>,
+        _dwallet: &DWallet,
         _signatures: vector<vector<u8>>,
         _validator_id: u8,
         ctx: &mut TxContext
     ) {
+
         assert!(tx_context::sender(ctx) == @0x0, ENotSystemAddress);
         let is_valid = verify_signatures_native(session.messages, _signatures, session.dwallet_id);
         if (is_valid) {
