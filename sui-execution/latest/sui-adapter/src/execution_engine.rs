@@ -1163,23 +1163,23 @@ mod checked {
                     )
                 }
                 SignatureMPCOutputValue::Sign{ sigs, aggregator_party_id: origin_authority_index, messages } => {
-                    let [dwallet_id] = builder.move_call(
+                    builder.programmable_move_call(
                         SUI_SYSTEM_PACKAGE_ID.into(),
                         DWALLET_MODULE_NAME.to_owned(),
                         GET_DWALLET_ID_FUNC_NAME.to_owned(),
                         vec![],
                         vec![
-                            CallArg::Object(ObjectArg::ImmOrOwnedObject(data.session_ref))
+                            builder.input(CallArg::Object(ObjectArg::ImmOrOwnedObject(data.session_ref))).unwrap()
                         ],
-                    );
-                    builder.move_call(
+                    ).expect("failed to fetch id");
+                    builder.programmable_move_call(
                         SUI_SYSTEM_PACKAGE_ID.into(),
                         DWALLET_MODULE_NAME.to_owned(),
                         CREATE_SIGN_OUTPUT_FUNC_NAME.to_owned(),
                         vec![TypeTag::Struct(Box::new(SignData::type_()))],
                         vec![
                             CallArg::Object(ObjectArg::ImmOrOwnedObject(data.session_ref)),
-                            CallArg::Object(ObjectArg::ImmOrOwnedObject(dwallet_id)),
+                            Argument::Result(0),
                             CallArg::Pure(bcs::to_bytes(sigs).unwrap()),
                             CallArg::from(*origin_authority_index),
                         ],
