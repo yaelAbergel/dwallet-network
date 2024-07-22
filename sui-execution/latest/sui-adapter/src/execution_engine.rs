@@ -1171,17 +1171,17 @@ mod checked {
                         vec![
                             builder.input(CallArg::Object(ObjectArg::ImmOrOwnedObject(data.session_ref))).unwrap()
                         ],
-                    ).expect("failed to fetch id");
+                    );
                     builder.programmable_move_call(
                         SUI_SYSTEM_PACKAGE_ID.into(),
                         DWALLET_MODULE_NAME.to_owned(),
                         CREATE_SIGN_OUTPUT_FUNC_NAME.to_owned(),
                         vec![TypeTag::Struct(Box::new(SignData::type_()))],
                         vec![
-                            CallArg::Object(ObjectArg::ImmOrOwnedObject(data.session_ref)),
+                            builder.input(CallArg::Object(ObjectArg::ImmOrOwnedObject(data.session_ref)).unwrap()),
                             Argument::Result(0),
-                            CallArg::Pure(bcs::to_bytes(sigs).unwrap()),
-                            CallArg::from(*origin_authority_index),
+                            builder.input(CallArg::Pure(bcs::to_bytes(sigs).unwrap()).unwrap()),
+                            builder.input(CallArg::from(*origin_authority_index).unwrap()),
                         ],
                     )
                 }
