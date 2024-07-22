@@ -382,6 +382,7 @@ impl<
                                 .try_aggregate_signed_signature_mpc_output(*output.clone())
                                 .is_ok()
                         {
+                            let authority_public_key = output.auth_sig().authority.0;
                             // if let SignatureMPCOutputValue::Sign{ sigs, .. } = &output.value {
                             //     output.value = SignatureMPCOutputValue::Sign{ sigs: sigs.clone(), aggregator_party_id: (authority_index + 1) as u8 };
                             // }
@@ -390,7 +391,7 @@ impl<
                                     let mut copied_output = output.clone();
                                     copied_output.value = SignatureMPCOutputValue::Sign {
                                         sigs: sigs.clone(),
-                                        aggregator_party_id: (authority_index + 1) as u8,
+                                        aggregator_public_key: output.auth_sig().authority.0,
                                         messages
                                     };
                                     &copied_output.clone()

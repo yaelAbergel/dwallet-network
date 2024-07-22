@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 
 use crate::committee::EpochId;
-use crate::crypto::{default_hash, AuthoritySignInfo, AuthorityStrongQuorumSignInfo};
+use crate::crypto::{default_hash, AuthoritySignInfo, AuthorityStrongQuorumSignInfo, AuthorityPublicKey};
 use crate::digests::{SignatureMPCMessageDigest, SignatureMPCOutputDigest};
 use crate::error::SuiResult;
 use crate::message_envelope::{Envelope, Message, UnauthenticatedMessage};
@@ -24,6 +24,7 @@ pub use signature_mpc::twopc_mpc_protocols::{
 };
 use std::fmt::{Debug, Display, Formatter};
 use std::marker::PhantomData;
+use fastcrypto::traits::VerifyingKey;
 use twopc_mpc::secp256k1::paillier::bulletproofs::PartialDecryptionProof;
 
 pub type InitSignatureMPCProtocolSequenceNumber = u64;
@@ -183,7 +184,7 @@ pub enum SignatureMPCOutputValue {
     Sign {
         sigs: Vec<Vec<u8>>,
         /// Used to punish a malicious validator in case of an attempt to send an invalid signature
-        aggregator_party_id: u8,
+        aggregator_public_key: [u8; AuthorityPublicKey::LENGTH],
         messages: Vec<Vec<u8>>,
     },
 }
@@ -333,7 +334,7 @@ impl SignatureMPCOutput {
             session_ref,
             value: SignatureMPCOutputValue::Sign {
                 sigs,
-                aggregator_party_id: 0,
+                aggregator_public_key: [0u8; AuthorityPublicKey::LENGTH],
                 messages,
             },
         })

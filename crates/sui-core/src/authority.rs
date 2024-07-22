@@ -1337,6 +1337,7 @@ impl AuthorityState {
                     let presigns = event.sign_data_event.presigns;
                     let hash = event.sign_data_event.hash;
                     // TODO: validate commitment error
+                    let dwallet_ref = Self::get_object_ref_by_object_id(effects, &event.dwallet_id.bytes)?;
                     let obj_ref = Self::get_object_ref_by_object_id(effects, &event.session_id.bytes)?;
                     let message = InitiateSignatureMPCProtocol::Sign {
                         session_id: SignatureMPCSessionID(event.session_id.bytes.into_bytes()),

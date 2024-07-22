@@ -65,7 +65,7 @@ mod checked {
         signature_mpc::{CREATE_DKG_OUTPUT_FUNC_NAME, DWALLET_2PC_MPC_ECDSA_K1_MODULE_NAME},
     };
     use sui_types::messages_signature_mpc::SignatureMPCOutputValue;
-    use sui_types::signature_mpc::{CREATE_PRESIGN_FUNC_NAME, CREATE_PRESIGN_OUTPUT_FUNC_NAME, CREATE_SIGN_OUTPUT_FUNC_NAME, DWALLET_MODULE_NAME, GET_DWALLET_ID_FUNC_NAME, SignData};
+    use sui_types::signature_mpc::{CREATE_PRESIGN_FUNC_NAME, CREATE_PRESIGN_OUTPUT_FUNC_NAME, CREATE_SIGN_OUTPUT_FUNC_NAME, DWALLET_MODULE_NAME, SignData};
 
     #[instrument(name = "tx_execute_to_effects", level = "debug", skip_all)]
     pub fn execute_transaction_to_effects<Mode: ExecutionMode>(
@@ -650,7 +650,6 @@ mod checked {
                 )?;
                 Ok(Mode::empty_results())
             }
-
             TransactionKind::SignatureMPCOutput(output) => {
                 setup_signature_mpc_output(
                     output,
@@ -1162,26 +1161,15 @@ mod checked {
                         ],
                     )
                 }
-                SignatureMPCOutputValue::Sign{ sigs, aggregator_party_id: origin_authority_index, messages } => {
-                    builder.programmable_move_call(
-                        SUI_SYSTEM_PACKAGE_ID.into(),
-                        DWALLET_MODULE_NAME.to_owned(),
-                        GET_DWALLET_ID_FUNC_NAME.to_owned(),
-                        vec![],
-                        vec![
-                            builder.input(CallArg::Object(ObjectArg::ImmOrOwnedObject(data.session_ref))).unwrap()
-                        ],
-                    );
-                    builder.programmable_move_call(
+                SignatureMPCOutputValue::Sign(sigs) => {
+                    builder.move_call(
                         SUI_SYSTEM_PACKAGE_ID.into(),
                         DWALLET_MODULE_NAME.to_owned(),
                         CREATE_SIGN_OUTPUT_FUNC_NAME.to_owned(),
                         vec![TypeTag::Struct(Box::new(SignData::type_()))],
                         vec![
-                            builder.input(CallArg::Object(ObjectArg::ImmOrOwnedObject(data.session_ref)).unwrap()),
-                            Argument::Result(0),
-                            builder.input(CallArg::Pure(bcs::to_bytes(sigs).unwrap()).unwrap()),
-                            builder.input(CallArg::from(*origin_authority_index).unwrap()),
+                            CallArg::Object(ObjectArg::ImmOrOwnedObject(data.session_ref)),
+                            CallArg::Pure(bcs::to_bytes(sigs).unwrap()),
                         ],
                     )
                 }
