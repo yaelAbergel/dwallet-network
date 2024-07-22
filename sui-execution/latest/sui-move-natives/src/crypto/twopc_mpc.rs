@@ -183,17 +183,17 @@ pub(crate) fn verify_signatures_native(
     mut args: VecDeque<Value>, ) -> PartialVMResult<NativeResult> {
     debug_assert!(ty_args.is_empty());
     debug_assert!(args.len() == 1);
-    let twopc_mpc_dkg_cost_params = &context
+    let sign_cost_params = &context
         .extensions()
         .get::<NativesCostTable>()
-        .transfer_dwallet_cost_params
+        .sign_cost_params
         .clone();
     let object_runtime = context
         .extensions()
         .get::<ObjectRuntime>();
     native_charge_gas_early_exit!(
         context,
-        twopc_mpc_dkg_cost_params.transfer_dwallet_gas
+        sign_cost_params.verify_signatures_cost_base
     );
 
     let cost = context.gas_used();
