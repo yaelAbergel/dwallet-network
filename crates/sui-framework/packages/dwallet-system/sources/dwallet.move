@@ -6,6 +6,7 @@ module dwallet_system::dwallet {
     use dwallet::object::{Self, UID, ID};
     use dwallet::transfer;
     use dwallet::event;
+    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::DWallet;
     use dwallet::tx_context;
     use dwallet::tx_context::{TxContext};
 
@@ -248,24 +249,29 @@ module dwallet_system::dwallet {
     #[allow(unused_function)]
     fun create_sign_output<S: store>(
         session: &SignSession<S>,
-        signatures: vector<vector<u8>>,
-        _messages: vector<vector<u8>>,
+        _signatures: vector<vector<u8>>,
         _validator_id: u8,
         ctx: &mut TxContext
     ) {
         assert!(tx_context::sender(ctx) == @0x0, ENotSystemAddress);
-        let is_valid = verify_signatures_native(session.messages, signatures);
-        if is_valid {
-            let sign_output = SignOutput {
-            id: object::new(ctx),
-            session_id: object::id(session),
-            dwallet_id: session.dwallet_id,
-            dwallet_cap_id: session.dwallet_cap_id,
-            signatures,
-            sender: session.sender,
-        };
-        transfer::transfer(sign_output, session.sender);
+        let _wallet = get_dwallet(session.dwallet_id);
+        // let is_valid = verify_signatures_native(session.messages, signatures);
+        // if (is_valid) {
+        //     let sign_output = SignOutput {
+        //         id: object::new(ctx),
+        //         session_id: object::id(session),
+        //         dwallet_id: session.dwallet_id,
+        //         dwallet_cap_id: session.dwallet_cap_id,
+        //         signatures,
+        //         sender: session.sender,
+        //     };
+        //     transfer::transfer(sign_output, session.sender);
+        // };
     }
 
-    native fun verify_signatures_native(messages: vector<vector<u8>>, signatures: vector<vector<u8>>): bool;
+    fun get_dwallet(dwallet: &DWallet): &DWallet {
+        dwallet
+    }
+
+    // native fun verify_signatures_native(messages: vector<vector<u8>>, signatures: vector<vector<u8>>, public_key): bool;
 }

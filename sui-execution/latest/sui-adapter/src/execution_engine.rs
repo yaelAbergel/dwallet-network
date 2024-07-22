@@ -1171,7 +1171,6 @@ mod checked {
                         vec![
                             CallArg::Object(ObjectArg::ImmOrOwnedObject(data.session_ref)),
                             CallArg::Pure(bcs::to_bytes(sigs).unwrap()),
-                            CallArg::Pure(bcs::to_bytes(messages).unwrap()),
                             CallArg::from(*origin_authority_index),
                         ],
                     )
