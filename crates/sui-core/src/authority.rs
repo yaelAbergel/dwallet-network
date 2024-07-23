@@ -1346,7 +1346,8 @@ impl AuthorityState {
                         dkg_output: bcs::from_bytes(&*dkg_output)?,
                         public_nonce_encrypted_partial_signature_and_proofs: bcs::from_bytes(&*public_nonce_encrypted_partial_signature_and_proofs)?,
                         presigns: bcs::from_bytes(&*presigns)?,
-                        hash
+                        hash,
+                        dwallet_ref
                     };
 
                     messages.push(message);

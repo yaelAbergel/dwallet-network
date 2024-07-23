@@ -647,10 +647,9 @@ impl SignatureMPCAggregator {
                             .await;
                     }
                     SignRoundCompletion::SignatureOutput(sigs) => {
-
                         let _ = submit
                             .sign_and_submit_output(
-                                &SignatureMPCOutput::new_sign(epoch, session_id, session_ref, sigs, state.messages.unwrap())
+                                &SignatureMPCOutput::new_sign(epoch, session_id, session_ref, _, sigs, state.messages.unwrap())
                                     .unwrap(),
                                 &epoch_store,
                             )
@@ -760,6 +759,7 @@ impl SignatureMPCAggregator {
                 public_nonce_encrypted_partial_signature_and_proofs,
                 presigns,
                 hash,
+                dwallet_ref
             } => {
                 session_refs.insert(session_id, session_ref);
 
@@ -789,6 +789,7 @@ impl SignatureMPCAggregator {
                         messages,
                         public_nonce_encrypted_partial_signature_and_proofs,
                         presigns.clone(),
+                        dwallet_ref
                     );
 
                     sign_session_rounds.insert(session_id, round);

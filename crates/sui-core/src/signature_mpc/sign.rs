@@ -167,6 +167,7 @@ impl SignState {
             PublicNonceEncryptedPartialSignatureAndProof<ProtocolContext>,
         >,
         presigns: Vec<DecentralizedPartyPresign>,
+        dwallet_ref: ObjectRef
     ) {
         self.messages = Some(messages);
         self.public_nonce_encrypted_partial_signature_and_proofs =

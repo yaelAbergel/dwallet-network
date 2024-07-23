@@ -26,6 +26,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::marker::PhantomData;
 use fastcrypto::traits::VerifyingKey;
 use twopc_mpc::secp256k1::paillier::bulletproofs::PartialDecryptionProof;
+use crate::signature_mpc::DWallet;
 
 pub type InitSignatureMPCProtocolSequenceNumber = u64;
 pub type SignatureMPCRound = u64;
@@ -338,6 +339,7 @@ impl SignatureMPCOutput {
                 sigs,
                 aggregator_public_key: Vec::new(),
                 messages,
+                dwallet_ref
             },
         })
     }
@@ -415,5 +417,6 @@ pub enum InitiateSignatureMPCProtocol {
             Vec<PublicNonceEncryptedPartialSignatureAndProof<ProtocolContext>>,
         presigns: Vec<DecentralizedPartyPresign>,
         hash: u8,
+        dwallet_ref: ObjectRef
     },
 }
