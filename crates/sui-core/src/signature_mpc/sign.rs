@@ -127,6 +127,7 @@ pub(crate) struct SignState {
     pub proofs: Option<HashMap<PartyID, Vec<(PartialDecryptionProof)>>>,
     pub failed_messages_indices: Option<Vec<usize>>,
     pub involved_parties: Option<Vec<PartyID>>,
+    pub dwallet_ref: ObjectRef,
 }
 
 impl SignState {
@@ -136,7 +137,7 @@ impl SignState {
         epoch: EpochId,
         party_id: PartyID,
         parties: HashSet<PartyID>,
-        session_id: SignatureMPCSessionID,
+        dwallet_ref: ObjectRef,
     ) -> Self {
         // let aggregator_party_id = ((u64::from_be_bytes((&session_id.0[0..8]).try_into().unwrap())
         //     % parties.len() as u64)
@@ -157,6 +158,7 @@ impl SignState {
             proofs: None,
             failed_messages_indices: None,
             involved_parties: None,
+            dwallet_ref,
         }
     }
 
@@ -167,7 +169,6 @@ impl SignState {
             PublicNonceEncryptedPartialSignatureAndProof<ProtocolContext>,
         >,
         presigns: Vec<DecentralizedPartyPresign>,
-        dwallet_ref: ObjectRef
     ) {
         self.messages = Some(messages);
         self.public_nonce_encrypted_partial_signature_and_proofs =
