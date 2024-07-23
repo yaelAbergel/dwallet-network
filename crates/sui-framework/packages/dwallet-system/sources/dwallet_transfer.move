@@ -37,8 +37,7 @@ module dwallet_system::dwallet_transfer {
     // public fun transfer_dwallet(_wallet: &DWallet) {
     public fun transfer_dwallet(session: &DWallet) {
         debug::print(session);
-        let a = dwallet_output(session);
-        transfer_dwallet_native(a);
+        transfer_dwallet_native(dwallet_output(session));
     }
 
     native fun transfer_dwallet_native(wallet: vector<u8>);

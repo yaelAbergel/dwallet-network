@@ -57,8 +57,8 @@ pub fn transfer_dwallet_native(
     );
 
     let cost = context.gas_used();
-    let serialized_dwallet = pop_arg!(args, Vector);
-    let serialized_dwallet_vec = serialized_dwallet.to_vec_u8()?;
+    let dwallet = pop_arg!(args, Vector);
+    let serialized_dwallet_vec = dwallet.to_vec_u8()?;
     println!("{}", base64::encode(serialized_dwallet_vec.clone()));
     // let Ok(dwallet) = DKGSessionOutput::from_bcs_bytes((&serialized_dwallet_vec)) else {
     //     return Ok(NativeResult::err(

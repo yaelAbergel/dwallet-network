@@ -673,6 +673,12 @@ pub type SecretShareProof = enhanced_maurer::proof::Proof<
 pub fn generate_proof(
     public_key: Vec<u8>,
     secret_share: Vec<u8>,
+    language_public_parameters: encryption_of_discrete_log::PublicParameters::<
+        PLAINTEXT_SPACE_SCALAR_LIMBS,
+        SCALAR_LIMBS,
+        GroupElement,
+        EncryptionKey,
+    >
 ) -> (
     SecretShareProof,
     range::CommitmentSchemeCommitmentSpaceValue<
@@ -695,18 +701,18 @@ pub fn generate_proof(
 
     let generator = secp256k1_group_public_parameters.generator;
 
-    let language_public_parameters =
-        encryption_of_discrete_log::PublicParameters::<
-            PLAINTEXT_SPACE_SCALAR_LIMBS,
-            SCALAR_LIMBS,
-            GroupElement,
-            EncryptionKey,
-        >::new::<PLAINTEXT_SPACE_SCALAR_LIMBS, SCALAR_LIMBS, GroupElement, EncryptionKey>(
-            secp256k1_scalar_public_parameters,
-            secp256k1_group_public_parameters,
-            paillier_public_parameters.clone(),
-            generator,
-        );
+    // let language_public_parameters =
+    //     encryption_of_discrete_log::PublicParameters::<
+    //         PLAINTEXT_SPACE_SCALAR_LIMBS,
+    //         SCALAR_LIMBS,
+    //         GroupElement,
+    //         EncryptionKey,
+    //     >::new::<PLAINTEXT_SPACE_SCALAR_LIMBS, SCALAR_LIMBS, GroupElement, EncryptionKey>(
+    //         secp256k1_scalar_public_parameters,
+    //         secp256k1_group_public_parameters,
+    //         paillier_public_parameters.clone(),
+    //         generator,
+    //     );
     let unbounded_witness_public_parameters = language_public_parameters
         .randomness_space_public_parameters()
         .clone();

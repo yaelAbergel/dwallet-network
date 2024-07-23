@@ -25,17 +25,37 @@ fn main() {
     let (pub_key, _) = generate_keypair();
     let parsed_keyshare = hex::decode(secret_keyshare).expect("Decoding failed");
     let bytes_encrypted_key = encrypt(parsed_keyshare.clone(), pub_key.clone());
-    let (proof, commitment_value) = generate_proof(pub_key.clone(), parsed_keyshare);
+
+    let deserialized_pub_params: tiresias::encryption_key::PublicParameters =
+        bincode::deserialize(&pub_key).unwrap();
+    let secp256k1_scalar_public_parameters = secp256k1::scalar::PublicParameters::default();
+    let secp256k1_group_public_parameters = secp256k1::group_element::PublicParameters::default();
+    let generator = secp256k1_group_public_parameters.generator;
+    let language_public_parameters =
+        encryption_of_discrete_log::PublicParameters::<
+            { twopc_mpc::paillier::PLAINTEXT_SPACE_SCALAR_LIMBS },
+            SCALAR_LIMBS,
+            twopc_mpc::secp256k1::GroupElement,
+            EncryptionKey,
+        >::new::<{ twopc_mpc::paillier::PLAINTEXT_SPACE_SCALAR_LIMBS }, SCALAR_LIMBS, twopc_mpc::secp256k1::GroupElement, EncryptionKey>(
+            secp256k1_scalar_public_parameters,
+            secp256k1_group_public_parameters.clone(),
+            // protocol_public_parameters.encryption_scheme_public_parameters,
+            deserialized_pub_params.clone(),
+            generator,
+        );
+
+    let (proof, commitment_value) = generate_proof(pub_key.clone(), parsed_keyshare, language_public_parameters.clone());
     let encrypted_key: EncryptedDecentralizedPartySecretKeyShareValue =
         bincode::deserialize(&bytes_encrypted_key).unwrap();
     pub const DUMMY_PUBLIC_KEY: LargeBiPrimeSizedNumber = LargeBiPrimeSizedNumber::from_be_hex("97431848911c007fa3a15b718ae97da192e68a4928c0259f2d19ab58ed01f1aa930e6aeb81f0d4429ac2f037def9508b91b45875c11668cea5dc3d4941abd8fbb2d6c8750e88a69727f982e633051f60252ad96ba2e9c9204f4c766c1c97bc096bb526e4b7621ec18766738010375829657c77a23faf50e3a31cb471f72c7abecdec61bdf45b2c73c666aa3729add2d01d7d96172353380c10011e1db3c47199b72da6ae769690c883e9799563d6605e0670a911a57ab5efc69a8c5611f158f1ae6e0b1b6434bafc21238921dc0b98a294195e4e88c173c8dab6334b207636774daad6f35138b9802c1784f334a82cbff480bb78976b22bb0fb41e78fdcb8095");
     let protocol_public_parameters = ProtocolPublicParameters::new(DUMMY_PUBLIC_KEY);
-    let deserialized_pub_params: tiresias::encryption_key::PublicParameters =
-        bincode::deserialize(&pub_key).unwrap();
+
     let encrypted_secret_share: CiphertextSpaceGroupElement =
         EncryptedDecentralizedPartySecretKeyShare::new(
             encrypted_key,
-            protocol_public_parameters.encryption_scheme_public_parameters.ciphertext_space_public_parameters(),
+            // protocol_public_parameters.encryption_scheme_public_parameters.ciphertext_space_public_parameters(),
+            deserialized_pub_params.ciphertext_space_public_parameters(),
         )
             .unwrap();
     let range_proof_commitment = range::CommitmentSchemeCommitmentSpaceGroupElement::<
@@ -50,21 +70,7 @@ fn main() {
             .commitment_space_public_parameters(),
     )
         .unwrap();
-    let secp256k1_scalar_public_parameters = secp256k1::scalar::PublicParameters::default();
-    let secp256k1_group_public_parameters = secp256k1::group_element::PublicParameters::default();
-    let generator = secp256k1_group_public_parameters.generator;
-    let language_public_parameters =
-        encryption_of_discrete_log::PublicParameters::<
-            { twopc_mpc::paillier::PLAINTEXT_SPACE_SCALAR_LIMBS },
-            SCALAR_LIMBS,
-            twopc_mpc::secp256k1::GroupElement,
-            EncryptionKey,
-        >::new::<{ twopc_mpc::paillier::PLAINTEXT_SPACE_SCALAR_LIMBS }, SCALAR_LIMBS, twopc_mpc::secp256k1::GroupElement, EncryptionKey>(
-            secp256k1_scalar_public_parameters,
-            secp256k1_group_public_parameters.clone(),
-            protocol_public_parameters.encryption_scheme_public_parameters,
-            generator,
-        );
+
 
     let enhanced_language_public_parameters = twopc_mpc_protocols::enhanced_language_public_parameters::<
         { maurer::SOUND_PROOFS_REPETITIONS },
