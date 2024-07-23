@@ -391,8 +391,8 @@ impl<
                                     copied_output.value = SignatureMPCOutputValue::Sign {
                                         sigs: sigs.clone(),
                                         aggregator_public_key: output.auth_sig().authority.0.to_vec(),
-                                        messages,
-                                        dwallet_ref
+                                        messages: messages.clone(),
+                                        dwallet_ref: dwallet_ref.clone()
                                     };
                                     &copied_output.clone()
                                 }

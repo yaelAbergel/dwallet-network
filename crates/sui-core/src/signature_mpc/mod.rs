@@ -14,7 +14,7 @@ use itertools::Itertools;
 use rand::rngs::OsRng;
 use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
-use tap::TapFallible;
+use tap::{Pipe, TapFallible};
 use tokio::sync::mpsc;
 use tokio::{
     sync::{watch, Notify},
@@ -347,7 +347,7 @@ impl SignatureMPCAggregator {
                 }
             }
             SignatureMPCMessageProtocols::Sign(m) => {
-                let mut state = sign_session_states.entry(session_id).unwrap();
+                let mut state = sign_session_states.get_mut(&session_id).unwrap();
                 let _ = state.insert_first_round(sender_party_id, m.clone());
                 if let Some(r) = sign_session_rounds.get_mut(&session_id) {
                     match m {
