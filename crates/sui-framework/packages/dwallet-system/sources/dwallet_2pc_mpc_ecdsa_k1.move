@@ -412,7 +412,7 @@ module dwallet_system::dwallet_2pc_mpc_ecdsa_k1 {
         session: &SignSession<S>,
         _dwallet: &DWallet,
         _signatures: vector<vector<u8>>,
-        _validator_id: u8,
+        _aggregator_public_key: vector<u8>,
         ctx: &mut TxContext
     ) {
         assert!(tx_context::sender(ctx) == @0x0, ENotSystemAddress);

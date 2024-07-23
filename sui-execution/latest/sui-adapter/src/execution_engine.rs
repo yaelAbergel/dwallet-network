@@ -1161,7 +1161,7 @@ mod checked {
                         ],
                     )
                 }
-                SignatureMPCOutputValue::Sign{ sigs, .. } => {
+                SignatureMPCOutputValue::Sign{ sigs, dwallet_ref, aggregator_public_key } => {
                     builder.move_call(
                         SUI_SYSTEM_PACKAGE_ID.into(),
                         DWALLET_MODULE_NAME.to_owned(),
@@ -1169,7 +1169,9 @@ mod checked {
                         vec![TypeTag::Struct(Box::new(SignData::type_()))],
                         vec![
                             CallArg::Object(ObjectArg::ImmOrOwnedObject(data.session_ref)),
+                            CallArg::Object(ObjectArg::ImmOrOwnedObject(dwallet_ref.clone())),
                             CallArg::Pure(bcs::to_bytes(sigs).unwrap()),
+                            CallArg::Pure(bcs::to_bytes(aggregator_public_key).unwrap()),
                         ],
                     )
                 }

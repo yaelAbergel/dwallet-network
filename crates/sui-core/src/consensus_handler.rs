@@ -386,12 +386,11 @@ impl<
                                 .is_ok()
                         {
                             let output = match &output.value {
-                                SignatureMPCOutputValue::Sign { sigs, messages, dwallet_ref, .. } => {
+                                SignatureMPCOutputValue::Sign { sigs, dwallet_ref, .. } => {
                                     let mut copied_output = output.clone();
                                     copied_output.value = SignatureMPCOutputValue::Sign {
                                         sigs: sigs.clone(),
                                         aggregator_public_key: output.auth_sig().authority.0.to_vec(),
-                                        messages: messages.clone(),
                                         dwallet_ref: dwallet_ref.clone()
                                     };
                                     &copied_output.clone()
