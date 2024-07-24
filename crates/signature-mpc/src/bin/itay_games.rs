@@ -40,7 +40,6 @@ fn main() {
         >::new::<{ twopc_mpc::paillier::PLAINTEXT_SPACE_SCALAR_LIMBS }, SCALAR_LIMBS, twopc_mpc::secp256k1::GroupElement, EncryptionKey>(
             secp256k1_scalar_public_parameters,
             secp256k1_group_public_parameters.clone(),
-            // protocol_public_parameters.encryption_scheme_public_parameters,
             deserialized_pub_params.clone(),
             generator,
         );
@@ -54,7 +53,6 @@ fn main() {
     let encrypted_secret_share: CiphertextSpaceGroupElement =
         EncryptedDecentralizedPartySecretKeyShare::new(
             encrypted_key,
-            // protocol_public_parameters.encryption_scheme_public_parameters.ciphertext_space_public_parameters(),
             deserialized_pub_params.ciphertext_space_public_parameters(),
         )
             .unwrap();
