@@ -5,6 +5,7 @@ pub mod validate_proof;
 
 use std::collections::{HashMap, HashSet};
 use std::fmt::{Debug, Display};
+use std::iter;
 use std::marker::PhantomData;
 
 pub use commitment::Commitment;
@@ -695,24 +696,6 @@ pub fn generate_proof(
     let paillier_public_parameters: tiresias::encryption_key::PublicParameters =
         bincode::deserialize(&public_key).unwrap();
 
-    let secp256k1_scalar_public_parameters = secp256k1::scalar::PublicParameters::default();
-
-    let secp256k1_group_public_parameters = secp256k1::group_element::PublicParameters::default();
-
-    let generator = secp256k1_group_public_parameters.generator;
-
-    // let language_public_parameters =
-    //     encryption_of_discrete_log::PublicParameters::<
-    //         PLAINTEXT_SPACE_SCALAR_LIMBS,
-    //         SCALAR_LIMBS,
-    //         GroupElement,
-    //         EncryptionKey,
-    //     >::new::<PLAINTEXT_SPACE_SCALAR_LIMBS, SCALAR_LIMBS, GroupElement, EncryptionKey>(
-    //         secp256k1_scalar_public_parameters,
-    //         secp256k1_group_public_parameters,
-    //         paillier_public_parameters.clone(),
-    //         generator,
-    //     );
     let unbounded_witness_public_parameters = language_public_parameters
         .randomness_space_public_parameters()
         .clone();
@@ -734,6 +717,15 @@ pub fn generate_proof(
     let witnesses: Vec<language::WitnessSpaceGroupElement<1, Lang>> =
         vec![(witness, randomness).into()];
     // </editor-fold>
+
+    // let encrypted_secret_share : tiresias::PlaintextSpaceGroupElement =
+    //     PlaintextSpaceGroupElement::new(
+    //         encrypted_key,
+    //         deserialized_pub_params.plaintext_space_public_parameters(),
+    //     )
+    //         .unwrap();
+
+    // let witnesses = generate_witnesses(language_public_parameters,1, )
 
     // <editor-fold desc="code from within valid_proof_verifies">
 
@@ -784,7 +776,7 @@ pub type Lang = encryption_of_discrete_log::Language<
     tiresias::EncryptionKey,
 >;
 
-fn pad_vector(vec: Vec<u8>) -> Vec<u8> {
+pub fn pad_vector(vec: Vec<u8>) -> Vec<u8> {
     let target_length = 256;
     if vec.len() >= target_length {
         return vec;
