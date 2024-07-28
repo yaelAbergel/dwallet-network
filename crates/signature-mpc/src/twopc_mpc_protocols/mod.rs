@@ -5,7 +5,6 @@ pub mod validate_proof;
 
 use std::collections::{HashMap, HashSet};
 use std::fmt::{Debug, Display};
-use std::iter;
 use std::marker::PhantomData;
 
 pub use commitment::Commitment;
