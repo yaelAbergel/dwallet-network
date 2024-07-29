@@ -88,19 +88,6 @@ fn main() {
         (encrypted_secret_share_cipher_space ,public_key_share.clone()).into(),
     ).into();
 
-
-    encrypted_secret_share_cipher_space;
-    let a = statements[0].encrypted_discrete_log().value();
-
-    let res = proof
-        .verify(
-            &PhantomData,
-            &enhanced_language_public_parameters,
-            statements.clone(),
-            &mut OsRng,
-        );
-    println!("{:?}", res);
-
     let res = proof
         .verify(
             &PhantomData,
