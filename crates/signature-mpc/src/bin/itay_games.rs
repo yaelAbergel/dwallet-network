@@ -86,16 +86,25 @@ fn main() {
     )
         .unwrap();
 
-    // let statement = (
-    //     range_proof_commitment,
-    //     (encrypted_secret_share_cipher_space.clone(), public_key_share.clone()).into()
-    // ).into();
+    let statement = (
+        range_proof_commitment,
+        (encrypted_secret_share_cipher_space.clone(), public_key_share.clone()).into()
+    ).into();
 
     let res = proof
         .verify(
             &PhantomData,
             &enhanced_language_public_parameters,
-            statements,
+            statements.clone(),
+            &mut OsRng,
+        );
+    println!("{:?}", res);
+
+    let res = proof
+        .verify(
+            &PhantomData,
+            &enhanced_language_public_parameters,
+            vec![statement],
             &mut OsRng,
         );
     println!("{:?}", res);
