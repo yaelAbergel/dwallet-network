@@ -681,6 +681,16 @@ pub fn generate_proof(
     >
 ) -> (
     SecretShareProof,
+    Vec<
+        StatementSpaceGroupElement<
+            maurer::SOUND_PROOFS_REPETITIONS,
+            RANGE_CLAIMS_PER_SCALAR,
+            COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
+            bulletproofs::RangeProof,
+            tiresias::RandomnessSpaceGroupElement,
+            Lang,
+        >,
+    >,
     range::CommitmentSchemeCommitmentSpaceValue<
         { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
         { RANGE_CLAIMS_PER_SCALAR },
@@ -762,7 +772,7 @@ pub fn generate_proof(
     .unwrap();
     // </editor-fold>
     let first_statement_commitment = statements[0].range_proof_commitment();
-    (proofs, first_statement_commitment.value())
+    (proofs, statements, first_statement_commitment.value())
     // (proof, statements[0].range_proof_commitment())
     // println!("the proof is {:?}", proof);
     // println!("the statements are {:?}", statements.commitment_scheme_public_parameters());

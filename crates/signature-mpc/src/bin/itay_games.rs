@@ -41,7 +41,7 @@ fn main() {
     let language_public_parameters = public_parameters(pub_key.clone());
     let protocol_public_parameters = ProtocolPublicParameters::new(DUMMY_PUBLIC_KEY);
 
-    let (proof, commitment_value) = generate_proof(pub_key.clone(), parsed_keyshare.clone(), language_public_parameters.clone());
+    let (proof, statements, commitment_value) = generate_proof(pub_key.clone(), parsed_keyshare.clone(), language_public_parameters.clone());
 
     let unbounded_witness_public_parameters = language_public_parameters
         .randomness_space_public_parameters()
@@ -86,16 +86,16 @@ fn main() {
     )
         .unwrap();
 
-    let statement = (
-        range_proof_commitment,
-        (encrypted_secret_share_cipher_space.clone(), public_key_share.clone()).into()
-    ).into();
+    // let statement = (
+    //     range_proof_commitment,
+    //     (encrypted_secret_share_cipher_space.clone(), public_key_share.clone()).into()
+    // ).into();
 
     let res = proof
         .verify(
             &PhantomData,
             &enhanced_language_public_parameters,
-            vec![statement],
+            statements,
             &mut OsRng,
         );
     println!("{:?}", res);
