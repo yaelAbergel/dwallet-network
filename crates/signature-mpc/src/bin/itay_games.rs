@@ -3,6 +3,7 @@ use std::marker::PhantomData;
 use commitment::GroupsPublicParametersAccessors as GroupsPublicParametersAccessors_1;
 use crypto_bigint::{U256, Uint};
 use enhanced_maurer::encryption_of_discrete_log::{Language, PublicParameters, StatementAccessors};
+use enhanced_maurer::language::EnhancedLanguageStatementAccessors;
 use group::{GroupElement, secp256k1};
 use homomorphic_encryption::{AdditivelyHomomorphicEncryptionKey, GroupsPublicParametersAccessors};
 use maurer::SOUND_PROOFS_REPETITIONS;
@@ -85,7 +86,7 @@ fn main() {
 
     let statement = (
         range_proof_commitment,
-        (encrypted_secret_share_cipher_space ,public_key_share.clone()).into(),
+        (statements[0].language_statement().clone().encrypted_discrete_log().clone() ,public_key_share.clone()).into(),
     ).into();
 
     let res = proof
