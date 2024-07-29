@@ -1,22 +1,20 @@
-use std::iter;
 use std::marker::PhantomData;
+
 use commitment::GroupsPublicParametersAccessors as GroupsPublicParametersAccessors_1;
 use crypto_bigint::{U256, Uint};
-use enhanced_maurer::{encryption_of_discrete_log, EnhanceableLanguage, EnhancedLanguage, Proof, StatementSpaceGroupElement};
-use enhanced_maurer::encryption_of_discrete_log::{Language, PublicParameters};
-use enhanced_maurer::language::EnhancedLanguageStatementAccessors;
-use group::{direct_product, GroupElement, Samplable, secp256k1};
+use enhanced_maurer::encryption_of_discrete_log::{Language, PublicParameters, StatementAccessors};
+use group::{GroupElement, secp256k1};
 use homomorphic_encryption::{AdditivelyHomomorphicEncryptionKey, GroupsPublicParametersAccessors};
-use maurer::{language, SOUND_PROOFS_REPETITIONS};
+use maurer::SOUND_PROOFS_REPETITIONS;
 use proof::range;
 use proof::range::bulletproofs;
 use proof::range::bulletproofs::COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS;
 use rand_core::OsRng;
-use tiresias::{EncryptionKey, LargeBiPrimeSizedNumber, PLAINTEXT_SPACE_SCALAR_LIMBS, PlaintextSpaceGroupElement, RandomnessSpaceGroupElement};
+use tiresias::{LargeBiPrimeSizedNumber, PlaintextSpaceGroupElement};
 use twopc_mpc::paillier::CiphertextSpaceGroupElement;
 use twopc_mpc::secp256k1::paillier::bulletproofs::{DKGDecentralizedPartyOutput, ProtocolPublicParameters};
 
-use signature_mpc::twopc_mpc_protocols::{encrypt, EncryptedDecentralizedPartySecretKeyShare, EncryptedDecentralizedPartySecretKeyShareValue, enhanced_language_public_parameters, generate_keypair, generate_proof, pad_vector, RANGE_CLAIMS_PER_SCALAR, SecretShareProof};
+use signature_mpc::twopc_mpc_protocols::{encrypt, EncryptedDecentralizedPartySecretKeyShare, enhanced_language_public_parameters, generate_keypair, generate_proof, pad_vector, RANGE_CLAIMS_PER_SCALAR};
 
 pub const DUMMY_PUBLIC_KEY: LargeBiPrimeSizedNumber = LargeBiPrimeSizedNumber::from_be_hex("97431848911c007fa3a15b718ae97da192e68a4928c0259f2d19ab58ed01f1aa930e6aeb81f0d4429ac2f037def9508b91b45875c11668cea5dc3d4941abd8fbb2d6c8750e88a69727f982e633051f60252ad96ba2e9c9204f4c766c1c97bc096bb526e4b7621ec18766738010375829657c77a23faf50e3a31cb471f72c7abecdec61bdf45b2c73c666aa3729add2d01d7d96172353380c10011e1db3c47199b72da6ae769690c883e9799563d6605e0670a911a57ab5efc69a8c5611f158f1ae6e0b1b6434bafc21238921dc0b98a294195e4e88c173c8dab6334b207636774daad6f35138b9802c1784f334a82cbff480bb78976b22bb0fb41e78fdcb8095");
 fn main() {
@@ -79,7 +77,6 @@ fn main() {
     )
         .unwrap();
 
-
     let public_key_share = group::secp256k1::group_element::GroupElement::new(
         centralized_public_keyshare,
         &secp256k1_group_public_parameters,
@@ -88,8 +85,12 @@ fn main() {
 
     let statement = (
         range_proof_commitment,
-        (encrypted_secret_share_cipher_space.clone(), public_key_share.clone()).into()
+        (encrypted_secret_share_cipher_space ,public_key_share.clone()).into(),
     ).into();
+
+
+    encrypted_secret_share_cipher_space;
+    let a = statements[0].encrypted_discrete_log().value();
 
     let res = proof
         .verify(
@@ -107,20 +108,8 @@ fn main() {
             vec![statement],
             &mut OsRng,
         );
+
     println!("{:?}", res);
-
-    let a = pad_vector(parsed_keyshare);
-    let PLAINTEXT: LargeBiPrimeSizedNumber =
-        LargeBiPrimeSizedNumber::from_be_slice(&a);
-
-    let encrypted_secret_share : tiresias::PlaintextSpaceGroupElement =
-        PlaintextSpaceGroupElement::new(
-            Uint::<{ tiresias::PLAINTEXT_SPACE_SCALAR_LIMBS }>::from(PLAINTEXT),
-            deserialized_pub_params.plaintext_space_public_parameters(),
-        )
-            .unwrap();
-
-    valid_proof_verifies(encrypted_secret_share.clone(), pub_key, bytes_encrypted_key, range_proof_commitment);
 }
 
 fn public_parameters(pub_key : Vec<u8>) -> maurer::language::PublicParameters<SOUND_PROOFS_REPETITIONS, Lang>
@@ -155,225 +144,9 @@ fn public_parameters(pub_key : Vec<u8>) -> maurer::language::PublicParameters<SO
         generator,
     )
 }
-
-fn generate_witnesses(
-    language_public_parameters: &maurer::language::PublicParameters<SOUND_PROOFS_REPETITIONS, Lang>,
-    batch_size: usize,
-    discrete_log : tiresias::PlaintextSpaceGroupElement,
-) -> Vec<maurer::language::WitnessSpaceGroupElement<SOUND_PROOFS_REPETITIONS, Lang>> {
-    iter::repeat_with(|| {
-        let randomness = tiresias::RandomnessSpaceGroupElement::sample(
-            language_public_parameters
-                .encryption_scheme_public_parameters
-                .randomness_space_public_parameters(),
-            &mut OsRng,
-        )
-            .unwrap();
-
-        (discrete_log, randomness).into()
-    })
-        .take(batch_size)
-        .collect()
-}
-
 pub type Lang = Language<
     { tiresias::PLAINTEXT_SPACE_SCALAR_LIMBS },
     { U256::LIMBS },
     secp256k1::GroupElement,
     tiresias::EncryptionKey,
 >;
-
-fn valid_proof_verifies(
-    discrete_log : tiresias::PlaintextSpaceGroupElement,
-    pub_key: Vec<u8>,
-    bytes_encrypted_key: Vec<u8>,
-    range_proof_commitment: range::CommitmentSchemeCommitmentSpaceGroupElement::<
-        { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
-        { RANGE_CLAIMS_PER_SCALAR },
-        bulletproofs::RangeProof,
-    >,
-) {
-    let batch_size: usize = 1;
-    let language_public_parameters = public_parameters(pub_key.clone());
-
-    let witnesses = generate_witnesses(&language_public_parameters, batch_size, discrete_log);
-
-    let unbounded_witness_public_parameters = language_public_parameters
-        .randomness_space_public_parameters()
-        .clone();
-
-    valid_proof_verifies_inner::<SOUND_PROOFS_REPETITIONS, RANGE_CLAIMS_PER_SCALAR, tiresias::RandomnessSpaceGroupElement, Lang>
-    (
-    unbounded_witness_public_parameters,
-    language_public_parameters,
-    witnesses,
-    pub_key,
-    bytes_encrypted_key,
-    range_proof_commitment,
-    );
-}
-
-
-fn valid_proof_verifies_inner<
-    const REPETITIONS: usize,
-    const NUM_RANGE_CLAIMS: usize,
-    UnboundedWitnessSpaceGroupElement: group::GroupElement + Samplable,
-    Lang: EnhanceableLanguage<
-        REPETITIONS,
-        NUM_RANGE_CLAIMS,
-        { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
-        UnboundedWitnessSpaceGroupElement,
-    >,
->(
-    unbounded_witness_public_parameters: UnboundedWitnessSpaceGroupElement::PublicParameters,
-    language_public_parameters: Lang::PublicParameters,
-    witnesses: Vec<Lang::WitnessSpaceGroupElement>,
-    pub_key: Vec<u8>,
-    bytes_encrypted_key: Vec<u8>,
-    range_proof_commitment: range::CommitmentSchemeCommitmentSpaceGroupElement::<
-        { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
-        { NUM_RANGE_CLAIMS },
-        bulletproofs::RangeProof,
-    >,
-) {
-    let enhanced_language_public_parameters = enhanced_language_public_parameters::<
-        REPETITIONS,
-        NUM_RANGE_CLAIMS,
-        UnboundedWitnessSpaceGroupElement,
-        Lang,
-    >(
-        unbounded_witness_public_parameters,
-        language_public_parameters,
-    );
-
-    let witnesses = EnhancedLanguage::<
-        REPETITIONS,
-        NUM_RANGE_CLAIMS,
-        { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
-        bulletproofs::RangeProof,
-        UnboundedWitnessSpaceGroupElement,
-        Lang,
-    >::generate_witnesses(
-        witnesses, &enhanced_language_public_parameters, &mut OsRng
-    )
-        .unwrap();
-
-    let (proof, statements) = Proof::<
-        REPETITIONS,
-        NUM_RANGE_CLAIMS,
-        COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
-        bulletproofs::RangeProof,
-        UnboundedWitnessSpaceGroupElement,
-        Lang,
-        PhantomData<()>,
-    >::prove(
-        &PhantomData,
-        &enhanced_language_public_parameters,
-        witnesses.clone(),
-        &mut OsRng,
-    )
-        .unwrap();
-
-    let res = proof
-        .verify(
-            &PhantomData,
-            &enhanced_language_public_parameters,
-            statements,
-            &mut OsRng,
-        );
-
-    println!("{:?}", res);
-}
-
-pub fn clean_generate_proof(
-    public_key: Vec<u8>,
-    secret_share: Vec<u8>,
-    language_public_parameters: maurer::language::PublicParameters<SOUND_PROOFS_REPETITIONS, Lang>
-) -> (
-    SecretShareProof,
-    range::CommitmentSchemeCommitmentSpaceValue<
-        { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
-        { RANGE_CLAIMS_PER_SCALAR },
-        bulletproofs::RangeProof,
-    >,
-) {
-    let padded_to_encrypt = pad_vector(secret_share);
-    let secret_key_plaintext: LargeBiPrimeSizedNumber =
-        LargeBiPrimeSizedNumber::from_be_slice(&padded_to_encrypt);
-
-    // <editor-fold desc="Create public parameters">
-    let paillier_public_parameters: tiresias::encryption_key::PublicParameters =
-        bincode::deserialize(&public_key).unwrap();
-
-    let unbounded_witness_public_parameters = language_public_parameters
-        .randomness_space_public_parameters()
-        .clone();
-    // </editor-fold>
-
-    // <editor-fold desc="Create witnesses">
-    let witness = tiresias::PlaintextSpaceGroupElement::new(
-        Uint::<{ tiresias::PLAINTEXT_SPACE_SCALAR_LIMBS }>::from(secret_key_plaintext),
-        paillier_public_parameters.plaintext_space_public_parameters(),
-    )
-        .unwrap();
-    let randomness = RandomnessSpaceGroupElement::sample(
-        language_public_parameters
-            .encryption_scheme_public_parameters
-            .randomness_space_public_parameters(),
-        &mut OsRng,
-    )
-        .unwrap();
-    let witnesses: Vec<language::WitnessSpaceGroupElement<1, Lang>> =
-        vec![(witness, randomness).into()];
-    // </editor-fold>
-
-    // let encrypted_secret_share : tiresias::PlaintextSpaceGroupElement =
-    //     PlaintextSpaceGroupElement::new(
-    //         encrypted_key,
-    //         deserialized_pub_params.plaintext_space_public_parameters(),
-    //     )
-    //         .unwrap();
-
-    // let witnesses = generate_witnesses(language_public_parameters,1, )
-
-    // <editor-fold desc="code from within valid_proof_verifies">
-
-    let enhanced_language_public_parameters = enhanced_language_public_parameters::<
-        { maurer::SOUND_PROOFS_REPETITIONS },
-        RANGE_CLAIMS_PER_SCALAR,
-        RandomnessSpaceGroupElement,
-        Lang,
-    >(
-        unbounded_witness_public_parameters,
-        language_public_parameters,
-    );
-    // </editor-fold>
-
-    // <editor-fold desc="Generating witnesses within valid_proof_verify">
-    let witnesses =
-        EnhancedLanguage::<
-            { maurer::SOUND_PROOFS_REPETITIONS },
-            RANGE_CLAIMS_PER_SCALAR,
-            { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
-            bulletproofs::RangeProof,
-            RandomnessSpaceGroupElement,
-            Lang,
-        >::generate_witnesses(witnesses, &enhanced_language_public_parameters, &mut OsRng)
-            .unwrap();
-    // </editor-fold>
-
-    // <editor-fold desc="Generating the proof">
-    let (proofs, statements) = SecretShareProof::prove(
-        &PhantomData,
-        &enhanced_language_public_parameters,
-        witnesses,
-        &mut OsRng,
-    )
-        .unwrap();
-    // </editor-fold>
-    let first_statement_commitment = statements[0].range_proof_commitment();
-    (proofs, first_statement_commitment.value())
-    // (proof, statements[0].range_proof_commitment())
-    // println!("the proof is {:?}", proof);
-    // println!("the statements are {:?}", statements.commitment_scheme_public_parameters());
-}
