@@ -56,15 +56,6 @@ fn main() {
         language_public_parameters,
     );
 
-    let encrypted_key  =
-        bincode::deserialize(&bytes_encrypted_key).unwrap();
-
-    let encrypted_secret_share_cipher_space: CiphertextSpaceGroupElement =
-        EncryptedDecentralizedPartySecretKeyShare::new(
-            encrypted_key,
-            deserialized_pub_params.ciphertext_space_public_parameters(),
-        ).unwrap();
-
     let range_proof_commitment = range::CommitmentSchemeCommitmentSpaceGroupElement::<
         { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
         { RANGE_CLAIMS_PER_SCALAR },
@@ -84,9 +75,15 @@ fn main() {
     )
         .unwrap();
 
+
+    let a = statements[0].language_statement().clone().encrypted_discrete_log().clone().value();
+    let serialized = bcs::to_bytes(&a).unwrap();
+    let deserialized = bcs::from_bytes(&serialized).unwrap();
+    let c: CiphertextSpaceGroupElement  = CiphertextSpaceGroupElement::new(deserialized, deserialized_pub_params.ciphertext_space_public_parameters()).unwrap();
+
     let statement = (
         range_proof_commitment,
-        (statements[0].language_statement().clone().encrypted_discrete_log().clone() ,public_key_share.clone()).into(),
+        (c ,public_key_share.clone()).into(),
     ).into();
 
     let res = proof
@@ -97,7 +94,7 @@ fn main() {
             &mut OsRng,
         );
 
-    println!("{:?}", res);
+    println!("{:?} yael", res);
 }
 
 fn public_parameters(pub_key : Vec<u8>) -> maurer::language::PublicParameters<SOUND_PROOFS_REPETITIONS, Lang>
