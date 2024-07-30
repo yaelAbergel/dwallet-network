@@ -1,7 +1,7 @@
 // Copyright (c) dWallet Labs, Ltd.
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 
-pub mod validate_proof;
+pub mod verify_proof;
 
 use std::collections::{HashMap, HashSet};
 use std::fmt::{Debug, Display};
@@ -687,7 +687,7 @@ pub fn generate_proof(
             RANGE_CLAIMS_PER_SCALAR,
             COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
             bulletproofs::RangeProof,
-            tiresias::RandomnessSpaceGroupElement,
+            RandomnessSpaceGroupElement,
             Lang,
         >,
     >,
@@ -727,15 +727,6 @@ pub fn generate_proof(
         vec![(witness, randomness).into()];
     // </editor-fold>
 
-    // let encrypted_secret_share : tiresias::PlaintextSpaceGroupElement =
-    //     PlaintextSpaceGroupElement::new(
-    //         encrypted_key,
-    //         deserialized_pub_params.plaintext_space_public_parameters(),
-    //     )
-    //         .unwrap();
-
-    // let witnesses = generate_witnesses(language_public_parameters,1, )
-
     // <editor-fold desc="code from within valid_proof_verifies">
 
     let enhanced_language_public_parameters = enhanced_language_public_parameters::<
@@ -773,16 +764,13 @@ pub fn generate_proof(
     // </editor-fold>
     let first_statement_commitment = statements[0].range_proof_commitment();
     (proofs, statements.clone(), first_statement_commitment.value())
-    // (proof, statements[0].range_proof_commitment())
-    // println!("the proof is {:?}", proof);
-    // println!("the statements are {:?}", statements.commitment_scheme_public_parameters());
 }
 
 pub type Lang = encryption_of_discrete_log::Language<
     { tiresias::PLAINTEXT_SPACE_SCALAR_LIMBS },
     { U256::LIMBS },
     secp256k1::GroupElement,
-    tiresias::EncryptionKey,
+    EncryptionKey,
 >;
 
 pub fn pad_vector(vec: Vec<u8>) -> Vec<u8> {
@@ -800,7 +788,6 @@ use enhanced_maurer::{
     EnhanceableLanguage, EnhancedLanguage, PublicParameters as MaurerPublicParameters,
 };
 use proof::range::bulletproofs::COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS;
-use twopc_mpc::bulletproofs::RangeProof;
 
 pub fn enhanced_language_public_parameters<
     const REPETITIONS: usize,
@@ -815,7 +802,7 @@ pub fn enhanced_language_public_parameters<
 >(
     unbounded_witness_public_parameters: UnboundedWitnessSpaceGroupElement::PublicParameters,
     language_public_parameters: Lang::PublicParameters,
-) -> maurer::language::PublicParameters<
+) -> language::PublicParameters<
     REPETITIONS,
     EnhancedLang<REPETITIONS, NUM_RANGE_CLAIMS, UnboundedWitnessSpaceGroupElement, Lang>,
 > {

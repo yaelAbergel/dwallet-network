@@ -14,7 +14,7 @@ use proof::range::bulletproofs;
 use proof::range::bulletproofs::{COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS, RANGE_CLAIM_BITS};
 use rand_core::OsRng;
 use tiresias::LargeBiPrimeSizedNumber;
-use twopc_mpc::paillier::CiphertextSpaceGroupElement;
+use tiresias::CiphertextSpaceGroupElement;
 use twopc_mpc::secp256k1::paillier::bulletproofs::ProtocolPublicParameters;
 pub use twopc_mpc::secp256k1::{Scalar, SCALAR_LIMBS};
 
