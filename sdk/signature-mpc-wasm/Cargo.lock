@@ -971,6 +971,7 @@ dependencies = [
  "bcs",
  "console_error_panic_hook",
  "getrandom",
+ "hex",
  "rand",
  "rand_core",
  "serde",
@@ -1082,7 +1083,7 @@ dependencies = [
 [[package]]
 name = "twopc_mpc"
 version = "0.1.0"
-source = "git+https://github.com/ItayLevyOfficial/2pc-mpc.git?branch=itaylevyofficial/19-public-range_proof_commitment#d7b722f50a82c36bc85a08be8f51f38203f64ea5"
+source = "git+https://github.com/dwallet-labs/2pc-mpc.git#c509064e18f5261ec298d1d4d697dfb260ed85fe"
 dependencies = [
  "commitment",
  "crypto-bigint",

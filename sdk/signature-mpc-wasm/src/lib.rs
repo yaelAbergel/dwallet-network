@@ -3,8 +3,7 @@
 
 use rand_core::OsRng;
 use serde::{Deserialize, Serialize};
-use signature_mpc::twopc_mpc_protocols::{DecryptionKey, finalize_centralized_party_presign};
-use signature_mpc::twopc_mpc_protocols::finalize_centralized_party_sign;
+use signature_mpc::twopc_mpc_protocols::{DKGDecentralizedPartyOutput, finalize_centralized_party_sign};
 use signature_mpc::twopc_mpc_protocols::initiate_centralized_party_presign;
 use signature_mpc::twopc_mpc_protocols::initiate_centralized_party_sign;
 use signature_mpc::twopc_mpc_protocols::message_digest;
@@ -15,10 +14,11 @@ use signature_mpc::twopc_mpc_protocols::PublicNonceEncryptedPartialSignatureAndP
 use signature_mpc::twopc_mpc_protocols::Result as TwoPCMPCResult;
 use signature_mpc::twopc_mpc_protocols::Scalar;
 use signature_mpc::twopc_mpc_protocols::{
-    decommitment_round_centralized_party_dkg, initiate_centralized_party_dkg,
-    DKGDecommitmentRoundState, ProtocolContext, SecretKeyShareEncryptionAndProof,
-    recovery_id, PublicKeyValue, SignatureK256Secp256k1, Hash, affine_point_to_public_key
+    affine_point_to_public_key, decommitment_round_centralized_party_dkg,
+    initiate_centralized_party_dkg, recovery_id, DKGDecommitmentRoundState, Hash, ProtocolContext,
+    PublicKeyValue, SecretKeyShareEncryptionAndProof, SignatureK256Secp256k1,
 };
+use signature_mpc::twopc_mpc_protocols::{finalize_centralized_party_presign, DecryptionKey};
 use wasm_bindgen::prelude::*;
 
 #[derive(Serialize, Deserialize)]
@@ -140,11 +140,19 @@ pub fn initiate_sign(
     let dkg_output: DKGCentralizedPartyOutput = bcs::from_bytes(&dkg_output)?;
     let commitment_round_parties = initiate_centralized_party_sign(dkg_output.clone(), presigns)?;
 
-    let (public_nonce_encrypted_partial_signature_and_proofs, _signature_verification_round_parties): (Vec<_>, Vec<_>) = messages.into_iter().zip(commitment_round_parties.into_iter()).map(|(message, party)| {
-        let m = message_digest(&message, &hash.into());
-        party
-            .evaluate_encrypted_partial_signature_prehash(m, &mut OsRng)
-    }).collect::<TwoPCMPCResult<Vec<_>>>()?.into_iter().unzip();
+    let (
+        public_nonce_encrypted_partial_signature_and_proofs,
+        _signature_verification_round_parties,
+    ): (Vec<_>, Vec<_>) = messages
+        .into_iter()
+        .zip(commitment_round_parties.into_iter())
+        .map(|(message, party)| {
+            let m = message_digest(&message, &hash.into());
+            party.evaluate_encrypted_partial_signature_prehash(m, &mut OsRng)
+        })
+        .collect::<TwoPCMPCResult<Vec<_>>>()?
+        .into_iter()
+        .unzip();
 
     let public_nonce_encrypted_partial_signature_and_proofs =
         bcs::to_bytes(&public_nonce_encrypted_partial_signature_and_proofs)?;
@@ -195,10 +203,14 @@ pub fn recovery_id_keccak256(
     })?;
     let signature: SignatureK256Secp256k1 = bcs::from_bytes(&signature)?;
 
-    Ok(recovery_id(message, public_key, signature, &Hash::KECCAK256).map_err(|_| JsErr {
-        message: "Can't generate RecoveryId".to_string(),
-        display: "Can't generate RecoveryId".to_string(),
-    })?.into())
+    Ok(
+        recovery_id(message, public_key, signature, &Hash::KECCAK256)
+            .map_err(|_| JsErr {
+                message: "Can't generate RecoveryId".to_string(),
+                display: "Can't generate RecoveryId".to_string(),
+            })?
+            .into(),
+    )
 }
 
 #[wasm_bindgen]
@@ -213,10 +225,12 @@ pub fn recovery_id_sha256(
     })?;
     let signature: SignatureK256Secp256k1 = bcs::from_bytes(&signature)?;
 
-    Ok(recovery_id(message, public_key, signature, &Hash::SHA256).map_err(|_| JsErr {
-        message: "Can't generate RecoveryId".to_string(),
-        display: "Can't generate RecoveryId".to_string(),
-    })?.into())
+    Ok(recovery_id(message, public_key, signature, &Hash::SHA256)
+        .map_err(|_| JsErr {
+            message: "Can't generate RecoveryId".to_string(),
+            display: "Can't generate RecoveryId".to_string(),
+        })?
+        .into())
 }
 
 #[wasm_bindgen]
@@ -236,9 +250,58 @@ pub fn encrypt(text: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
 }
 
 #[wasm_bindgen]
-pub fn generate_proof(secret_share: Vec<u8>, encrypted_secret_share: Vec<u8>, public_key: Vec<u8>) -> Vec<u8> {
+pub fn generate_proof(
+    secret_share: Vec<u8>,
+    encrypted_secret_share: Vec<u8>,
+    public_key: Vec<u8>,
+) -> JsValue {
     println!("itayush");
-    Vec::new()
+
+    // let deserialized_pub_params: tiresias::encryption_key::PublicParameters =
+    //     bcs::from_bytes(&public_key).unwrap();
+    let language_public_parameters = signature_mpc::twopc_mpc_protocols::verify_proof::public_parameters(public_key.clone());
+    let (proof, ciphertext_space, range_proof_commitment) =
+        signature_mpc::twopc_mpc_protocols::generate_proof(
+            public_key,
+            secret_share,
+            language_public_parameters,
+        );
+
+    let proof = bcs::to_bytes(&proof).unwrap();
+    let ciphertext_space = bcs::to_bytes(&ciphertext_space).unwrap();
+    let range_proof_commitment = bcs::to_bytes(&range_proof_commitment).unwrap();
+
+    serde_wasm_bindgen::to_value(&(proof, ciphertext_space, range_proof_commitment)).unwrap()
+}
+
+#[wasm_bindgen]
+pub fn verify_proof(
+    public_dkg_output: Vec<u8>,
+    secret_keyshare: Vec<u8>,
+    encryption_key: Vec<u8>,
+    proof: Vec<u8>,
+    range_proof_commitment_value: Vec<u8>,
+    ciphertext_space_group: Vec<u8>,
+) -> bool {
+    let dgk_output = hex::decode(public_dkg_output).unwrap();
+    let dgk_output = bcs::from_bytes::<DKGDecentralizedPartyOutput>(&dgk_output);
+    let centralized_party_public_key_share = dgk_output.unwrap().centralized_party_public_key_share;
+    let discrete_log = hex::decode(secret_keyshare).unwrap();
+
+    // let deserialized_pub_params: tiresias::encryption_key::PublicParameters =
+    //     bcs::from_bytes(&encryption_key).unwrap();
+    // let language_public_parameters = signature_mpc::twopc_mpc_protocols::verify_proof::public_parameters(encryption_key.clone());
+
+    let proof = bcs::from_bytes(&proof).unwrap();
+    let range_proof_commitment = bcs::from_bytes(&range_proof_commitment_value).unwrap();
+
+    signature_mpc::twopc_mpc_protocols::verify_proof::verify_proof(
+        encryption_key,
+        proof,
+        range_proof_commitment,
+        centralized_party_public_key_share,
+        ciphertext_space_group,
+    ).is_ok()
 }
 
 #[derive(Serialize, Deserialize)]

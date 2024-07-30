@@ -46,7 +46,7 @@ pub use tiresias::{
     PaillierModulusSizedNumber, SecretKeyShareSizedNumber,
 };
 pub use tiresias::{DecryptionKey, EncryptionKey};
-use tiresias::{PlaintextSpaceGroupElement, RandomnessSpaceGroupElement, RandomnessSpaceValue};
+use tiresias::{CiphertextSpaceGroupElement, CiphertextSpaceValue, PlaintextSpaceGroupElement, RandomnessSpaceGroupElement, RandomnessSpaceValue};
 use twopc_mpc::paillier::PLAINTEXT_SPACE_SCALAR_LIMBS;
 pub use twopc_mpc::secp256k1::paillier::bulletproofs::{
     CentralizedPartyPresign, DKGCentralizedPartyOutput, DKGCommitmentRoundParty,
@@ -660,12 +660,12 @@ use proof::range::{bulletproofs, PublicParametersAccessors};
 pub const RANGE_CLAIMS_PER_SCALAR: usize =
     Uint::<{ secp256k1::SCALAR_LIMBS }>::BITS / RANGE_CLAIM_BITS;
 
-pub type SecretShareProof = enhanced_maurer::proof::Proof<
+pub type SecretShareProof = Proof<
     { maurer::SOUND_PROOFS_REPETITIONS },
     RANGE_CLAIMS_PER_SCALAR,
     COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
     bulletproofs::RangeProof,
-    tiresias::RandomnessSpaceGroupElement,
+    RandomnessSpaceGroupElement,
     Lang,
     PhantomData<()>,
 >;
@@ -681,16 +681,7 @@ pub fn generate_proof(
     >
 ) -> (
     SecretShareProof,
-    Vec<
-        StatementSpaceGroupElement<
-            {maurer::SOUND_PROOFS_REPETITIONS},
-            RANGE_CLAIMS_PER_SCALAR,
-            COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS,
-            bulletproofs::RangeProof,
-            RandomnessSpaceGroupElement,
-            Lang,
-        >,
-    >,
+    CiphertextSpaceValue,
     range::CommitmentSchemeCommitmentSpaceValue<
         { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
         { RANGE_CLAIMS_PER_SCALAR },
@@ -762,8 +753,8 @@ pub fn generate_proof(
     )
     .unwrap();
     // </editor-fold>
-    let first_statement_commitment = statements[0].range_proof_commitment();
-    (proofs, statements.clone(), first_statement_commitment.value())
+
+    (proofs, statements[0].language_statement().encrypted_discrete_log().value(), statements[0].range_proof_commitment().value())
 }
 
 pub type Lang = encryption_of_discrete_log::Language<
@@ -787,6 +778,7 @@ pub fn pad_vector(vec: Vec<u8>) -> Vec<u8> {
 use enhanced_maurer::{
     EnhanceableLanguage, EnhancedLanguage, PublicParameters as MaurerPublicParameters,
 };
+use enhanced_maurer::encryption_of_discrete_log::StatementAccessors;
 use proof::range::bulletproofs::COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS;
 
 pub fn enhanced_language_public_parameters<

@@ -5,6 +5,7 @@ use commitment::GroupsPublicParametersAccessors;
 use crypto_bigint::Uint;
 use enhanced_maurer::encryption_of_discrete_log::PublicParameters;
 use group::{secp256k1, GroupElement};
+use group::secp256k1::group_element::Value;
 use homomorphic_encryption::{
     AdditivelyHomomorphicEncryptionKey, GroupsPublicParametersAccessors as PublicParametersAccessors,
 };
@@ -62,7 +63,7 @@ pub fn verify_proof(
         bulletproofs::RangeProof,
     >,
     centralized_public_keyshare: group::Value<secp256k1::GroupElement>,
-    ciphertext_space_group_element: CiphertextSpaceGroupElement,
+    ciphertext_space_group_value:  Vec<u8>,
 ) -> enhanced_maurer::Result<()> {
     let secp256k1_group_public_parameters = secp256k1::group_element::PublicParameters::default();
     let language_public_parameters = public_parameters(public_encryption_key);
@@ -79,7 +80,7 @@ pub fn verify_proof(
         Lang,
     >(
         unbounded_witness_public_parameters,
-        language_public_parameters,
+        language_public_parameters.clone(),
     );
 
     let range_proof_commitment = range::CommitmentSchemeCommitmentSpaceGroupElement::<
@@ -100,6 +101,9 @@ pub fn verify_proof(
         &secp256k1_group_public_parameters,
     )
     .unwrap();
+
+    let ciphertext_space_group_value = bcs::from_bytes(&ciphertext_space_group_value).unwrap();
+    let ciphertext_space_group_element: CiphertextSpaceGroupElement  = tiresias::CiphertextSpaceGroupElement::new(ciphertext_space_group_value, language_public_parameters.encryption_scheme_public_parameters.ciphertext_space_public_parameters()).unwrap();
 
     let statement = (
         range_proof_commitment,
@@ -133,19 +137,19 @@ mod tests {
         let dgk_output = hex::decode(PUBLIC_DKG_OUTPUT).unwrap();
         let dgk_output = bcs::from_bytes::<DKGDecentralizedPartyOutput>(&dgk_output);
         let centralized_party_public_key_share = dgk_output.unwrap().centralized_party_public_key_share;
-        let discreet_log = hex::decode(SECRET_KEYSHARE).expect("Decoding failed");
+        let discrete_log = hex::decode(SECRET_KEYSHARE).expect("Decoding failed");
 
         let (encryption_key, _) = generate_keypair();
         let deserialized_pub_params: tiresias::encryption_key::PublicParameters =
             bincode::deserialize(&encryption_key).unwrap();
         let language_public_parameters = public_parameters(encryption_key.clone());
 
-        let (proof, statements, range_proof_commitment_value) = generate_proof(encryption_key.clone(), discreet_log.clone(), language_public_parameters.clone());
+        let (proof, ciphertext_space_group, range_proof_commitment_value) = generate_proof(encryption_key.clone(), discrete_log.clone(), language_public_parameters.clone());
 
-        let ciphertext_space_group_value = statements[0].language_statement().encrypted_discrete_log().value();
-        // let serialized = bcs::to_bytes(&a).unwrap();
+        // let ciphertext_space_group_value = statements[0].language_statement().encrypted_discrete_log().value();
+        let ciphertext_space = bcs::to_bytes(&ciphertext_space_group).unwrap();
         // let deserialized = bcs::from_bytes(&serialized).unwrap();
-        let ciphertext_space: CiphertextSpaceGroupElement  = CiphertextSpaceGroupElement::new(ciphertext_space_group_value, deserialized_pub_params.ciphertext_space_public_parameters()).unwrap();
+        // let ciphertext_space: CiphertextSpaceGroupElement  = CiphertextSpaceGroupElement::new(ciphertext_space_group, deserialized_pub_params.ciphertext_space_public_parameters()).unwrap();
 
         assert!(verify_proof(encryption_key, proof, range_proof_commitment_value, centralized_party_public_key_share, ciphertext_space).is_ok());
     }

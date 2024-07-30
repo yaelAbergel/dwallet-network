@@ -13,7 +13,8 @@ import {
 	init_panic_hook,
 	storePublicKey,
 	transferDwallet,
-} from '../../src/signature-mpc';
+	verify_proof,
+} from "../../src/signature-mpc";
 import { setup, TestToolbox } from './utils/setup';
 
 describe('Test signature mpc', () => {
@@ -76,15 +77,23 @@ describe('Test key share transfer', () => {
 		toolbox = await setup();
 	});
 
-	// it('should generate a paillier keypair', async () => {
-	// 	const [pub_key, _] = generate_keypair();
-	// 	await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
-	// 	init_panic_hook();
-	// 	let keyshare = '62662BC0DD55F09545680B34A2CB005E6821D6C5FBCAA082397C0C712F292AF7';
-	// 	let parsedKeyshare = Uint8Array.from(Buffer.from(keyshare, 'hex'));
-	// 	let encryptedKey = encrypt(parsedKeyshare, pub_key);
-	// 	let _b = generate_proof(parsedKeyshare, encryptedKey, pub_key);
-	// });
+	it('should generate a paillier keypair', async () => {
+		const [pub_key, _] = generate_keypair();
+		await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
+		init_panic_hook();
+
+		const keyshare = '62662BC0DD55F09545680B34A2CB005E6821D6C5FBCAA082397C0C712F292AF7';
+		let parsedKeyshare = Uint8Array.from(Buffer.from(keyshare, 'hex'));
+		let encryptedKey = encrypt(parsedKeyshare, pub_key);
+
+		const [proof, ciphertext_space, range_commitment] = generate_proof(
+			parsedKeyshare,
+			encryptedKey,
+			pub_key,
+		);
+
+		verify_proof(proof, ciphertext_space, range_commitment);
+	});
 
 	it('should call the transfer_dwallet funcion', async () => {
 		await transferDwallet(toolbox.client, toolbox.keypair);
