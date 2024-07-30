@@ -32,79 +32,18 @@ fn main() {
     let (pub_key, _) = generate_keypair();
     let parsed_keyshare = hex::decode(secret_keyshare).expect("Decoding failed");
 
-    let bytes_encrypted_key = encrypt(parsed_keyshare.clone(), pub_key.clone());
-
     let deserialized_pub_params: tiresias::encryption_key::PublicParameters =
         bincode::deserialize(&pub_key).unwrap();
 
-    let secp256k1_group_public_parameters = secp256k1::group_element::PublicParameters::default();
     let language_public_parameters = public_parameters(pub_key.clone());
-    let protocol_public_parameters = ProtocolPublicParameters::new(DUMMY_PUBLIC_KEY);
 
     let (proof, statements, commitment_value) = generate_proof(pub_key.clone(), parsed_keyshare.clone(), language_public_parameters.clone());
-
-    let unbounded_witness_public_parameters = language_public_parameters
-        .randomness_space_public_parameters()
-        .clone();
-
-    let enhanced_language_public_parameters = enhanced_language_public_parameters::<
-        { SOUND_PROOFS_REPETITIONS },
-        RANGE_CLAIMS_PER_SCALAR,
-        tiresias::RandomnessSpaceGroupElement,
-        Lang,
-    >(
-        unbounded_witness_public_parameters, //protocol_public_parameters.unbounded_encdl_witness_public_parameters,
-        language_public_parameters,
-    );
-
-    let encrypted_key  =
-        bincode::deserialize(&bytes_encrypted_key).unwrap();
-
-    let encrypted_secret_share_cipher_space: CiphertextSpaceGroupElement =
-        EncryptedDecentralizedPartySecretKeyShare::new(
-            encrypted_key,
-            deserialized_pub_params.ciphertext_space_public_parameters(),
-        ).unwrap();
-
-    let range_proof_commitment = range::CommitmentSchemeCommitmentSpaceGroupElement::<
-        { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
-        { RANGE_CLAIMS_PER_SCALAR },
-        bulletproofs::RangeProof,
-    >::new(
-        commitment_value,
-        protocol_public_parameters
-            .range_proof_enc_dl_public_parameters
-            .commitment_scheme_public_parameters
-            .commitment_space_public_parameters(),
-    )
-        .unwrap();
-
-    let public_key_share = group::secp256k1::group_element::GroupElement::new(
-        centralized_public_keyshare,
-        &secp256k1_group_public_parameters,
-    )
-        .unwrap();
 
 
     let a = statements[0].language_statement().clone().encrypted_discrete_log().clone().value();
     let serialized = bcs::to_bytes(&a).unwrap();
     let deserialized = bcs::from_bytes(&serialized).unwrap();
     let c: CiphertextSpaceGroupElement  = CiphertextSpaceGroupElement::new(deserialized, deserialized_pub_params.ciphertext_space_public_parameters()).unwrap();
-
-    let statement = (
-        range_proof_commitment,
-        (c ,public_key_share.clone()).into(),
-    ).into();
-
-    let res = proof
-        .verify(
-            &PhantomData,
-            &enhanced_language_public_parameters,
-            vec![statement],
-            &mut OsRng,
-        );
-
-    println!("{:?}", res);
 
 
     println!("{:?}", verify_proof(pub_key, proof, commitment_value, centralized_public_keyshare, c));
