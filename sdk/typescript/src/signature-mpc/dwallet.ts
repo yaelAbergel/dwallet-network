@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 
 import { bcs } from '../bcs/index.js';
-import { TransactionBlock, TransactionObjectInput } from '../builder/index.js';
+import { TransactionBlock } from '../builder/index.js';
 import type { DWalletClient } from '../client/index.js';
 import type { Keypair } from '../cryptography/index.js';
-import { fetchObjectBySessionId } from './utils.js';
 import { SuiObjectRef } from '../types';
+import { fetchObjectBySessionId } from './utils.js';
 
 const packageId = '0x3';
 const dWalletModuleName = 'dwallet';
@@ -90,12 +90,28 @@ export const storePublicKey = async (
 	return result.effects?.created?.filter((o) => o.owner === 'Immutable')[0].reference!;
 };
 
-export const transferDwallet = async (client: DWalletClient, keypair: Keypair) => {
+export const transferDwallet = async (
+	client: DWalletClient,
+	keypair: Keypair,
+	proof,
+	encrypted_secret_share,
+	range_commitment,
+	publicKeyObjID,
+	dwalletID,
+) => {
 	const tx = new TransactionBlock();
+	// let parseArg1 = parseArg(proof, tx);
+	let parseArg2 = parseArg(range_commitment, tx);
+	let parseArg3 = parseArg(encrypted_secret_share, tx);
 	tx.moveCall({
 		target: `${packageId}::dwallet_transfer::transfer_dwallet`,
-		arguments: [tx.object('0x22983d9c11c3adc332e5be6a29be77bbab978cb00cb4b166b1efd083eb509032')],
-		// tx.pure(bcs.vector(bcs.vector(bcs.u8())).serialize(messages))
+		arguments: [
+			tx.object(dwalletID),
+			tx.object(publicKeyObjID),
+			tx.pure(proof),
+			parseArg2,
+			parseArg3,
+		],
 	});
 	await client.signAndExecuteTransactionBlock({
 		signer: keypair,
@@ -105,3 +121,5 @@ export const transferDwallet = async (client: DWalletClient, keypair: Keypair) =
 		},
 	});
 };
+
+const parseArg = (arg, tx) => tx.pure(bcs.vector(bcs.u8()).serialize(arg));

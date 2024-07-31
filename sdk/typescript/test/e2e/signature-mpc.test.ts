@@ -80,11 +80,9 @@ describe('Test key share transfer', () => {
 	it('should generate a paillier keypair', async () => {
 		const [pub_key, _] = generate_keypair();
 		const pubKeyRef = await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
-		console.log({ pubKeyRef });
-
 		init_panic_hook();
 
-		const keyshare = '62662BC0DD55F09545680B34A2CB005E6821D6C5FBCAA082397C0C712F292AF7';
+		const keyshare = '3BD79BA7B3D6C5022FD97AE4578DBAF3C4F42A05FE45EB173E696FE7D21E499B';
 		let parsedKeyshare = Uint8Array.from(Buffer.from(keyshare, 'hex'));
 		let encryptedKey = encrypt(parsedKeyshare, pub_key);
 
@@ -94,34 +92,14 @@ describe('Test key share transfer', () => {
 			pub_key,
 		);
 
-		console.log({ proof, encrypted_secret_share, range_commitment });
+		await transferDwallet(
+			toolbox.client,
+			toolbox.keypair,
+			proof,
+			encrypted_secret_share,
+			range_commitment,
+			pubKeyRef.objectId,
+			'9b979bcf69ea384297181ae4be3b916c362c422275e7a3021305cbbc9d147d27',
+		);
 	});
-
-	it('should call the transfer_dwallet funcion', async () => {
-		await transferDwallet(toolbox.client, toolbox.keypair);
-	});
-
-	// IQJNF3tN3uXYvEk4d8T6/n8nM4eUBKrH01Y9n782tG/cqCECJtydcT3fJoThgYtlMsja1cM4molks7u6RAAYV9HPhFJ/uprz0KiOSlxlanv/1S97RvvGX+yjXMsbJI26r9UZxpFdCRPxZBjrGNfNUEZWbov3btDkZ49ky8v8lXnz/YKpYYjF1iiLa/i4OOpVCf3VIYBLAI0dpN0s/2kLRJLX2M9KCanYNJzuh8lYy7GfZMeid8p/9+NMS4mV83B8eZi79UbfReTEs9A9ZOog84vLDw9zxHvVV8ff6Av+2BJJX1aZRhLbUwCnmq+d421ldNDgEzHdqR33qYC6T0yrWN69611TSyGK3mgqKkiYQwYUoaSXaikbbp2mIk1LE+3y6BJflhwpzFYvIsiEkX9AEOotSIxyxQpKDN7dAGxp1Fz5v/eeRTeL9twuMEhoO/CjbMcEuZXu57UsVCQzSOcGx9Hb/Dm2v4oS4hpbhTZ5vz1ub4M1guzGnFt9eIuXaLXayrT6UclfwygkGtdz7VhsMAb59+WLOGRvJsJ7unKIV+Az6Ip/hd0iAapoQYVSzdWOBVxmrjdYYh1gJ6T4AJSU7PHte/2uOcCmW0G5TyAyeaq5r14PX33o9A0buo6Fusty5LCXGTFRkBurqP/qMorjYo7RCrOrYnVuMU+rMO/w8tvcINdE009rAqASqd6j0SPuE+rEdKmMbpmkGSMBTZKxZokJtj+gJdD+j1d7B3rRcAESBzIwOqo09l4RHOWw1PBvExyDRyEDP9FhKBKWwM7r59OWDuAERSXtejD3RD6IOKfOAPYzFUY=
-
-	// it('should transfer dwallet', async () => {
-	// 	// generate the keypair Bob
-	// 	const [pub_key, _] = generate_keypair();
-	// 	await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
-	//
-	// 	init_panic_hook();
-	//
-	// 	// some key share from configuration Alice
-	// 	let keyshare_to_encrypt = '62662BC0DD55F09545680B34A2CB005E6821D6C5FBCAA082397C0C712F292AF7';
-	// 	let parsedKeyshare = Uint8Array.from(Buffer.from(keyshare_to_encrypt, 'hex'));
-	// 	let centeralized_public_key = 'insert the centralized public key here';
-	//
-	// 	// encrypt the secret key share
-	// 	let encryptedKey = encrypt(parsedKeyshare, pub_key);
-	//
-	// 	// generate the proof
-	// 	let [proof, commitment] = generate_proof(parsedKeyshare, encryptedKey, pub_key);
-	//
-	// 	// verify the proof
-	// 	validate_proof(pub_key, proof, commitment, centeralized_public_key, encryptedKey);
-	// });
 });

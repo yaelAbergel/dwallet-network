@@ -35,9 +35,9 @@ module dwallet_system::dwallet_transfer {
 
     public fun transfer_dwallet(
         dwallet: &DWallet,
+        public_key: &PublicKey,
         proof: vector<u8>,
         range_proof_commitment_value: vector<u8>,
-        public_key: &PublicKey,
         encrypted_secret_share: vector<u8>,
     ) {
         transfer_dwallet_native(
