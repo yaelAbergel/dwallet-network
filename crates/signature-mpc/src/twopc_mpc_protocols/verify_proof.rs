@@ -14,7 +14,7 @@ use proof::range::bulletproofs;
 use proof::range::bulletproofs::{COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS, RANGE_CLAIM_BITS};
 use rand_core::OsRng;
 use std::marker::PhantomData;
-use tiresias::CiphertextSpaceGroupElement;
+use tiresias::{CiphertextSpaceGroupElement, CiphertextSpaceValue};
 use tiresias::LargeBiPrimeSizedNumber;
 use twopc_mpc::secp256k1::paillier::bulletproofs::ProtocolPublicParameters;
 pub use twopc_mpc::secp256k1::{Scalar, SCALAR_LIMBS};
@@ -65,7 +65,7 @@ pub fn is_valid_proof(
         bulletproofs::RangeProof,
     >,
     centralized_public_keyshare: group::Value<secp256k1::GroupElement>,
-    encrypted_secret_share: CiphertextSpaceGroupElement,
+    encrypted_secret_share: CiphertextSpaceValue,
 ) -> bool {
     let secp256k1_group_public_parameters = secp256k1::group_element::PublicParameters::default();
     let protocol_public_parameters = ProtocolPublicParameters::new(DUMMY_PUBLIC_KEY);
