@@ -105,6 +105,7 @@ describe('Test key share transfer', () => {
 			encryptedKey,
 			pub_key,
 		);
+		// await new Promise(resolve => setTimeout(resolve, 10_000));
 
 		await transferDwallet(
 			toolbox.client,
@@ -113,7 +114,7 @@ describe('Test key share transfer', () => {
 			encrypted_secret_share,
 			range_commitment,
 			pubKeyRef.objectId,
-			'0xe62d156879db5f47801e79d1e743730ec3d5a2c8cd0dccd2ad027e71a10a734a',
+			'0xe99adf555c6b22b57984456e9b2716f47e747d5f801ab193814bb19febc18b82',
 		);
 	});
 });

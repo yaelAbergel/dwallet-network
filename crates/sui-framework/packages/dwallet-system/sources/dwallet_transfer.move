@@ -11,8 +11,6 @@ module dwallet_system::dwallet_transfer {
     use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::{DWallet, output
     };
 
-    //commitment_to_centralized_party_secret_key_share,
-    //         DKGSession
     struct PublicKey has key {
         id: UID,
         public_key: vector<u8>,
@@ -45,7 +43,7 @@ module dwallet_system::dwallet_transfer {
 
     public fun transfer_dwallet(
         _dwallet: &DWallet,
-        // public_key: &PublicKey,
+        _public_key: &PublicKey,
         _proof: vector<u8>,
         _range_proof_commitment_value: vector<u8>,
         _encrypted_secret_share: vector<u8>,

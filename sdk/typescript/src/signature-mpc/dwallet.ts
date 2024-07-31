@@ -99,6 +99,7 @@ export const transferDwallet = async (
 	publicKeyObjID,
 	dwalletID,
 ) => {
+	console.log({ publicKeyObjID });
 	const tx = new TransactionBlock();
 	// let parseArg1 = parseArg(proof, tx);
 	let parseArg2 = parseArg(range_commitment, tx);
@@ -107,7 +108,7 @@ export const transferDwallet = async (
 		target: `${packageId}::dwallet_transfer::transfer_dwallet`,
 		arguments: [
 			tx.object(dwalletID),
-			// tx.object(publicKeyObjID),
+			tx.object("0x21fd0c0a830cad880185e493a7849476ceed43980864016585857c2ba8ae8262"),
 			tx.pure(proof),
 			parseArg2,
 			parseArg3,
