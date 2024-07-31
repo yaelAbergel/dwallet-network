@@ -54,7 +54,6 @@ pub fn transfer_dwallet_native(
         .get::<NativesCostTable>()
         .transfer_dwallet_cost_params
         .clone();
-    let object_runtime = context.extensions().get::<ObjectRuntime>();
     native_charge_gas_early_exit!(context, twopc_mpc_dkg_cost_params.transfer_dwallet_gas);
 
     let cost = context.gas_used();
@@ -62,6 +61,7 @@ pub fn transfer_dwallet_native(
     let dwallet_output = dwallet_output.to_vec_u8()?;
     let dwallet_output = (bcs::from_bytes::<DKGDecentralizedPartyOutput>(&dwallet_output).unwrap())
         .centralized_party_public_key_share;
+    println!("Decentralized party DKG output: {:?}", dwallet_output);
 
     Ok(NativeResult::ok(cost, smallvec![]))
 }

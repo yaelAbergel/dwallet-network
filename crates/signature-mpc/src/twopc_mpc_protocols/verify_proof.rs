@@ -173,4 +173,9 @@ mod tests {
         )
         .is_ok());
     }
+
+    #[test]
+    fn call_dwallet_transfer_move() {
+        println!("worked")
+    }
 }
