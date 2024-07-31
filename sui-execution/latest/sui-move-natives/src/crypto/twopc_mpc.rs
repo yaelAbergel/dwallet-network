@@ -90,7 +90,9 @@ pub fn transfer_dwallet_native(
         encrypted_secret_share
     );
 
-    Ok(NativeResult::ok(cost, smallvec![is_valid_proof]))
+    Ok(NativeResult::ok(cost, smallvec![
+        Value::bool(is_valid_proof)
+    ]))
 }
 
 /***************************************************************************************************
