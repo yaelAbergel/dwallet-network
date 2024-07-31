@@ -11,15 +11,10 @@ use move_vm_types::{
     pop_arg,
     values::{Value, Vector},
 };
-use signature_mpc::twopc_mpc_protocols::{
-    decentralized_party_dkg_verify_decommitment_and_proof_of_centralized_party_public_key_share,
-    decentralized_party_sign_verify_encrypted_signature_parts_prehash, Commitment,
-    DKGDecentralizedPartyOutput, DecentralizedPartyPresign, ProtocolContext,
-    PublicKeyShareDecommitmentAndProof, PublicNonceEncryptedPartialSignatureAndProof,
-    SecretKeyShareEncryptionAndProof,
-};
+use signature_mpc::twopc_mpc_protocols::{decentralized_party_dkg_verify_decommitment_and_proof_of_centralized_party_public_key_share, decentralized_party_sign_verify_encrypted_signature_parts_prehash, Commitment, DKGDecentralizedPartyOutput, DecentralizedPartyPresign, ProtocolContext, PublicKeyShareDecommitmentAndProof, PublicNonceEncryptedPartialSignatureAndProof, SecretKeyShareEncryptionAndProof, CiphertextSpaceGroupElement, SecretShareProof};
 use smallvec::smallvec;
 use std::collections::VecDeque;
+use signature_mpc::twopc_mpc_protocols::verify_proof::public_parameters;
 use sui_types::messages_signature_mpc::SignatureMPCOutput;
 use sui_types::signature_mpc::DKGSessionOutput;
 
@@ -59,8 +54,31 @@ pub fn transfer_dwallet_native(
     let cost = context.gas_used();
     let dwallet_output = pop_arg!(args, Vector);
     let dwallet_output = dwallet_output.to_vec_u8()?;
-    let dwallet_output = (bcs::from_bytes::<DKGDecentralizedPartyOutput>(&dwallet_output).unwrap())
-        .centralized_party_public_key_share;
+    let Ok(dkg_output) = bcs::from_bytes::<DKGDecentralizedPartyOutput>(&dwallet_output) else {
+        return Ok(NativeResult::err(cost, INVALID_INPUT));
+    };
+    let encrypted_secret_share = pop_arg!(args, Vector);
+    let encrypted_secret_share = encrypted_secret_share.to_vec_u8()?;
+
+    let public_encryption_key = pop_arg!(args, Vector);
+    let public_encryption_key = public_encryption_key.to_vec_u8()?;
+
+    let encrypted_secret_share = bcs::from_bytes(&encrypted_secret_share).unwrap();
+    let language_public_parameters = public_parameters(public_encryption_key);
+    let ciphertext_space_group_share: CiphertextSpaceGroupElement =
+        CiphertextSpaceGroupElement::new(
+            encrypted_secret_share,
+            language_public_parameters
+                .encryption_scheme_public_parameters
+                .ciphertext_space_public_parameters(),
+        )
+            .unwrap();
+    
+    let proof = pop_arg!(args, Vector);
+    let proof = proof.to_vec_u8()?;
+    let proof = bcs::from_bytes::<SecretShareProof>(&proof).unwrap();
+
+    dkg_output.centralized_party_public_key_share;
     println!("Decentralized party DKG output: {:?}", dwallet_output);
 
     Ok(NativeResult::ok(cost, smallvec![]))

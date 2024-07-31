@@ -45,7 +45,7 @@ pub use tiresias::{
     AdjustedLagrangeCoefficientSizedNumber, DecryptionKeyShare, LargeBiPrimeSizedNumber,
     PaillierModulusSizedNumber, SecretKeyShareSizedNumber,
 };
-use tiresias::{
+pub use tiresias::{
     CiphertextSpaceGroupElement, CiphertextSpaceValue, PlaintextSpaceGroupElement,
     RandomnessSpaceGroupElement, RandomnessSpaceValue,
 };
