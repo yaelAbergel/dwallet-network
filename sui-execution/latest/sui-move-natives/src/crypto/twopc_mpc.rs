@@ -65,14 +65,6 @@ pub fn transfer_dwallet_native(
 
     let encrypted_secret_share = bcs::from_bytes(&encrypted_secret_share).unwrap();
     let language_public_parameters = public_parameters(public_encryption_key.clone());
-    let encrypted_secret_share: CiphertextSpaceGroupElement =
-        CiphertextSpaceGroupElement::new(
-            encrypted_secret_share,
-            language_public_parameters
-                .encryption_scheme_public_parameters
-                .ciphertext_space_public_parameters(),
-        )
-            .unwrap();
     
     let proof = pop_arg!(args, Vector);
     let proof = proof.to_vec_u8()?;

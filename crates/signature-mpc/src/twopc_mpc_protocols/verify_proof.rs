@@ -103,6 +103,15 @@ pub fn is_valid_proof(
     )
     .unwrap();
 
+    let encrypted_secret_share: CiphertextSpaceGroupElement =
+        CiphertextSpaceGroupElement::new(
+            encrypted_secret_share,
+            language_public_parameters
+                .encryption_scheme_public_parameters
+                .ciphertext_space_public_parameters(),
+        )
+            .unwrap();
+
     let statement = (
         range_proof_commitment,
         (encrypted_secret_share, public_key_share.clone()).into(),
