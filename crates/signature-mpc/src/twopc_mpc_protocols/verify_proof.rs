@@ -5,7 +5,6 @@ use commitment::GroupsPublicParametersAccessors;
 use crypto_bigint::Uint;
 use enhanced_maurer::encryption_of_discrete_log::PublicParameters;
 use group::{secp256k1, GroupElement};
-use group::secp256k1::group_element::Value;
 use homomorphic_encryption::{
     AdditivelyHomomorphicEncryptionKey, GroupsPublicParametersAccessors as PublicParametersAccessors,
 };
@@ -63,7 +62,7 @@ pub fn verify_proof(
         bulletproofs::RangeProof,
     >,
     centralized_public_keyshare: group::Value<secp256k1::GroupElement>,
-    ciphertext_space_group_value:  Vec<u8>,
+    encrypted_discrete_log:  Vec<u8>,
 ) -> enhanced_maurer::Result<()> {
     let secp256k1_group_public_parameters = secp256k1::group_element::PublicParameters::default();
     let language_public_parameters = public_parameters(public_encryption_key);
@@ -102,7 +101,7 @@ pub fn verify_proof(
     )
     .unwrap();
 
-    let ciphertext_space_group_value = bcs::from_bytes(&ciphertext_space_group_value).unwrap();
+    let ciphertext_space_group_value = bcs::from_bytes(&encrypted_discrete_log).unwrap();
     let ciphertext_space_group_element: CiphertextSpaceGroupElement  = tiresias::CiphertextSpaceGroupElement::new(ciphertext_space_group_value, language_public_parameters.encryption_scheme_public_parameters.ciphertext_space_public_parameters()).unwrap();
 
     let statement = (
