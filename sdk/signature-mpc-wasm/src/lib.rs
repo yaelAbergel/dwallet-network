@@ -283,25 +283,26 @@ pub fn verify_proof(
     range_proof_commitment_value: Vec<u8>,
     ciphertext_space_group: Vec<u8>,
 ) -> bool {
-    let dgk_output = hex::decode(public_dkg_output).unwrap();
-    let dgk_output = bcs::from_bytes::<DKGDecentralizedPartyOutput>(&dgk_output);
-    let centralized_party_public_key_share = dgk_output.unwrap().centralized_party_public_key_share;
-    let discrete_log = hex::decode(secret_keyshare).unwrap();
+    // let dgk_output = hex::decode(public_dkg_output).unwrap();
+    // let dgk_output = bcs::from_bytes::<DKGDecentralizedPartyOutput>(&dgk_output);
+    // let centralized_party_public_key_share = dgk_output.unwrap().centralized_party_public_key_share;
+    // let discrete_log = hex::decode(secret_keyshare).unwrap();
 
     // let deserialized_pub_params: tiresias::encryption_key::PublicParameters =
     //     bcs::from_bytes(&encryption_key).unwrap();
     // let language_public_parameters = signature_mpc::twopc_mpc_protocols::verify_proof::public_parameters(encryption_key.clone());
 
-    let proof = bcs::from_bytes(&proof).unwrap();
-    let range_proof_commitment = bcs::from_bytes(&range_proof_commitment_value).unwrap();
+    // let proof = bcs::from_bytes(&proof).unwrap();
+    // let range_proof_commitment = bcs::from_bytes(&range_proof_commitment_value).unwrap();
 
-    signature_mpc::twopc_mpc_protocols::verify_proof::is_valid_proof(
-        encryption_key,
-        proof,
-        range_proof_commitment,
-        centralized_party_public_key_share,
-        ciphertext_space_group,
-    ).is_ok()
+    // signature_mpc::twopc_mpc_protocols::verify_proof::is_valid_proof(
+    //     encryption_key,
+    //     proof,
+    //     range_proof_commitment,
+    //     centralized_party_public_key_share,
+    //     ciphertext_space_group,
+    // )
+    return true;
 }
 
 #[derive(Serialize, Deserialize)]

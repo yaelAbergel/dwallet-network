@@ -6,6 +6,7 @@ import { TransactionBlock, TransactionObjectInput } from '../builder/index.js';
 import type { DWalletClient } from '../client/index.js';
 import type { Keypair } from '../cryptography/index.js';
 import { fetchObjectBySessionId } from './utils.js';
+import { SuiObjectRef } from '../types';
 
 const packageId = '0x3';
 const dWalletModuleName = 'dwallet';
@@ -72,39 +73,21 @@ export const storePublicKey = async (
 	public_key: Uint8Array,
 	keypair: Keypair,
 	client: DWalletClient,
-) => {
+): Promise<SuiObjectRef> => {
 	const tx = new TransactionBlock();
 	let purePubKey = tx.pure(bcs.vector(bcs.u8()).serialize(public_key));
 	tx.moveCall({
 		target: `${packageId}::${dWalletModuleName}::store_public_key`,
 		arguments: [purePubKey],
-		// tx.pure(bcs.vector(bcs.vector(bcs.u8())).serialize(messages))
 	});
-	await client.signAndExecuteTransactionBlock({
+	let result = await client.signAndExecuteTransactionBlock({
 		signer: keypair,
 		transactionBlock: tx,
 		options: {
 			showEffects: true,
 		},
 	});
-};
-
-export const getEqncryptionPublicKey = async (keypair: Keypair, client: DWalletClient) => {
-	const tx = new TransactionBlock();
-
-	tx.moveCall({
-		target: `${packageId}::dwallet_transfer::get_public_key`,
-		arguments: [tx.object('0x8d5d695603b4eeb998af542a8d74d3ab8b97ab24adc04c8abd6c65ddc98fb2ed')],
-		// tx.pure(bcs.vector(bcs.vector(bcs.u8())).serialize(messages))
-	});
-
-	await client.signAndExecuteTransactionBlock({
-		signer: keypair,
-		transactionBlock: tx,
-		options: {
-			showEffects: true,
-		},
-	});
+	return result.effects?.created?.filter((o) => o.owner === 'Immutable')[0].reference!;
 };
 
 export const transferDwallet = async (client: DWalletClient, keypair: Keypair) => {

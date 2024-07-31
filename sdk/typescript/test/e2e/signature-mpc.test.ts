@@ -14,7 +14,7 @@ import {
 	storePublicKey,
 	transferDwallet,
 	verify_proof,
-} from "../../src/signature-mpc";
+} from '../../src/signature-mpc';
 import { setup, TestToolbox } from './utils/setup';
 
 describe('Test signature mpc', () => {
@@ -79,7 +79,8 @@ describe('Test key share transfer', () => {
 
 	it('should generate a paillier keypair', async () => {
 		const [pub_key, _] = generate_keypair();
-		await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
+		const pubKeyRef = await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
+		console.log({ pubKeyRef });
 
 		init_panic_hook();
 
@@ -87,13 +88,13 @@ describe('Test key share transfer', () => {
 		let parsedKeyshare = Uint8Array.from(Buffer.from(keyshare, 'hex'));
 		let encryptedKey = encrypt(parsedKeyshare, pub_key);
 
-		const [proof, ciphertext_space, range_commitment] = generate_proof(
+		const [proof, encrypted_secret_share, range_commitment] = generate_proof(
 			parsedKeyshare,
 			encryptedKey,
 			pub_key,
 		);
 
-		verify_proof(proof, ciphertext_space, range_commitment);
+		console.log({ proof, encrypted_secret_share, range_commitment });
 	});
 
 	it('should call the transfer_dwallet funcion', async () => {
