@@ -107,7 +107,7 @@ export const transferDwallet = async (
 		target: `${packageId}::dwallet_transfer::transfer_dwallet`,
 		arguments: [
 			tx.object(dwalletID),
-			tx.object(publicKeyObjID),
+			// tx.object(publicKeyObjID),
 			tx.pure(proof),
 			parseArg2,
 			parseArg3,

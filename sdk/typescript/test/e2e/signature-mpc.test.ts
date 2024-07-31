@@ -17,6 +17,20 @@ import {
 } from '../../src/signature-mpc';
 import { setup, TestToolbox } from './utils/setup';
 
+describe('Create dwallet', () => {
+	let toolbox: TestToolbox;
+
+	beforeAll(async () => {
+		toolbox = await setup();
+	});
+
+	it('the signature mpc create dwallet', async () => {
+		console.log(toolbox.keypair.toSuiAddress());
+		const dkg = await createDWallet(toolbox.keypair, toolbox.client);
+		console.log({ dkg });
+	});
+})
+
 describe('Test signature mpc', () => {
 	let toolbox: TestToolbox;
 
@@ -99,7 +113,7 @@ describe('Test key share transfer', () => {
 			encrypted_secret_share,
 			range_commitment,
 			pubKeyRef.objectId,
-			'9b979bcf69ea384297181ae4be3b916c362c422275e7a3021305cbbc9d147d27',
+			'0xe62d156879db5f47801e79d1e743730ec3d5a2c8cd0dccd2ad027e71a10a734a',
 		);
 	});
 });
