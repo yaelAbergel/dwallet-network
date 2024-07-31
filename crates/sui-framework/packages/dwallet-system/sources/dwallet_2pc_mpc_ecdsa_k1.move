@@ -68,7 +68,7 @@ module dwallet_system::dwallet_2pc_mpc_ecdsa_k1 {
         public_key: vector<u8>,
     }
 
-    public fun dwallet_output(dwallet: &DWallet): vector<u8> { dwallet.output }
+    public fun output(dwallet: &DWallet): vector<u8> { dwallet.output }
 
     public fun public_key(dwallet: &DWallet): vector<u8> { dwallet.output }
 

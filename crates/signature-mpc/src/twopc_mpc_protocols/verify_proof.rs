@@ -62,7 +62,7 @@ pub fn verify_proof(
         bulletproofs::RangeProof,
     >,
     centralized_public_keyshare: group::Value<secp256k1::GroupElement>,
-    encrypted_discrete_log:  Vec<u8>,
+    encrypted_secret_share:  Vec<u8>,
 ) -> enhanced_maurer::Result<()> {
     let secp256k1_group_public_parameters = secp256k1::group_element::PublicParameters::default();
     let language_public_parameters = public_parameters(public_encryption_key);
@@ -101,7 +101,7 @@ pub fn verify_proof(
     )
     .unwrap();
 
-    let ciphertext_space_group_value = bcs::from_bytes(&encrypted_discrete_log).unwrap();
+    let ciphertext_space_group_value = bcs::from_bytes(&encrypted_secret_share).unwrap();
     let ciphertext_space_group_element: CiphertextSpaceGroupElement  = tiresias::CiphertextSpaceGroupElement::new(ciphertext_space_group_value, language_public_parameters.encryption_scheme_public_parameters.ciphertext_space_public_parameters()).unwrap();
 
     let statement = (

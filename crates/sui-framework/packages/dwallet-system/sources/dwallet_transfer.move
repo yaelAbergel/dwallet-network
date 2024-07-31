@@ -2,17 +2,16 @@
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 
 module dwallet_system::dwallet_transfer {
-    use std::debug;
     use dwallet::object::{Self, ID, UID};
     use dwallet::transfer;
     use dwallet::tx_context;
     use dwallet::tx_context::TxContext;
 
-    //commitment_to_centralized_party_secret_key_share,
-    //         DKGSession
-    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::{DWallet, dwallet_output
+    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::{DWallet, output
     };
 
+    //commitment_to_centralized_party_secret_key_share,
+    //         DKGSession
     struct PublicKey has key {
         id: UID,
         public_key: vector<u8>,
@@ -34,11 +33,27 @@ module dwallet_system::dwallet_transfer {
         public_key
     }
 
-    // public fun transfer_dwallet(_wallet: &DWallet) {
-    public fun transfer_dwallet(session: &DWallet) {
-        debug::print(session);
-        transfer_dwallet_native(dwallet_output(session));
+    public fun transfer_dwallet(
+        dwallet: &DWallet,
+        proof: vector<u8>,
+        range_proof_commitment_value: vector<u8>,
+        public_key: &PublicKey,
+        encrypted_secret_share: vector<u8>,
+    ) {
+        transfer_dwallet_native(
+            proof,
+            range_proof_commitment_value,
+            public_key.public_key,
+            encrypted_secret_share,
+            output(dwallet),
+        );
     }
 
-    native fun transfer_dwallet_native(wallet: vector<u8>);
+    native fun transfer_dwallet_native(
+        proof: vector<u8>,
+        range_proof_commitment_value: vector<u8>,
+        secret_share_public_key: vector<u8>,
+        encrypted_secret_share: vector<u8>,
+        dwallet_output: vector<u8>,
+    );
 }

@@ -41,7 +41,7 @@ pub fn transfer_dwallet_native(
     mut args: VecDeque<Value>,
 ) -> PartialVMResult<NativeResult> {
     debug_assert!(ty_args.is_empty());
-    debug_assert!(args.len() == 1);
+    debug_assert!(args.len() == 5);
     let twopc_mpc_dkg_cost_params = &context
         .extensions()
         .get::<NativesCostTable>()
@@ -56,20 +56,9 @@ pub fn transfer_dwallet_native(
     );
 
     let cost = context.gas_used();
-    let dwallet = pop_arg!(args, Vector);
-    let serialized_dwallet_vec = dwallet.to_vec_u8()?;
-    println!("{}", base64::encode(serialized_dwallet_vec.clone()));
-    // let Ok(dwallet) = DKGSessionOutput::from_bcs_bytes((&serialized_dwallet_vec)) else {
-    //     return Ok(NativeResult::err(
-    //         cost,
-    //         INVALID_INPUT
-    //     ));
-    // };
-
-    let res = bcs::from_bytes::<DKGDecentralizedPartyOutput>(&serialized_dwallet_vec);
-    let a = res.unwrap().public_key_share;
-
-    // itay_ide_tricks(a);
+    let dwallet_output = pop_arg!(args, Vector);
+    let dwallet_output = dwallet_output.to_vec_u8()?;
+    let dwallet_output = (bcs::from_bytes::<DKGDecentralizedPartyOutput>(&dwallet_output).unwrap()).centralized_party_public_key_share;
 
     Ok(NativeResult::ok(
         cost,
