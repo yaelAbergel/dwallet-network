@@ -295,7 +295,7 @@ pub fn verify_proof(
     let proof = bcs::from_bytes(&proof).unwrap();
     let range_proof_commitment = bcs::from_bytes(&range_proof_commitment_value).unwrap();
 
-    signature_mpc::twopc_mpc_protocols::verify_proof::verify_proof(
+    signature_mpc::twopc_mpc_protocols::verify_proof::is_valid_proof(
         encryption_key,
         proof,
         range_proof_commitment,

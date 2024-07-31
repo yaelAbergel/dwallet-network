@@ -24,9 +24,11 @@ pub const RANGE_CLAIMS_PER_SCALAR: usize =
 
 pub const DUMMY_PUBLIC_KEY: LargeBiPrimeSizedNumber = LargeBiPrimeSizedNumber::from_be_hex("97431848911c007fa3a15b718ae97da192e68a4928c0259f2d19ab58ed01f1aa930e6aeb81f0d4429ac2f037def9508b91b45875c11668cea5dc3d4941abd8fbb2d6c8750e88a69727f982e633051f60252ad96ba2e9c9204f4c766c1c97bc096bb526e4b7621ec18766738010375829657c77a23faf50e3a31cb471f72c7abecdec61bdf45b2c73c666aa3729add2d01d7d96172353380c10011e1db3c47199b72da6ae769690c883e9799563d6605e0670a911a57ab5efc69a8c5611f158f1ae6e0b1b6434bafc21238921dc0b98a294195e4e88c173c8dab6334b207636774daad6f35138b9802c1784f334a82cbff480bb78976b22bb0fb41e78fdcb8095");
 
+pub type ProofPublicParams = maurer::language::PublicParameters<SOUND_PROOFS_REPETITIONS, Lang>;
+
 pub fn public_parameters(
     pub_key: Vec<u8>,
-) -> maurer::language::PublicParameters<SOUND_PROOFS_REPETITIONS, Lang> {
+) -> ProofPublicParams {
     let secp256k1_scalar_public_parameters = secp256k1::scalar::PublicParameters::default();
 
     let secp256k1_group_public_parameters = secp256k1::group_element::PublicParameters::default();
@@ -54,8 +56,8 @@ pub fn public_parameters(
     )
 }
 
-pub fn verify_proof(
-    public_encryption_key: Vec<u8>,
+pub fn is_valid_proof(
+    language_public_parameters: ProofPublicParams,
     proof: SecretShareProof,
     range_proof_commitment_value: range::CommitmentSchemeCommitmentSpaceValue<
         { COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS },
@@ -63,10 +65,9 @@ pub fn verify_proof(
         bulletproofs::RangeProof,
     >,
     centralized_public_keyshare: group::Value<secp256k1::GroupElement>,
-    encrypted_secret_share: Vec<u8>,
-) -> enhanced_maurer::Result<()> {
+    encrypted_secret_share: CiphertextSpaceGroupElement,
+) -> bool {
     let secp256k1_group_public_parameters = secp256k1::group_element::PublicParameters::default();
-    let language_public_parameters = public_parameters(public_encryption_key);
     let protocol_public_parameters = ProtocolPublicParameters::new(DUMMY_PUBLIC_KEY);
 
     let unbounded_witness_public_parameters = language_public_parameters
@@ -102,28 +103,25 @@ pub fn verify_proof(
     )
     .unwrap();
 
-    let ciphertext_space_group_value = bcs::from_bytes(&encrypted_secret_share).unwrap();
-    let ciphertext_space_group_element: CiphertextSpaceGroupElement =
-        tiresias::CiphertextSpaceGroupElement::new(
-            ciphertext_space_group_value,
-            language_public_parameters
-                .encryption_scheme_public_parameters
-                .ciphertext_space_public_parameters(),
-        )
-        .unwrap();
-
     let statement = (
         range_proof_commitment,
-        (ciphertext_space_group_element, public_key_share.clone()).into(),
+        (encrypted_secret_share, public_key_share.clone()).into(),
     )
         .into();
 
-    proof.verify(
+    match proof.verify(
         &PhantomData,
         &enhanced_language_public_parameters,
         vec![statement],
         &mut OsRng,
-    )
+    ) {
+        Ok(_) => {
+            return true;
+        }
+        Err(err) => {
+            return false;
+        }
+    }
 }
 
 // test mod, check valid proof
@@ -164,7 +162,7 @@ mod tests {
         // let deserialized = bcs::from_bytes(&serialized).unwrap();
         // let ciphertext_space: CiphertextSpaceGroupElement  = CiphertextSpaceGroupElement::new(ciphertext_space_group, deserialized_pub_params.ciphertext_space_public_parameters()).unwrap();
 
-        assert!(verify_proof(
+        assert!(is_valid_proof(
             encryption_key,
             proof,
             range_proof_commitment_value,

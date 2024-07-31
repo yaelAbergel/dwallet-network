@@ -14,7 +14,7 @@ use move_vm_types::{
 use signature_mpc::twopc_mpc_protocols::{decentralized_party_dkg_verify_decommitment_and_proof_of_centralized_party_public_key_share, decentralized_party_sign_verify_encrypted_signature_parts_prehash, Commitment, DKGDecentralizedPartyOutput, DecentralizedPartyPresign, ProtocolContext, PublicKeyShareDecommitmentAndProof, PublicNonceEncryptedPartialSignatureAndProof, SecretKeyShareEncryptionAndProof, CiphertextSpaceGroupElement, SecretShareProof};
 use smallvec::smallvec;
 use std::collections::VecDeque;
-use signature_mpc::twopc_mpc_protocols::verify_proof::public_parameters;
+use signature_mpc::twopc_mpc_protocols::verify_proof::{is_valid_proof, public_parameters};
 use sui_types::messages_signature_mpc::SignatureMPCOutput;
 use sui_types::signature_mpc::DKGSessionOutput;
 
@@ -64,8 +64,8 @@ pub fn transfer_dwallet_native(
     let public_encryption_key = public_encryption_key.to_vec_u8()?;
 
     let encrypted_secret_share = bcs::from_bytes(&encrypted_secret_share).unwrap();
-    let language_public_parameters = public_parameters(public_encryption_key);
-    let ciphertext_space_group_share: CiphertextSpaceGroupElement =
+    let language_public_parameters = public_parameters(public_encryption_key.clone());
+    let encrypted_secret_share: CiphertextSpaceGroupElement =
         CiphertextSpaceGroupElement::new(
             encrypted_secret_share,
             language_public_parameters
@@ -78,10 +78,19 @@ pub fn transfer_dwallet_native(
     let proof = proof.to_vec_u8()?;
     let proof = bcs::from_bytes::<SecretShareProof>(&proof).unwrap();
 
-    dkg_output.centralized_party_public_key_share;
-    println!("Decentralized party DKG output: {:?}", dwallet_output);
+    let range_proof_commitment = pop_arg!(args, Vector);
+    let range_proof_commitment = range_proof_commitment.to_vec_u8()?;
+    let range_proof_commitment = bcs::from_bytes(&range_proof_commitment).unwrap();
 
-    Ok(NativeResult::ok(cost, smallvec![]))
+    let is_valid_proof = is_valid_proof(
+        language_public_parameters,
+        proof,
+        range_proof_commitment,
+        dkg_output.centralized_party_public_key_share,
+        encrypted_secret_share
+    );
+
+    Ok(NativeResult::ok(cost, smallvec![is_valid_proof]))
 }
 
 /***************************************************************************************************

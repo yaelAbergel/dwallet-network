@@ -41,8 +41,8 @@ module dwallet_system::dwallet_transfer {
         encrypted_secret_share: vector<u8>,
     ) {
         transfer_dwallet_native(
-            proof,
             range_proof_commitment_value,
+            proof,
             public_key.public_key,
             encrypted_secret_share,
             output(dwallet),
@@ -50,8 +50,8 @@ module dwallet_system::dwallet_transfer {
     }
 
     native fun transfer_dwallet_native(
-        proof: vector<u8>,
         range_proof_commitment_value: vector<u8>,
+        proof: vector<u8>,
         secret_share_public_key: vector<u8>,
         encrypted_secret_share: vector<u8>,
         dwallet_output: vector<u8>,
