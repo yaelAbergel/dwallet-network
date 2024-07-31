@@ -33,8 +33,9 @@ use self::{
     types::TypesIsOneTimeWitnessCostParams,
     validator::ValidatorValidateMetadataBcsCostParams,
 };
-use crate::crypto::{twopc_mpc, zklogin};
+use crate::crypto::twopc_mpc::{TransferDWalletCostParams, TwoPCMPCDKGCostParams};
 use crate::crypto::zklogin::{CheckZkloginIdCostParams, CheckZkloginIssuerCostParams};
+use crate::crypto::{twopc_mpc, zklogin};
 use better_any::{Tid, TidAble};
 use move_binary_format::errors::{PartialVMError, PartialVMResult};
 use move_core_types::{
@@ -56,7 +57,6 @@ use std::sync::Arc;
 use sui_protocol_config::ProtocolConfig;
 use sui_types::{MOVE_STDLIB_ADDRESS, SUI_FRAMEWORK_ADDRESS, SUI_SYSTEM_ADDRESS};
 use transfer::TransferReceiveObjectInternalCostParams;
-use crate::crypto::twopc_mpc::{TransferDWalletCostParams, TwoPCMPCDKGCostParams};
 
 mod address;
 mod crypto;
@@ -740,7 +740,8 @@ pub fn all_natives(silent: bool) -> NativeFunctionTable {
 
     // </editor-fold>
 
-    let sui_system_natives: &[(&str, &str, NativeFunction)] = &[(
+    let sui_system_natives: &[(&str, &str, NativeFunction)] = &[
+        (
             "validator",
             "validate_metadata_bcs",
             make_native!(validator::validate_metadata_bcs),
@@ -748,7 +749,9 @@ pub fn all_natives(silent: bool) -> NativeFunctionTable {
         (
             "dwallet_2pc_mpc_ecdsa_k1",
             "dkg_verify_decommitment_and_proof_of_centralized_party_public_key_share",
-            make_native!(twopc_mpc::dkg_verify_decommitment_and_proof_of_centralized_party_public_key_share),
+            make_native!(
+                twopc_mpc::dkg_verify_decommitment_and_proof_of_centralized_party_public_key_share
+            ),
         ),
         (
             "dwallet_2pc_mpc_ecdsa_k1",
@@ -759,7 +762,7 @@ pub fn all_natives(silent: bool) -> NativeFunctionTable {
             "dwallet_transfer",
             "transfer_dwallet_native",
             make_native!(twopc_mpc::transfer_dwallet_native),
-        )
+        ),
     ];
     sui_system_natives
         .iter()

@@ -45,8 +45,11 @@ pub use tiresias::{
     AdjustedLagrangeCoefficientSizedNumber, DecryptionKeyShare, LargeBiPrimeSizedNumber,
     PaillierModulusSizedNumber, SecretKeyShareSizedNumber,
 };
+use tiresias::{
+    CiphertextSpaceGroupElement, CiphertextSpaceValue, PlaintextSpaceGroupElement,
+    RandomnessSpaceGroupElement, RandomnessSpaceValue,
+};
 pub use tiresias::{DecryptionKey, EncryptionKey};
-use tiresias::{CiphertextSpaceGroupElement, CiphertextSpaceValue, PlaintextSpaceGroupElement, RandomnessSpaceGroupElement, RandomnessSpaceValue};
 use twopc_mpc::paillier::PLAINTEXT_SPACE_SCALAR_LIMBS;
 pub use twopc_mpc::secp256k1::paillier::bulletproofs::{
     CentralizedPartyPresign, DKGCentralizedPartyOutput, DKGCommitmentRoundParty,
@@ -164,7 +167,6 @@ pub fn decentralized_party_dkg_verify_decommitment_and_proof_of_centralized_part
     >,
     secret_key_share_encryption_and_proof: SecretKeyShareEncryptionAndProof<ProtocolContext>,
 ) -> twopc_mpc::Result<(DKGDecentralizedPartyOutput, Vec<u8>)> {
-
     let protocol_public_parameters = ProtocolPublicParameters::new(
         LargeBiPrimeSizedNumber::from_be_hex(tiresias_public_parameters),
     );
@@ -673,12 +675,12 @@ pub type SecretShareProof = Proof<
 pub fn generate_proof(
     public_key: Vec<u8>,
     secret_share: Vec<u8>,
-    language_public_parameters: encryption_of_discrete_log::PublicParameters::<
+    language_public_parameters: encryption_of_discrete_log::PublicParameters<
         PLAINTEXT_SPACE_SCALAR_LIMBS,
         SCALAR_LIMBS,
         GroupElement,
         EncryptionKey,
-    >
+    >,
 ) -> (
     SecretShareProof,
     CiphertextSpaceValue,
@@ -754,7 +756,14 @@ pub fn generate_proof(
     .unwrap();
     // </editor-fold>
 
-    (proofs, statements[0].language_statement().encrypted_discrete_log().value(), statements[0].range_proof_commitment().value())
+    (
+        proofs,
+        statements[0]
+            .language_statement()
+            .encrypted_discrete_log()
+            .value(),
+        statements[0].range_proof_commitment().value(),
+    )
 }
 
 pub type Lang = encryption_of_discrete_log::Language<
@@ -775,10 +784,10 @@ pub fn pad_vector(vec: Vec<u8>) -> Vec<u8> {
 }
 
 // <editor-fold desc="Itay games">
+use enhanced_maurer::encryption_of_discrete_log::StatementAccessors;
 use enhanced_maurer::{
     EnhanceableLanguage, EnhancedLanguage, PublicParameters as MaurerPublicParameters,
 };
-use enhanced_maurer::encryption_of_discrete_log::StatementAccessors;
 use proof::range::bulletproofs::COMMITMENT_SCHEME_MESSAGE_SPACE_SCALAR_LIMBS;
 
 pub fn enhanced_language_public_parameters<
