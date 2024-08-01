@@ -11,6 +11,7 @@ import { fetchObjectBySessionId } from './utils.js';
 const packageId = '0x3';
 const dWalletModuleName = 'dwallet';
 const dWallet2PCMPCECDSAK1ModuleName = 'dwallet_2pc_mpc_ecdsa_k1';
+const dWalletTransferModuleName = 'dwallet_transfer';
 
 export async function approveAndSign(
 	dwalletCapId: string,
@@ -77,7 +78,7 @@ export const storePublicKey = async (
 	const tx = new TransactionBlock();
 	let purePubKey = tx.pure(bcs.vector(bcs.u8()).serialize(public_key));
 	tx.moveCall({
-		target: `${packageId}::${dWalletModuleName}::store_public_key`,
+		target: `${packageId}::${dWalletTransferModuleName}::store_public_key`,
 		arguments: [purePubKey],
 	});
 	let result = await client.signAndExecuteTransactionBlock({
@@ -104,15 +105,11 @@ export const transferDwallet = async (
 	// let parseArg1 = parseArg(proof, tx);
 	let parseArg2 = parseArg(range_commitment, tx);
 	let parseArg3 = parseArg(encrypted_secret_share, tx);
+	const pub_key_obj = tx.object(publicKeyObjID);
+	let dwallet = tx.object(dwalletID);
 	tx.moveCall({
-		target: `${packageId}::dwallet_transfer::transfer_dwallet`,
-		arguments: [
-			tx.object(dwalletID),
-			tx.object("0x21fd0c0a830cad880185e493a7849476ceed43980864016585857c2ba8ae8262"),
-			tx.pure(proof),
-			parseArg2,
-			parseArg3,
-		],
+		target: `${packageId}::${dWalletTransferModuleName}::transfer_dwallet`,
+		arguments: [dwallet, pub_key_obj, tx.pure(proof), parseArg2, parseArg3],
 	});
 	await client.signAndExecuteTransactionBlock({
 		signer: keypair,

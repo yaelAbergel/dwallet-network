@@ -17,7 +17,7 @@ module dwallet_system::dwallet_transfer {
         key_owner_address: address,
     }
 
-    public fun store_public_key(ctx: &mut TxContext, key: vector<u8>): ID {
+    public fun store_public_key(key: vector<u8>, ctx: &mut TxContext): ID {
         let pk = PublicKey {
             id: object::new(ctx),
             public_key: key,

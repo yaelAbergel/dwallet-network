@@ -17,20 +17,6 @@ import {
 } from '../../src/signature-mpc';
 import { setup, TestToolbox } from './utils/setup';
 
-describe('Create dwallet', () => {
-	let toolbox: TestToolbox;
-
-	beforeAll(async () => {
-		toolbox = await setup();
-	});
-
-	it('the signature mpc create dwallet', async () => {
-		console.log(toolbox.keypair.toSuiAddress());
-		const dkg = await createDWallet(toolbox.keypair, toolbox.client);
-		console.log({ dkg });
-	});
-})
-
 describe('Test signature mpc', () => {
 	let toolbox: TestToolbox;
 
@@ -84,6 +70,34 @@ describe('Test signature mpc', () => {
 	});
 });
 
+describe('Create dwallet', () => {
+	let toolbox: TestToolbox;
+
+	beforeAll(async () => {
+		toolbox = await setup();
+	});
+
+	it('the signature mpc create dwallet', async () => {
+		console.log(toolbox.keypair.toSuiAddress());
+		const dkg = await createDWallet(toolbox.keypair, toolbox.client);
+		console.log({ dkg });
+	});
+});
+
+describe('Create public key', () => {
+	let toolbox: TestToolbox;
+
+	beforeAll(async () => {
+		toolbox = await setup();
+	});
+
+	it('the signature mpc create dwallet', async () => {
+		const [pub_key, _] = generate_keypair();
+		const pubKeyRef = await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
+		console.log({ pubKeyRef });
+	});
+});
+
 describe('Test key share transfer', () => {
 	let toolbox: TestToolbox;
 
@@ -113,8 +127,8 @@ describe('Test key share transfer', () => {
 			proof,
 			encrypted_secret_share,
 			range_commitment,
-			pubKeyRef.objectId,
-			'0xe99adf555c6b22b57984456e9b2716f47e747d5f801ab193814bb19febc18b82',
+			'0x8ddbeb2c97bfc7fa43977b12e30f1d08f1e7020b01013d06da50fedb43e84531',
+			'0x85b031c23f38690a41e6e0972e3f2be5ef09a6dafd3f20d67e881e69efe83535',
 		);
 	});
 });
