@@ -70,6 +70,34 @@ describe('Test signature mpc', () => {
 	});
 });
 
+describe('Create dwallet', () => {
+	let toolbox: TestToolbox;
+
+	beforeAll(async () => {
+		toolbox = await setup();
+	});
+
+	it('the signature mpc create dwallet', async () => {
+		console.log(toolbox.keypair.toSuiAddress());
+		const dkg = await createDWallet(toolbox.keypair, toolbox.client);
+		console.log({ dkg });
+	});
+});
+
+describe('Create public key', () => {
+	let toolbox: TestToolbox;
+
+	beforeAll(async () => {
+		toolbox = await setup();
+	});
+
+	it('the signature mpc create dwallet', async () => {
+		const [pub_key, _] = generate_keypair();
+		const pubKeyRef = await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
+		console.log({ pubKeyRef });
+	});
+});
+
 describe('Test key share transfer', () => {
 	let toolbox: TestToolbox;
 
@@ -83,8 +111,8 @@ describe('Test key share transfer', () => {
 		const pubKeyRef = await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
 		init_panic_hook();
 
-		const keyshare = '3BD79BA7B3D6C5022FD97AE4578DBAF3C4F42A05FE45EB173E696FE7D21E499B';
-		let parsedKeyshare = Uint8Array.from(Buffer.from(keyshare, 'hex'));
+		const secretKeyshare = '74DE27A8BA1BA5D27FAEDA570F7F4209BB764AADB7A0634DC91D10C1198D68EE';
+		let parsedKeyshare = Uint8Array.from(Buffer.from(secretKeyshare, 'hex'));
 		let encryptedKey = encrypt(parsedKeyshare, pub_key);
 
 		const [proof, encrypted_secret_share, range_commitment] = generate_proof(
@@ -92,6 +120,7 @@ describe('Test key share transfer', () => {
 			encryptedKey,
 			pub_key,
 		);
+		// await new Promise(resolve => setTimeout(resolve, 10_000));
 
 		await transferDwallet(
 			toolbox.client,
@@ -100,7 +129,7 @@ describe('Test key share transfer', () => {
 			encrypted_secret_share,
 			range_commitment,
 			pubKeyRef.objectId,
-			dkg?.dwalletId!,
+			'0xc5da2422c53395b417c940b5742894818604c43c420abc5c15fed55608f68dff',
 		);
 	});
 });
