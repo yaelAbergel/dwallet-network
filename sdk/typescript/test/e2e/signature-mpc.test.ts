@@ -70,34 +70,6 @@ describe('Test signature mpc', () => {
 	});
 });
 
-describe('Create dwallet', () => {
-	let toolbox: TestToolbox;
-
-	beforeAll(async () => {
-		toolbox = await setup();
-	});
-
-	it('the signature mpc create dwallet', async () => {
-		console.log(toolbox.keypair.toSuiAddress());
-		const dkg = await createDWallet(toolbox.keypair, toolbox.client);
-		console.log({ dkg });
-	});
-});
-
-describe('Create public key', () => {
-	let toolbox: TestToolbox;
-
-	beforeAll(async () => {
-		toolbox = await setup();
-	});
-
-	it('the signature mpc create dwallet', async () => {
-		const [pub_key, _] = generate_keypair();
-		const pubKeyRef = await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
-		console.log({ pubKeyRef });
-	});
-});
-
 describe('Test key share transfer', () => {
 	let toolbox: TestToolbox;
 
@@ -106,6 +78,7 @@ describe('Test key share transfer', () => {
 	});
 
 	it('should generate a paillier keypair', async () => {
+		const dkg = await createDWallet(toolbox.keypair, toolbox.client);
 		const [pub_key, _] = generate_keypair();
 		const pubKeyRef = await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
 		init_panic_hook();
@@ -119,7 +92,6 @@ describe('Test key share transfer', () => {
 			encryptedKey,
 			pub_key,
 		);
-		// await new Promise(resolve => setTimeout(resolve, 10_000));
 
 		await transferDwallet(
 			toolbox.client,
@@ -127,8 +99,8 @@ describe('Test key share transfer', () => {
 			proof,
 			encrypted_secret_share,
 			range_commitment,
-			'0x8ddbeb2c97bfc7fa43977b12e30f1d08f1e7020b01013d06da50fedb43e84531',
-			'0x85b031c23f38690a41e6e0972e3f2be5ef09a6dafd3f20d67e881e69efe83535',
+			pubKeyRef.objectId,
+			dkg?.dwalletId!,
 		);
 	});
 });
