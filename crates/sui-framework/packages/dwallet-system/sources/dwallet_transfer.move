@@ -60,7 +60,7 @@ module dwallet_system::dwallet_transfer {
 
         let dwallet_transfer = DwalletTransfer {
             id: object::new(_ctx),
-            dwallet_owner: object::id(dwallet),
+            dwallet_id: object::id(dwallet),
             encrypted_secret_share,
         };
 
