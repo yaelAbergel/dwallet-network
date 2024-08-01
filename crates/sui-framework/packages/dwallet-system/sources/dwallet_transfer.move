@@ -32,40 +32,22 @@ module dwallet_system::dwallet_transfer {
         public_key
     }
 
-    struct TestingStruct has key {
-        id: UID,
-        // _dwallet: &DWallet,
-        // public_key: &PublicKey,
-        _proof: vector<u8>,
-        _range_proof_commitment_value: vector<u8>,
-        _encrypted_secret_share: vector<u8>,
-    }
 
     public fun transfer_dwallet(
-        _dwallet: &DWallet,
-        _public_key: &PublicKey,
-        _proof: vector<u8>,
-        _range_proof_commitment_value: vector<u8>,
-        _encrypted_secret_share: vector<u8>,
-        ctx: &mut TxContext,
+        dwallet: &DWallet,
+        public_key: &PublicKey,
+        proof: vector<u8>,
+        range_proof_commitment_value: vector<u8>,
+        encrypted_secret_share: vector<u8>,
+        _ctx: &mut TxContext,
     ) {
-        let ts = TestingStruct {
-            id: object::new(ctx),
-            // _dwallet,
-            // public_key,
-            _proof,
-            _range_proof_commitment_value,
-            _encrypted_secret_share,
-        };
-        transfer::freeze_object(ts);
-
-        // transfer_dwallet_native(
-        //     range_proof_commitment_value,
-        //     proof,
-        //     public_key.public_key,
-        //     encrypted_secret_share,
-        //     output(dwallet),
-        // );
+        transfer_dwallet_native(
+            range_proof_commitment_value,
+            proof,
+            public_key.public_key,
+            encrypted_secret_share,
+            output(dwallet),
+        );
     }
 
     #[allow(unused_function)]
