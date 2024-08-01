@@ -111,13 +111,15 @@ export const transferDwallet = async (
 		target: `${packageId}::${dWalletTransferModuleName}::transfer_dwallet`,
 		arguments: [dwallet, pub_key_obj, tx.pure(proof), parseArg2, parseArg3],
 	});
-	await client.signAndExecuteTransactionBlock({
+	const res = await client.signAndExecuteTransactionBlock({
 		signer: keypair,
 		transactionBlock: tx,
 		options: {
 			showEffects: true,
 		},
 	});
+
+	console.log({ res });
 };
 
 const parseArg = (arg, tx) => tx.pure(bcs.vector(bcs.u8()).serialize(arg));

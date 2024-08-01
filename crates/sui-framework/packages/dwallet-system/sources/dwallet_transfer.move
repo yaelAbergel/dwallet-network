@@ -4,12 +4,19 @@
 #[allow(unused_use)]
 module dwallet_system::dwallet_transfer {
     use dwallet::object::{Self, ID, UID};
+    use dwallet::token::recipient;
     use dwallet::transfer;
     use dwallet::tx_context;
     use dwallet::tx_context::TxContext;
 
     use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::{DWallet, output
     };
+
+    struct DwalletTransfer has key{
+        id: UID,
+        dwallet_id: ID,
+        encrypted_secret_share: vector<u8>,
+    }
 
     struct PublicKey has key {
         id: UID,
@@ -40,8 +47,8 @@ module dwallet_system::dwallet_transfer {
         range_proof_commitment_value: vector<u8>,
         encrypted_secret_share: vector<u8>,
         _ctx: &mut TxContext,
-    ) {
-        let _ = transfer_dwallet_native(
+    ): ID {
+        let is_valid = transfer_dwallet_native(
             range_proof_commitment_value,
             proof,
             public_key.public_key,
@@ -49,7 +56,20 @@ module dwallet_system::dwallet_transfer {
             output(dwallet),
         );
 
+        assert!(is_valid, 0x0);
 
+        let dwallet_transfer = DwalletTransfer {
+            id: object::new(_ctx),
+            dwallet_owner: object::id(dwallet),
+            encrypted_secret_share,
+        };
+
+        // transfer::freeze_object(dwallet_transfer);
+
+        // transfer::transfer(dwallet_transfer, recipient)
+        let pk_id = object::id(&dwallet_transfer);
+        transfer::freeze_object(dwallet_transfer);
+        pk_id
     }
 
     #[allow(unused_function)]
