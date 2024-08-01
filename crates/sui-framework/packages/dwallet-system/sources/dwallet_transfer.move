@@ -32,7 +32,7 @@ module dwallet_system::dwallet_transfer {
         public_key
     }
 
-
+    // #[allow(unused_variables)]
     public fun transfer_dwallet(
         dwallet: &DWallet,
         public_key: &PublicKey,
@@ -41,13 +41,15 @@ module dwallet_system::dwallet_transfer {
         encrypted_secret_share: vector<u8>,
         _ctx: &mut TxContext,
     ) {
-        transfer_dwallet_native(
+        let _ = transfer_dwallet_native(
             range_proof_commitment_value,
             proof,
             public_key.public_key,
             encrypted_secret_share,
             output(dwallet),
         );
+
+
     }
 
     #[allow(unused_function)]
@@ -57,5 +59,5 @@ module dwallet_system::dwallet_transfer {
         secret_share_public_key: vector<u8>,
         encrypted_secret_share: vector<u8>,
         dwallet_output: vector<u8>,
-    );
+    ): bool;
 }

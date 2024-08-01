@@ -111,7 +111,7 @@ describe('Test key share transfer', () => {
 		const pubKeyRef = await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
 		init_panic_hook();
 
-		const secretKeyshare = '74DE27A8BA1BA5D27FAEDA570F7F4209BB764AADB7A0634DC91D10C1198D68EE';
+		const secretKeyshare = '9174CF90B24F6602F0208D56F05F81218D8E8717466EF35292EA1EA036AC8356';
 		let parsedKeyshare = Uint8Array.from(Buffer.from(secretKeyshare, 'hex'));
 		let encryptedKey = encrypt(parsedKeyshare, pub_key);
 
@@ -129,7 +129,7 @@ describe('Test key share transfer', () => {
 			encrypted_secret_share,
 			range_commitment,
 			pubKeyRef.objectId,
-			'0xc5da2422c53395b417c940b5742894818604c43c420abc5c15fed55608f68dff',
+			'0x7ed59595a614a9df815445cc6601decdad3807c9c9c29f9febcf65d277b205f2',
 		);
 	});
 });
