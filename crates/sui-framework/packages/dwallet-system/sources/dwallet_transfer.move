@@ -56,6 +56,7 @@ module dwallet_system::dwallet_transfer {
             output(dwallet),
         );
 
+        // TODO: check if the transfer is valid
         assert!(is_valid, 0x0);
 
         let dwallet_transfer = DwalletTransfer {
@@ -64,12 +65,11 @@ module dwallet_system::dwallet_transfer {
             encrypted_secret_share,
         };
 
-        // transfer::freeze_object(dwallet_transfer);
-
+        // TODO: shared object and add recipient
         // transfer::transfer(dwallet_transfer, recipient)
-        let pk_id = object::id(&dwallet_transfer);
+        let dt_id = object::id(&dwallet_transfer);
         transfer::freeze_object(dwallet_transfer);
-        pk_id
+        dt_id
     }
 
     #[allow(unused_function)]
