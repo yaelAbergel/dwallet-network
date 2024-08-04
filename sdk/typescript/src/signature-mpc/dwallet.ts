@@ -1,3 +1,5 @@
+;
+
 // Copyright (c) dWallet Labs, Ltd.
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 
@@ -7,6 +9,19 @@ import type { DWalletClient } from '../client/index.js';
 import type { Keypair } from '../cryptography/index.js';
 import { SuiObjectRef } from '../types';
 import { fetchObjectBySessionId } from './utils.js';
+
+
+;
+
+
+
+
+
+
+
+
+
+
 
 const packageId = '0x3';
 const dWalletModuleName = 'dwallet';
@@ -91,6 +106,33 @@ export const storePublicKey = async (
 	return result.effects?.created?.filter((o) => o.owner === 'Immutable')[0].reference!;
 };
 
+export const getPublicKeyByObjectId = async (
+	client: DWalletClient,
+	keypair: Keypair,
+	publicKeyObjID: string,
+) => {
+	const r = await client.getObject({
+		id: publicKeyObjID,
+		options: { showContent: true },
+	});
+
+	const objectFields = r.data?.content?.dataType === 'moveObject'
+		? (r.data?.content?.fields as {
+				public_key: Uint8Array;
+				key_owner_address: string;
+		  })
+		: null;
+
+	const t = objectFields
+		? {
+				public_key: objectFields?.public_key,
+				key_owner_address: objectFields?.key_owner_address,
+		  }
+		: null;
+
+	return t;
+};
+
 export const transferDwallet = async (
 	client: DWalletClient,
 	keypair: Keypair,
@@ -99,14 +141,13 @@ export const transferDwallet = async (
 	range_commitment,
 	publicKeyObjID,
 	dwalletID,
+	recipient_address: string,
 ) => {
 	console.log({ publicKeyObjID });
 	const tx = new TransactionBlock();
-	// let parseArg1 = parseArg(proof, tx);
 	let parseArg2 = parseArg(range_commitment, tx);
 	let parseArg3 = parseArg(encrypted_secret_share, tx);
 	const pub_key_obj = tx.object(publicKeyObjID);
-	const active_address = '0x8945817607ae92787d0b23077b619847fa6f0415529b32a8a08edda355ed57be';
 	let dwallet = tx.object(dwalletID);
 	tx.moveCall({
 		target: `${packageId}::${dWalletTransferModuleName}::transfer_dwallet`,
@@ -116,7 +157,7 @@ export const transferDwallet = async (
 			tx.pure(proof),
 			parseArg2,
 			parseArg3,
-			tx.pure(active_address),
+			tx.pure(recipient_address),
 		],
 	});
 	const res = await client.signAndExecuteTransactionBlock({
