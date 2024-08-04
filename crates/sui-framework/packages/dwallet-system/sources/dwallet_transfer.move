@@ -8,9 +8,9 @@ module dwallet_system::dwallet_transfer {
     use dwallet::transfer;
     use dwallet::tx_context;
     use dwallet::tx_context::TxContext;
+    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::{DWallet, output};
 
-    use dwallet_system::dwallet_2pc_mpc_ecdsa_k1::{DWallet, output
-    };
+    const DWALLET_TRANSFER_ERROR: u64 = 0x1;
 
     struct DwalletTransfer has key{
         id: UID,
@@ -39,14 +39,14 @@ module dwallet_system::dwallet_transfer {
         public_key
     }
 
-    // #[allow(unused_variables)]
     public fun transfer_dwallet(
         dwallet: &DWallet,
         public_key: &PublicKey,
         proof: vector<u8>,
         range_proof_commitment_value: vector<u8>,
         encrypted_secret_share: vector<u8>,
-        _ctx: &mut TxContext,
+        recipient: address,
+        ctx: &mut TxContext,
     ): ID {
         let is_valid = transfer_dwallet_native(
             range_proof_commitment_value,
@@ -56,19 +56,16 @@ module dwallet_system::dwallet_transfer {
             output(dwallet),
         );
 
-        // TODO: check if the transfer is valid
-        assert!(is_valid, 0x0);
+        if (!is_valid) abort DWALLET_TRANSFER_ERROR;
 
         let dwallet_transfer = DwalletTransfer {
-            id: object::new(_ctx),
+            id: object::new(ctx),
             dwallet_id: object::id(dwallet),
             encrypted_secret_share,
         };
 
-        // TODO: shared object and add recipient
-        // transfer::transfer(dwallet_transfer, recipient)
         let dt_id = object::id(&dwallet_transfer);
-        transfer::freeze_object(dwallet_transfer);
+        transfer::transfer(dwallet_transfer, recipient);
         dt_id
     }
 

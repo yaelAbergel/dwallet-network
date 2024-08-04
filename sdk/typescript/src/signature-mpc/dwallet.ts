@@ -106,10 +106,18 @@ export const transferDwallet = async (
 	let parseArg2 = parseArg(range_commitment, tx);
 	let parseArg3 = parseArg(encrypted_secret_share, tx);
 	const pub_key_obj = tx.object(publicKeyObjID);
+	const active_address = '0x8945817607ae92787d0b23077b619847fa6f0415529b32a8a08edda355ed57be';
 	let dwallet = tx.object(dwalletID);
 	tx.moveCall({
 		target: `${packageId}::${dWalletTransferModuleName}::transfer_dwallet`,
-		arguments: [dwallet, pub_key_obj, tx.pure(proof), parseArg2, parseArg3],
+		arguments: [
+			dwallet,
+			pub_key_obj,
+			tx.pure(proof),
+			parseArg2,
+			parseArg3,
+			tx.pure(active_address),
+		],
 	});
 	const res = await client.signAndExecuteTransactionBlock({
 		signer: keypair,

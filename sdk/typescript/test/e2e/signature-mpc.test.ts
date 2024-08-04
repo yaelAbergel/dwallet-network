@@ -106,12 +106,11 @@ describe('Test key share transfer', () => {
 	});
 
 	it('should generate a paillier keypair', async () => {
-		const dkg = await createDWallet(toolbox.keypair, toolbox.client);
 		const [pub_key, _] = generate_keypair();
 		const pubKeyRef = await storePublicKey(pub_key, toolbox.keypair, toolbox.client);
 		init_panic_hook();
 
-		const secretKeyshare = 'BEAEA3B44D676D303F5A81E35A6293C2146017122ACE92B239BBB92E9E380548';
+		const secretKeyshare = '6E17138AB856F45C012BEB8EA26F72D0AD21983ABD83CDD5C08EF6F11D8CED99';
 		let parsedKeyshare = Uint8Array.from(Buffer.from(secretKeyshare, 'hex'));
 		let encryptedKey = encrypt(parsedKeyshare, pub_key);
 
@@ -120,7 +119,6 @@ describe('Test key share transfer', () => {
 			encryptedKey,
 			pub_key,
 		);
-		// await new Promise(resolve => setTimeout(resolve, 10_000));
 
 		await transferDwallet(
 			toolbox.client,
@@ -129,7 +127,7 @@ describe('Test key share transfer', () => {
 			encrypted_secret_share,
 			range_commitment,
 			pubKeyRef.objectId,
-			'0x60ee38cfc5d8ccecd08cab1be0aea45a2020cb1eca80a9a05db656685c8a1428',
+			'0xb5d8740d0248b68d7276e7e9222554325a37e110b361daf5c57ec36e592f0a6d',
 		);
 	});
 });
